@@ -1,0 +1,14 @@
+{
+
+	"_title": "Blocks",
+	"block.occentmod.landvaettr":"Heart of Landvaettr",
+	"block.occentmod.stormvaettr":"Heart of Stormvaettr",
+	
+	"_title2": "Speech",
+	"angered.stormvaettr" : "%s: I am a vaettr of storms and you have desecrated that which belongs to me! Prepare to feel the thunder of my wrath!",
+	"angered.landvaettr" : "%s: I am a vaettr of the earth and you have desecrated my lands! Prepare to feel my wrath!",
+	
+	"_title3": "Death Messages",
+	"message.magicdeath.fromnone" : "%1$s was killed by the power of magic!",
+	"message.magicdeath.fromwiz" : "%1$s was killed by %2$s using the power of magic!"
+}
