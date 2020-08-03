@@ -1,0 +1,12 @@
+{
+    "variants": {
+        "facing=north,half=upper": { "model": "occentmod:block/throne_block_top" },
+        "facing=south,half=upper": { "model": "occentmod:block/throne_block_top", "y": 180 },
+        "facing=west,half=upper":  { "model": "occentmod:block/throne_block_top", "y": 270 },
+        "facing=east,half=upper":  { "model": "occentmod:block/throne_block_top", "y": 90 },
+        "facing=north,half=lower": { "model": "occentmod:block/throne_block_bottom" },
+        "facing=south,half=lower": { "model": "occentmod:block/throne_block_bottom", "y": 180 },
+        "facing=west,half=lower":  { "model": "occentmod:block/throne_block_bottom", "y": 270 },
+        "facing=east,half=lower":  { "model": "occentmod:block/throne_block_bottom", "y": 90 }
+    }
+}

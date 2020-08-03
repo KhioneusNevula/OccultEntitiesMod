@@ -19,7 +19,7 @@ Vaettir: These are beings which have control over an environment rather than sim
 * Draugvaettr (Undead): This entity appears near undead mobs (zombies, skeletons, husks, strays, drowneds, wither skeletons, and zombie pigmen) as an undead mob surrounded by potion particles and will take possession of nearby undead, causing them to follow it in a horde. This entity burns away in daytime and it will attack all passive mobs and players it encounters (one target at a time). Each kill will cause a random new undead to join the horde. They burn in the daytime, even the zombie pigmen. It cannot be appeased; killing the entity itself (only with silver) will cause the undead to become regular undead and cause exactly half to die.
 * Endimanvaettr (Endermen): This entity looks like an enderman with blue eyes and spawns endermen near it or takes control of nearby endermen (spawns in the end and in mountains) and causes them to aggressively take blocks and attack all players who look at any of them in a horde. It can be appeased if any of the endermen are given one ghast tear every three days and will then stop picking up blocks aggressively and protect the appeaser
 * Svinimanvaettr (Pigmen): This entity looks like a pigman with red eyes and controls a group of pigmen. Like regular pigmen, it is neutral until attacked and attacks in a horde; however, it is notably different in that it also summons nearby random nether mobs to attack as well and joins them with its horde. It can also be appeased with a gold nugget or ingot; the gold nugget will appease it for one day (24000 ticks) and a gold ingot for three, and it will protect its appeasers
-* Seidhvaettr (Magic): 
+* Seidhvaettr (Magic): This entity looks like a small golem. It is used by wizards and can be assigned tasks which it carries out. Once all tasks are complete, it will wait for a minute for more tasks and then vanish if no tasks are given.
 * Vanr (Deity): This is the most unique form of vaettr. It is also customizable. This being essentially is a god. More explained below.
 
 Items:
@@ -27,3 +27,57 @@ Items:
 * Potion of the Vaettr: This is a potion that, when used on a vaettr's central aspect (as splash, arrow, or lingering; when drunk it just applies wither), will immediately despawn the vaettr and drop a small bottle filled with "soul of the ___vaettr." Hitting any other mob will cause wither to the mob
 * Soul of the <Land/Hus/Vatna...>vaettr: This is a bottle filled with the "entity data" of a specific vaettr. If used on the ground, it will spawn the central structure of the vaettr and the vaettr will automatically protect the spawner for ten days before it needs a new sacrifice/offering. A daudhvaettr will not accept a sacrifice.
 * 
+
+Mobs:
+* Wizard: This is a complex mob. Like villagers, they have villages, schedules, memories, and tasks. 
+
+Wizard Mechanics: 
+<ul>
+<li>Wizards have jobs. These jobs are done during the day at job sites like normal villagers, but they require something more. A wizard's job often requires certain items to complete, and its completion has effects on the village.
+<li> Wizards have homes. These are the beds they sleep at like regular villagers
+<li>Wizards have a BEST FRIEND. Two wizards might choose each other to be best friends. Best friends share items often. If in different jobs and a job post opens nearby for two wizards, they will take that job together.
+<ul>
+<li> If a wizard has not seen their best friend for some time, if not in their job they will wander and search for each other.
+<li> If a best friend has died somewhere, upon arriving near the site of death the wizard will realize the best friend is dead.
+<li> If there is seidhvaettr nearby, the wizard will give it the task of identifying the killer. This takes a minute.
+<li> Once the wizard learns the UUID of the killer, it will remember the killer and the next time it sees the killer it will immediately be hostile toward it. This memory functions as a list and lasts forever.
+<li> The wizard will remain in grieving for two days, in which it will not do jobs and remain near its bed.
+<li> The wizard will start to look for a new BFF after five days.
+<li> Additionally, when mating, a wizard with a best friend will always mate with the friend as opposed to other wizards. Just so you know, best friends are equivalent to spouses in wizard society.
+</ul>
+<li>Seidhvaettir are small golem-like mobs which are spawned in wizard villages. They can receive a SeidhTask from a wizard, which can have different data in it depending on what it is. The seidhvaettr will
+complete the task and then go tell the wizard it did the task, which may prompt the wizard to perform an action. If a seidhvaettr has no tasks for 1000 ticks it vanishes (removes itself from the world). Seidhvaettir will also naturally grab dropped items and put them
+in chests autonomously.
+<ul>
+<li>GatherItems: This is a task where a wizard will tell a seidhvaettr the exact items it needs. The Seidhvaettr will search for something which produces the items in all loaded chunks nearby and go to that location and come back with items; 
+if it cannot find this it will go to a Traveler and give it a portal request. The vaettr will then go to a nearby chest and put the items there. If it cannot find any chests, it will attempt to create one by wandering.
+If it cannot do anything, it will drop the items. The wizard, upon learning the vaettr has completed its task will search for items again.
+<li>*Various Profession Tasks*: Seidhvaettir can also have a task given to them by a wizard of a certain profession based on its profession. 
+Some professions can give tasks when hostile mobs are nearby which are intended to attack the mobs.
+<li>HarvestTask: Some wizards tell seidhvaettir to harvest a certain block or set of blocks and place its items in a nearby chest in the same manner as GatherItems. If the block the vaettr is sent to is not harvestable,
+the vaettr will simply skip it.
+</ul>
+<li>Wizards can take a magical profession at a wizard job site. 
+This profession consumes a set of items and produces an effect on their village or a specific place.
+If the wizard does not have enough items, it will find all nearby chests and search for items there. If it cannot find any in nearby chests, 
+it will look for the items on the ground. If it cannot do that, it will add a GatherItems task to a nearby Seidhvaettr. 
+<ul>
+<li>Summoner/Demonomage: A summoner will go to its job site and use a BONE, MEAD OF A VAETTR, and FLINT AND STEEL. This will create a purple portal-like block on its job site. From this purple portal will appear a few seidhvaettir every minute
+who will wander the village, waiting for a task to be given to them.
+<li>Cupid/Erotomage: A cupid will go to its job site and use HONEY, BONE MEAL, and an EGG on its job site. This will cause a heart particle to appear above its job site. At this time, a check will be performed where
+the population of the village will be tested and if below a certain threshhold, a random selection of wizards will seek out either their BFF or another wizard and have a child with them.
+<li>Firebender/Pyromage: A firebender will go to its job site and use FLINT AND STEEL, NETHER_WART, and FIRE CHARGE to create a flame that cannot be put out except by destroying the block under it. When this flame is active,
+any nearby wizard can assign a nearby seidhvaettr a SmeltItems task after giving them items, and a player can even open a seidhvaettr's GUI to give it items to smelt without needing fuel. Additionally, the firebender can give a seidhvaettr a ThrowFireball task
+if a hostile entity is nearby where the seidhvaettr will go near the hostile and throw a fireball
+<li>Constructor/Ecoturge: A constructor will periodically wander the borders of a village; when it finds an open space it will automatically create a village job site or home structure there using a WOOD PLANK or LOG, some form of STONE, and SCAFFOLDING.
+A constructor also might dig up dirt, wood, and stone blocks in an area, later putting them in chests, to clear space for new buildings. In doing this, it will expand its village.
+<li>Herbalist/Phytomage: A herbalist's job site. It will use BONE MEAL, SEEDS, and a SAPLING on the ritual block and cause nearby dirt to become farmland and the farmland to become wet and sprout plentifully as well as apply a strong bonemeal effect
+to nearby plants. It will then assign nearby seidhvaettir the HarvestTask on the farmland as well as a few seidhvaettir the ReplantTask to replant the crops once harvesting and a few seidhvaettir the PlantSaplingsTask to grow trees. It can also incite a
+seidhvaettr to do a CollectWater task where the seidvaettr will collect water and attempt to destroy some dirt blocks near farmland to wet it
+<li>Zooglot/Zoomage: A zooglot's job is to collect animal resources, such as meat or milk. The zooglot will perform a ritual in its job site using WHEAT, BONEMEAL, and a BONE which will cause all animals nearby to produce a bonemeal
+effect and start dropping the items they give when killed without dying. A zooglot can also give a seidhvaettr a "SicAnimals" task wherein the seidhvaettr will incite nearby animals to attack hostiles
+<li>Waterwizard/Hydromage: A waterwizard's task is to cause rain whenever there is unattended fire nearby or when water is needed using KELP. Once the rain is summoned seidhvaettir can be assigned the GatherItems task for water if necessary.
+<li>Traveler/Odomage: A traveler's task is to open a portal at its job site. Portals which are opened will open to the nether. Seidhvaettir can go through these to get nether materials. Additionally, they can open portals which lead nowhere; seidhvaettir disappear in these and come back with items for magic.
+<li>Warder/Aspidomage: A warder's task is to make a protection; every time they work they will do a ritual using a SHIELD, which will cause an invisible border to appear around the village. This border will keep out hostile mobs and players with a low reputation. 
+</ul>
+</ul>

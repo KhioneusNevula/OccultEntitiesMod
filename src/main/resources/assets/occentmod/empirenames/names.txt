@@ -1,0 +1,34 @@
+# All empire names MUST be in format: name, adjective, demonym, demonym_plural
+Roma/Rome,Roman,Roman,Romans
+Rema/Rem/Reme,Reman,Reman,Remans
+Odoma,Odoman,Odoman,Odomans
+Petruria,Petruscan,Petruscan,Petruscans
+Grace,Grake,Grake,Grakes
+Elkloria,Elklorian,Elklorian,Elklorians
+Papilon/Papilonia,Papilonian/Papiloni,Papilonian/Papiloni,Papilonians/Papilonis
+Sina,Sinese,Sineseperson/Sinese,Sinese/Sinesepeople
+Putrastan,Putra/Putrastani,Putrastani/Putra,Putrastanis/Putras
+Varat,Varati,Varati/Varati person,Varatis/Varati/Varati people
+Zanama,Zanamanian,Zanamanian,Zanamanians
+Irongo,Irongolese,Irongolese/Irongoleseperson,Irongolese/Irongolesepeople
+Zenzugia,Zenzugian,Zenzugian,Zenzugians
+Ratti,Rittite/Rittitic,Rittite/Ritti/Ritti person,Rittites/Ritti/Rittis/Ritti people
+Amora,Amorani/Amoran,Amoran/Amorani/Amorani person/Amoranian,Amorani/Amoranians/Amorani people
+Qenia,Qenian,Qenian,Qenians
+Salsan,Salsanitic,Salsanite,Salsanites
+Ronote,Ronotic,Ronotite,Ronotites
+Karreturia/Karretur,Karretur/Karreturian,Karretur/Karreturian,Karreturi/Karreturians
+Lahavica,Lahavican,Lahavican,Lahavicans
+Talgo/Talgin/Talginia,Talginian/Talginese,Talgin/Talginese/Talginese person,Talgins/Talginese/Talginese people
+Artolis/Artolita,Artolitan/Artolian,Artolite/Artolian,Artolites/Artolians
+Berun,Beruni,Beruni/Beruni person,Berunis/Beruni/Beruni people
+Drachia/Drach,Drach/Drachian/Drachi,Drach/Drachian/Drachi/Drachi person,Drachs/Drachi/Drachians/Drachi peopel
+Lulutopia/Lulutope,Lulutopian,Lulutopian,Lulutopians
+Tovain/Tovannia/Tovan/Tov,Tovannic/Tovanish/Tovainian/Tovish,Tovannian/Tovanish person/Tovish person/Tovainian/Tovannic person,Tovannians/Tovanish/Tovanish people/Tovish/Tovainians/Tovannic
+Maderal/Mader/Madera,Maderese,Maderese/Maderese person,Maderese/Maderese people
+Tobolo/Tobola/Tobole,Tobolan,Tobolan/Tobola/Tobola person,Tobolans/Tobola/Tobola people
+Hecatina/Hecatine,Hecatine/Hecatinian,Hecatine/Hecatinian/Hecatine person,Hecatine/Hecatines/Hecatinians/Hecatine people
+Pandoros/Pandor,Pandorian,Pandorian,Pandorians
+Jivuna/Jivon/Jivona,Jivonish/Jivunese/Jivoni,Jivon/Jevunese/Jevunese person/Jivonite,Jivons/Jivonish/Jevunese/Jevunese people/Jivonites
+Zul Havan,Zulian/Havanian/Zul Havan,Zulian/Havanian/Zul/Havan/Zul Havan/Zul Havanian,Zulians/Havanians/Zuls/Havans/Zul Havan/Zul Havanians
+Grandoi State,Grandoi Statian/Grandoian/Grandoi State,Grandoi Statian/Grandoian/Grandoi Stater,Grandoi Statians/Grandoi Staters/Grandoians/Grandoi

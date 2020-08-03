@@ -7,6 +7,7 @@ import com.gm910.occentmod.blocks.AreaVaettrTileEntity;
 import com.gm910.occentmod.blocks.ModBlock;
 import com.gm910.occentmod.init.BlockInit;
 import com.gm910.occentmod.init.TileInit;
+import com.gm910.occentmod.vaettr.Vaettr;
 import com.gm910.occentmod.vaettr.Vaettr.VaettrType;
 
 import net.minecraft.block.Block;
@@ -22,6 +23,7 @@ import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.monster.MonsterEntity;
 import net.minecraft.entity.projectile.DragonFireballEntity;
+import net.minecraft.entity.projectile.FireballEntity;
 import net.minecraft.entity.projectile.PotionEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -111,7 +113,29 @@ public class StormvaettrBlock extends ModBlock {
 					
 				}
 			}
-			if (getLifetime() % 200 == 0) {
+			
+			if (world.rand.nextInt(120) < 20) {
+				this.getAttackTargetsRaw().clear();
+			}
+			
+			if (!this.getVaettr().getVaettrTargets().isEmpty() && world.rand.nextInt(99) < 20) {
+				for (Vaettr vaet : this.vaettr.getVaettrTargets()) {
+					double xoff = world.rand.nextDouble() * 6 - 3;
+					double zoff = world.rand.nextDouble() * 6 - 3;
+					double xhit = vaet.getPos().getX() + xoff;
+					double zhit = vaet.getPos().getZ() + zoff;
+					double yhit = vaet.getPos().getY();
+					if (vaet.hasTileEntity()) {
+						world.addEntity(new FireballEntity(world, xhit, yhit + 50, zhit, 0, -5, 0));
+						
+					}
+					if (vaet.hasEntity()) {
+						world.addEntity(new DragonFireballEntity(world, xhit, yhit + 50, zhit, 0, -5, 0));
+					}
+				}
+			}
+			
+			if (getLifetime() % 200 <= 1) {
 				for (BlockPos pos : positions) {
 					for (int y = 255; y >= minimum; y--) {
 						BlockPos posm = new BlockPos(pos.getX(), y, pos.getZ());

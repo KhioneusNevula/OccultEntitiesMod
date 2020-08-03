@@ -26,24 +26,24 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class VaettrData extends WorldSavedData {
 
 	public static final String NAME = OccultEntities.MODID + "_vaettir";
-	
+
 	private final Map<UUID, Vaettr> VAETTIR = new HashMap<>();
-	
+
 	private MinecraftServer server;
-	
+
 	public VaettrData(String name) {
 		super(name);
 		MinecraftForge.EVENT_BUS.register(this);
 	}
-	
+
 	public VaettrData() {
 		this(NAME);
 	}
-	
+
 	public MinecraftServer getServer() {
 		return server;
 	}
-	
+
 	public VaettrData setServer(MinecraftServer server) {
 		this.server = server;
 		return this;
@@ -55,22 +55,23 @@ public class VaettrData extends WorldSavedData {
 			return (new VaettrData()).setServer(server);
 		}, NAME);
 	}
-	
+
 	public static VaettrData get(World server) {
 		DimensionSavedDataManager dimdat = server.getServer().getWorld(DimensionType.OVERWORLD).getSavedData();
 		return dimdat.getOrCreate(() -> {
 			return (new VaettrData()).setServer(server.getServer());
 		}, NAME);
 	}
-	
+
 	public Map<UUID, Vaettr> getVaettir() {
 		return VAETTIR;
 	}
-	
+
 	public UUID addVaettr(Vaettr vaettr) {
-		
-		if (getForVaettr(vaettr) != null) return getForVaettr(vaettr);
-		
+
+		if (getForVaettr(vaettr) != null)
+			return getForVaettr(vaettr);
+
 		UUID uu = null;
 		boolean flag = false;
 		for (int i = 0; i < 256 && !flag; i++) {
@@ -79,18 +80,18 @@ public class VaettrData extends WorldSavedData {
 				flag = true;
 			}
 		}
-		
+
 		if (!flag) {
 			System.out.println("UNABLE TO INSTANTIATE VAETTR!");
 			return null;
 		}
-		
+
 		VAETTIR.put(uu, vaettr);
 		vaettr.setData(this);
-		
+		markDirty();
 		return uu;
 	}
-	
+
 	public UUID getForVaettr(Vaettr vaettr) {
 		if (VAETTIR.containsValue(vaettr)) {
 			for (UUID uu : VAETTIR.keySet()) {
@@ -101,18 +102,20 @@ public class VaettrData extends WorldSavedData {
 		}
 		return null;
 	}
-	
+
 	public Vaettr getVaettr(UUID uu) {
 		return VAETTIR.get(uu);
 	}
-	
+
 	public Vaettr removeVaettr(UUID uu) {
-		
+
 		Vaettr v = VAETTIR.remove(uu);
+		System.out.println("Removing vaettr " + v);
 		v.setDead(true);
+		markDirty();
 		return v;
 	}
-	
+
 	public Map<UUID, Vaettr> getTileVaettir() {
 		Map<UUID, Vaettr> map = new HashMap<>();
 		for (UUID uu : VAETTIR.keySet()) {
@@ -122,7 +125,7 @@ public class VaettrData extends WorldSavedData {
 		}
 		return map;
 	}
-	
+
 	public Map<UUID, Vaettr> getEntityVaettir() {
 		Map<UUID, Vaettr> map = new HashMap<>();
 		for (UUID uu : VAETTIR.keySet()) {
@@ -132,7 +135,7 @@ public class VaettrData extends WorldSavedData {
 		}
 		return map;
 	}
-	
+
 	public Map<UUID, Vaettr> getVanir() {
 		Map<UUID, Vaettr> map = new HashMap<>();
 		for (UUID uu : VAETTIR.keySet()) {
@@ -142,7 +145,7 @@ public class VaettrData extends WorldSavedData {
 		}
 		return map;
 	}
-	
+
 	public Map<UUID, Vaettr> getByName(String name) {
 		Map<UUID, Vaettr> map = new HashMap<>();
 		for (UUID uu : VAETTIR.keySet()) {
@@ -152,7 +155,7 @@ public class VaettrData extends WorldSavedData {
 		}
 		return map;
 	}
-	
+
 	public Map<UUID, Vaettr> getByType(VaettrType name) {
 		Map<UUID, Vaettr> map = new HashMap<>();
 		for (UUID uu : VAETTIR.keySet()) {
@@ -162,25 +165,27 @@ public class VaettrData extends WorldSavedData {
 		}
 		return map;
 	}
-	
+
 	public UUID removeVaettr(Vaettr vaet) {
 		UUID uu = getForVaettr(vaet);
 		if (uu != null) {
+			System.out.println("Removing vaettr " + vaet);
 			VAETTIR.remove(uu).setDead(true);
+			markDirty();
 			return uu;
 		}
 		return null;
 	}
-	
+
 	@Override
 	public void read(CompoundNBT nbt) {
+		VAETTIR.clear();
 		ListNBT vaettir = nbt.getList("Vaettir", NBT.TAG_COMPOUND);
 		for (INBT tt : vaettir) {
 			CompoundNBT tag = (CompoundNBT) tt;
 			UUID vaetuu = UUID.fromString(tag.getString("ID"));
 			CompoundNBT data = tag.getCompound("Data");
-			Vaettr vaettr = new Vaettr();
-			vaettr.deserializeNBT(data);
+			Vaettr vaettr = new Vaettr(data);
 			vaettr.setData(this);
 			VAETTIR.put(vaetuu, vaettr);
 		}
@@ -188,7 +193,7 @@ public class VaettrData extends WorldSavedData {
 
 	@Override
 	public CompoundNBT write(CompoundNBT compound) {
-		CompoundNBT nbt = new CompoundNBT();
+		CompoundNBT nbt = compound;
 		ListNBT vaettir = new ListNBT();
 		for (Entry<UUID, Vaettr> entry : VAETTIR.entrySet()) {
 			CompoundNBT tag = new CompoundNBT();
@@ -198,19 +203,23 @@ public class VaettrData extends WorldSavedData {
 		nbt.put("Vaettir", vaettir);
 		return nbt;
 	}
-	
+
 	@SubscribeEvent
 	public void tick(ServerTickEvent event) {
-		
+		boolean dirty = false;
 		for (UUID uu : new ArrayList<>(VAETTIR.keySet())) {
 			Vaettr vaettr = VAETTIR.get(uu);
-			if (vaettr == null) continue;
-			vaettr.tick();
 			if (vaettr.isDead()) {
 				vaettr.onDeath();
 				this.VAETTIR.remove(getForVaettr(vaettr));
+			} else {
+				Thread ticker = new Thread(() -> vaettr.tick());
+				ticker.start();
 			}
+			dirty = true;
 		}
+		if (dirty)
+			markDirty();
 	}
 
 }

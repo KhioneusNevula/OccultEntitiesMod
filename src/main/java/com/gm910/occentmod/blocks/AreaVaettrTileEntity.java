@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.gm910.occentmod.api.networking.messages.Networking;
 import com.gm910.occentmod.api.networking.messages.types.TaskChangeBlock;
+import com.gm910.occentmod.api.networking.messages.types.TaskParticles;
 import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.ServerPos;
 import com.gm910.occentmod.api.util.Translate;
@@ -48,31 +49,31 @@ public class AreaVaettrTileEntity extends VaettrTileEntity {
 		
 		@SubscribeEvent
 		public void blockBreak(BlockEvent.BreakEvent event) {
-			
-			if (containsPosition(event.getPos()) && event.getWorld().getDimension().getType().equals(this.world.getDimension().getType()) 
-					&& !getAttackTargets().contains(event.getPlayer())
-					&& !event.getWorld().getBlockState(event.getPos()).getMaterial().isReplaceable()) {
-				if (!event.getWorld().isRemote()) {
+			if (event.getWorld().isRemote()) return;
+			if (!event.getWorld().isRemote() && containsPosition(event.getPos()) && !event.getPos().equals(this.pos) && event.getWorld().getDimension().getType().equals(this.world.getDimension().getType()) 
+					&& !getAttackTargets().contains(event.getPlayer()) && vaettr != null
+					&& !event.getWorld().getBlockState(event.getPos()).getMaterial().isReplaceable() && !this.getWorshipers().contains(event.getPlayer())) {
+
 					getAttackTargetsRaw().add(event.getPlayer().getUniqueID());
 					event.getPlayer().sendMessage(Translate.make("angered." + super.getType().getRegistryName().getPath(), vaettr.getName()));
-				}
-				
+
 				for (int i = 0; i < world.rand.nextInt(100); i++) {
-					world.addParticle(ParticleTypes.FLASH, pos.getX() + 0.5 + world.rand.nextDouble() - world.rand.nextDouble(), 
+					Networking.sendToAll(new TaskParticles(ParticleTypes.FLASH, pos.getX() + 0.5 + world.rand.nextDouble() - world.rand.nextDouble(), 
 	    				pos.getY() + world.rand.nextDouble() - world.rand.nextDouble(), 
-	    				pos.getZ() + 0.5 + world.rand.nextDouble() - world.rand.nextDouble(), 
+	    				pos.getZ() + 0.5 + world.rand.nextDouble() - world.rand.nextDouble(), world.dimension.getType(),
 	    				world.rand.nextDouble() * 10 - world.rand.nextDouble() * 5, 
 	    				world.rand.nextDouble() * 10 - world.rand.nextDouble() * 5,
-	    				world.rand.nextDouble() * 10 - world.rand.nextDouble() * 5);
-					world.addParticle(ParticleTypes.FLASH, event.getPos().getX() + 0.5 + world.rand.nextDouble() - world.rand.nextDouble(), 
+	    				world.rand.nextDouble() * 10 - world.rand.nextDouble() * 5, false, false, false));
+					Networking.sendToAll(new TaskParticles(ParticleTypes.FLASH, event.getPos().getX() + 0.5 + world.rand.nextDouble() - world.rand.nextDouble(), 
 		    				event.getPos().getY() + world.rand.nextDouble() - world.rand.nextDouble(), 
-		    				event.getPos().getZ() + 0.5 + world.rand.nextDouble() - world.rand.nextDouble(), 
+		    				event.getPos().getZ() + 0.5 + world.rand.nextDouble() - world.rand.nextDouble(), world.dimension.getType(),
 		    				world.rand.nextDouble() * 10 - world.rand.nextDouble() * 5, 
 		    				world.rand.nextDouble() * 10 - world.rand.nextDouble() * 5,
-		    				world.rand.nextDouble() * 10 - world.rand.nextDouble() * 5);
+		    				world.rand.nextDouble() * 10 - world.rand.nextDouble() * 5, false, false, false));
 				}
 				
 			}
+			
 		}
 		
 		
@@ -107,7 +108,8 @@ public class AreaVaettrTileEntity extends VaettrTileEntity {
 					if (te instanceof VaettrTileEntity && te != this && this.containsPosition(te.getPos())) {
 						System.out.println("Intrusive " + this.getClass().getSimpleName() + " " + this.getName());
 						
-						world.setBlockState(te.getPos(), Blocks.FIRE.getDefaultState());
+						//world.setBlockState(te.getPos(), Blocks.FIRE.getDefaultState());
+						this.vaettr.getVaettrTargetIds().add(((VaettrTileEntity)te).getVaettrId());
 					}
 				}
 			}

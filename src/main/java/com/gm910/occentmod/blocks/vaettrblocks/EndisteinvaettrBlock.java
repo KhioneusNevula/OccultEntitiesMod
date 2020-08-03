@@ -14,6 +14,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.FallingBlockEntity;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.server.ServerWorld;
 
 public class EndisteinvaettrBlock extends ModBlock {
@@ -36,7 +37,7 @@ public class EndisteinvaettrBlock extends ModBlock {
 								break;
 							}
 						}
-						return flag && world2.getDimension().getType().getId() == 1;// && world2.getBiome(posm) != Biomes.THE_END;
+						return flag && world2.getDimension().getType() == DimensionType.THE_END;// && world2.getBiome(posm) != Biomes.THE_END;
 					});
 		}
 		

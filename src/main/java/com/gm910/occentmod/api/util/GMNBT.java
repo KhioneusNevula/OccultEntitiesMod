@@ -21,6 +21,7 @@ import net.minecraft.nbt.NBTUtil;
 import net.minecraft.nbt.NumberNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.server.ServerWorld;
 
 public class GMNBT {
@@ -167,6 +168,18 @@ public class GMNBT {
 			lws.put(p.getFirst(), p.getSecond());
 		}
 		return lws;
+	}
+	
+	public static CompoundNBT writeVec3d(Vec3d vec) {
+		CompoundNBT nbt = new CompoundNBT();
+		nbt.putDouble("X", vec.x);
+		nbt.putDouble("Y", vec.y);
+		nbt.putDouble("Z", vec.z);
+		return nbt;
+	}
+	
+	public static Vec3d readVec3d(CompoundNBT nbt) {
+		return new Vec3d(nbt.getDouble("X"), nbt.getDouble("Y"), nbt.getDouble("Z"));
 	}
 	
 }

@@ -33,14 +33,18 @@ public class LivingBlockRender extends EntityRenderer<LivingBlockEntity>{
 	
 	@Override
 	public void render(LivingBlockEntity entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
-	      BlockState blockstate = entityIn.getBlock().getState();
+
+		if (entityIn.getBlock() == null) {
+	    	  return;
+	      }
+			BlockState blockstate = entityIn.getBlock().getState();
+	            BlockRendererDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
 	      if (blockstate.getRenderType() == BlockRenderType.MODEL) {
 	         World world = entityIn.world;
 	         if (blockstate != world.getBlockState(new BlockPos(entityIn)) && blockstate.getRenderType() != BlockRenderType.INVISIBLE) {
 	            matrixStackIn.push();
 	            BlockPos blockpos = new BlockPos(entityIn.getPosX(), entityIn.getBoundingBox().maxY, entityIn.getPosZ());
 	            matrixStackIn.translate(-0.5D, 0.0D, -0.5D);
-	            BlockRendererDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
 	            for (net.minecraft.client.renderer.RenderType type : net.minecraft.client.renderer.RenderType.getBlockRenderTypes()) {
 	               if (RenderTypeLookup.canRenderInLayer(blockstate, type)) {
 	                  net.minecraftforge.client.ForgeHooksClient.setRenderLayer(type);
