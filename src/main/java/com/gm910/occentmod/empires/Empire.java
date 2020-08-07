@@ -1,28 +1,31 @@
 package com.gm910.occentmod.empires;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
-import java.util.Locale;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.gm910.occentmod.api.util.EnglishNumberToWords;
+import com.gm910.occentmod.api.util.GMHelper;
 import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.NonNullMap;
 import com.gm910.occentmod.api.util.ParallelSet;
 import com.gm910.occentmod.api.util.ServerPos;
 import com.gm910.occentmod.empires.EmpireDispute.DisputeType;
-import com.gm910.occentmod.init.AIInit;
-import com.google.common.collect.Sets;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race;
+import com.gm910.occentmod.init.DataInit;
 import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashBigSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
+import it.unimi.dsi.fastutil.objects.Object2DoubleMaps;
+import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -31,6 +34,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.village.PointOfInterest;
 import net.minecraft.village.PointOfInterestManager;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.server.ServerWorld;
@@ -56,6 +60,10 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 
 	private EnumMap<LeaderType, UUID> leaders = new EnumMap<>(LeaderType.class);
 
+	private Object2DoubleMap<Race> raceWeights = Object2DoubleMaps.emptyMap();
+
+	private Race favoredRace = Race.MIXED;
+
 	private EmpireName name = EmpireName.EMPTY;
 
 	public static final Pair<ChunkPos, DimensionType> EMPTY_FLAG = new Pair<>(new ChunkPos(0, 0),
@@ -75,6 +83,53 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 
 	public void setData(EmpireData data) {
 		this.data = data;
+	}
+
+	public ServerWorld getCenterWorld() {
+		return data.getServer().getWorld(center.getSecond());
+	}
+
+	public void initializeEmpire() {
+		this.setName(data.giveRandomName());
+
+		this.randomizeRaceWeights();
+	}
+
+	public Race chooseRandomRace(Random rand) {
+		// Credit: https://stackoverflow.com/a/6737362
+		return GMHelper.weightedRandom(raceWeights);
+	}
+
+	public void randomizeRaceWeights() {
+		Race favored = Race.getAllIncludingMixed().stream().findAny().get();
+
+		World world = getCenterWorld();
+
+		List<Race> races = new ArrayList<>(Race.getRaces());
+		if (favored != Race.MIXED) {
+			races.add(0, races.remove(races.indexOf(favored)));
+		}
+		double outOfRaces = races.size();
+
+		for (int i = 0; i < races.size(); i++) {
+			double val = world.rand.nextDouble();
+			if (favored != Race.MIXED) {
+				if (i == 0) {
+					val = world.rand.nextDouble() * (races.size() - 1);
+				} else {
+					val = world.rand.nextDouble() / (races.size() - 1);
+				}
+			}
+			if (i == races.size() - 1) {
+				val = outOfRaces;
+			}
+			this.raceWeights.put(races.get(i), val);
+			outOfRaces -= val;
+		}
+	}
+
+	public Race getFavoredRace() {
+		return favoredRace;
 	}
 
 	public Chunk getChunk(DimensionType type, long chunkpos) {
@@ -136,6 +191,13 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 			}
 		}
 		nbt.putUniqueId("ID", empireId);
+		nbt.putInt("FavoredRace", favoredRace.id);
+		nbt.put("RaceWeights", GMNBT.makeList(this.raceWeights.keySet(), (key) -> {
+			CompoundNBT nbt1 = new CompoundNBT();
+			nbt1.putInt("Key", key.getId());
+			nbt1.putDouble("Weight", raceWeights.get(key));
+			return nbt1;
+		}));
 		return nbt;
 	}
 
@@ -167,6 +229,12 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 		this.name = EmpireName.of(nbt.getString("Name"));
 		this.empireId = nbt.getUniqueId("ID");
 		this.centerStructureType = nbt.getString("SType");
+		this.favoredRace = Race.fromId(nbt.getInt("FavoredRace"));
+		this.raceWeights = new Object2DoubleOpenHashMap<Race>(
+				GMNBT.createMap((ListNBT) nbt.get("RaceWeights"), (inbt) -> {
+					CompoundNBT nbt1 = (CompoundNBT) inbt;
+					return Pair.<Race, Double>of(Race.fromId(nbt1.getInt("Key")), nbt1.getDouble("Weight"));
+				}));
 	}
 
 	public Set<Long> getChunkLongs(DimensionType type) {
@@ -274,7 +342,7 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 		if (world.getDimension().getType() == center.getSecond()) {
 			Chunk chunk = this.getChunk(center.getSecond(), center.getFirst().asLong());
 			PointOfInterestManager manager = world.getPointOfInterestManager();
-			Stream<PointOfInterest> pois = manager.getInChunk(AIInit.THRONE_POI.get().getPredicate(), center.getFirst(),
+			Stream<PointOfInterest> pois = manager.getInChunk(DataInit.THRONE_POI.get().getPredicate(), center.getFirst(),
 					PointOfInterestManager.Status.ANY);
 
 			if (!pois.findAny().isPresent()) {
@@ -336,174 +404,15 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 		}
 	}
 
-	public void collapseEmpire() {
+	/*public void collapseEmpire() {
 		getData().removeEmpire(this);
 		this.chunks.clear();
 		this.citizens.clear();
 		this.leaders.clear();
-	}
+	}*/
 
 	public static enum LeaderType {
 		RULER, ARCHMAGE, ARCHBISHOP, PENDRAGON
-	}
-
-	/**
-	 * NAME, ADJECTIVE, DEMONYM, DEMONYMPLURAL
-	 * 
-	 * @author borah
-	 *
-	 */
-	public static class EmpireName {
-
-		public static EmpireName EMPTY = new EmpireName("", "", "", "");
-
-		private final String[] names;
-		private final String[] demonyms;
-		private final String[] demonymPlurals;
-		private final String[] adjectives;
-
-		public EmpireName(String name, String adjective, String demonym, String demonymPlural) {
-			this(new String[] { name }, new String[] { adjective }, new String[] { demonym },
-					new String[] { demonymPlural });
-		}
-
-		/**
-		 * NAME, ADJECTIVE, DEMONYM, DEMONYMPLURAL
-		 * 
-		 * @author borah
-		 *
-		 */
-		public EmpireName(String[] name, String[] adjective, String[] demonym, String[] demonymPlural) {
-			this.names = name;
-			this.adjectives = adjective;
-			this.demonyms = demonym;
-			this.demonymPlurals = demonymPlural;
-		}
-
-		public String[] getNames() {
-			return names;
-		}
-
-		public String[] getAdjectives() {
-			return adjectives;
-		}
-
-		public String[] getDemonyms() {
-			return demonyms;
-		}
-
-		public String[] getDemonymPlurals() {
-			return demonymPlurals;
-		}
-
-		public String getAdjective(int index) {
-			return adjectives[index];
-		}
-
-		public String getName(int index) {
-			return names[index];
-		}
-
-		public String getDemonym(int index) {
-			return demonyms[index];
-		}
-
-		public String getDemonymPlural(int index) {
-			return demonymPlurals[index];
-		}
-
-		public String getAdjective() {
-			return adjectives.length > 0 ? adjectives[new Random().nextInt(adjectives.length)] : "";
-		}
-
-		public String getName() {
-			return names.length > 0 ? names[new Random().nextInt(names.length)] : "";
-		}
-
-		public String getDemonym() {
-			return demonyms.length > 0 ? demonyms[new Random().nextInt(demonyms.length)] : "";
-		}
-
-		public String getDemonymPlural() {
-			return demonymPlurals.length > 0 ? demonymPlurals[new Random().nextInt(demonymPlurals.length)] : "";
-		}
-
-		public static EmpireName of(String nameCombined) {
-			String[] parts = nameCombined.split(",");
-			for (int i = 0; i < parts.length; i++) {
-				parts[i] = parts[i].trim();
-			}
-			if (parts.length != 4) {
-				return EmpireName.EMPTY;
-			}
-			String[] names = parts[0].split("/");
-			String[] adjs = parts[1].split("/");
-			String[] demonyms = parts[2].split("/");
-			String[] demoplurs = parts[3].split("/");
-			return new EmpireName(names, adjs, demonyms, demoplurs);
-		}
-
-		@Override
-		public String toString() {
-			// TODO Auto-generated method stub
-			return String.join("/", names) + "," + String.join("/", adjectives) + "," + String.join("/", demonyms) + ","
-					+ String.join("/", demonymPlurals);
-		}
-
-		public EmpireName withName(String[] name) {
-			return new EmpireName(name, adjectives, demonyms, demonymPlurals);
-		}
-
-		public EmpireName withAdjective(String[] adjective) {
-			return new EmpireName(names, adjective, demonyms, demonymPlurals);
-		}
-
-		public EmpireName withDemonym(String[] demonym) {
-			return new EmpireName(names, adjectives, demonym, demonymPlurals);
-		}
-
-		public EmpireName withDemonymPlural(String[] demonymPlural) {
-			return new EmpireName(names, adjectives, demonyms, demonymPlural);
-		}
-
-		public EmpireName withName(String name) {
-			return new EmpireName(new String[] { name }, adjectives, demonyms, demonymPlurals);
-		}
-
-		public EmpireName withAdjective(String adjective) {
-			return new EmpireName(names, new String[] { adjective }, demonyms, demonymPlurals);
-		}
-
-		public EmpireName withDemonym(String demonym) {
-			return new EmpireName(names, adjectives, new String[] { demonym }, demonymPlurals);
-		}
-
-		public EmpireName withDemonymPlural(String demonymPlural) {
-			return new EmpireName(names, adjectives, demonyms, new String[] { demonymPlural });
-		}
-
-		public EmpireName addJunk(int index) {
-			Function<String, String> func = (str) -> {
-				String ord = EnglishNumberToWords.fullOrdinal(Locale.US, index);
-				return Character.toUpperCase(ord.charAt(0)) + ord.substring(1) + "-" + str;
-			};
-			return this
-					.withAdjective(Sets.newHashSet(this.adjectives).stream().map(func).collect(Collectors.toSet())
-							.toArray(new String[0]))
-					.withName(Sets.newHashSet(this.names).stream().map(func).collect(Collectors.toSet())
-							.toArray(new String[0]))
-					.withDemonym(Sets.newHashSet(this.demonyms).stream().map(func).collect(Collectors.toSet())
-							.toArray(new String[0]))
-					.withDemonymPlural(Sets.newHashSet(this.demonymPlurals).stream().map(func)
-							.collect(Collectors.toSet()).toArray(new String[0]));
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			// TODO Auto-generated method stub
-			return this.toString().equals(obj.toString());
-		}
-
 	}
 
 }

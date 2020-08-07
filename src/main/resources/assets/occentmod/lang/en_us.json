@@ -10,5 +10,8 @@
 	
 	"_title3": "Death Messages",
 	"message.magicdeath.fromnone" : "%1$s was killed by the power of magic!",
-	"message.magicdeath.fromwiz" : "%1$s was killed by %2$s using the power of magic!"
+	"message.magicdeath.fromwiz" : "%1$s was killed by %2$s using the power of magic!",
+	
+	"_title4": "Grammar",
+	"speech.of" : "%1$s of %2$s"
 }

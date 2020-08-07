@@ -1,10 +1,11 @@
 package com.gm910.occentmod.entities.wizard.tasks;
 
+import com.gm910.occentmod.entities.goals.CreatureWalkToPOITask;
+import com.gm910.occentmod.entities.goals.MultiTaskDocumentation;
 import com.gm910.occentmod.entities.wizard.WizardEntity;
 import com.gm910.occentmod.entities.wizard.WizardJob;
 import com.gm910.occentmod.entities.wizard.tasks.wizard.AssignJobTask;
 import com.gm910.occentmod.entities.wizard.tasks.wizard.ChangeWizardJobTask;
-import com.gm910.occentmod.entities.wizard.tasks.wizard.CreatureWalkToPOITask;
 import com.gm910.occentmod.entities.wizard.tasks.wizard.GeneralClearHurtTask;
 import com.gm910.occentmod.entities.wizard.tasks.wizard.WizardBabyTask;
 import com.gm910.occentmod.entities.wizard.tasks.wizard.WizardDummyShareItemsTask;
@@ -133,8 +134,8 @@ public class WizardTasks {
 				Pair.of(3, new WizardGiveHeroGiftsDummyTask(100)),
 				Pair.of(3, new ExpirePOITask(PointOfInterestType.MEETING, MemoryModuleType.MEETING_POINT)),
 				Pair.of(3,
-						new MultiTask<>(ImmutableMap.of(), ImmutableSet.of(MemoryModuleType.INTERACTION_TARGET),
-								MultiTask.Ordering.ORDERED, MultiTask.RunType.RUN_ONE,
+						new MultiTaskDocumentation<>(ImmutableMap.of(), ImmutableSet.of(MemoryModuleType.INTERACTION_TARGET),
+								MultiTaskDocumentation.Ordering.ORDERED, MultiTaskDocumentation.RunType.RUN_ONE,
 								ImmutableList.of(Pair.of(new WizardDummyShareItemsTask(), 1)))),
 				lookAtMany(), Pair.of(99, new UpdateActivityTask()));
 	}
@@ -157,12 +158,12 @@ public class WizardTasks {
 				Pair.of(3, new FindInteractionAndLookTargetTask(EntityType.PLAYER, 4)),
 				Pair.of(3, new WizardDummyShowWaresTask(400, 1600)),
 				Pair.of(3,
-						new MultiTask<>(ImmutableMap.of(), ImmutableSet.of(MemoryModuleType.INTERACTION_TARGET),
-								MultiTask.Ordering.ORDERED, MultiTask.RunType.RUN_ONE,
+						new MultiTaskDocumentation<>(ImmutableMap.of(), ImmutableSet.of(MemoryModuleType.INTERACTION_TARGET),
+								MultiTaskDocumentation.Ordering.ORDERED, MultiTaskDocumentation.RunType.RUN_ONE,
 								ImmutableList.of(Pair.of(new WizardDummyShareItemsTask(), 1)))),
 				Pair.of(3,
-						new MultiTask<>(ImmutableMap.of(), ImmutableSet.of(MemoryModuleType.BREED_TARGET),
-								MultiTask.Ordering.ORDERED, MultiTask.RunType.RUN_ONE,
+						new MultiTaskDocumentation<>(ImmutableMap.of(), ImmutableSet.of(MemoryModuleType.BREED_TARGET),
+								MultiTaskDocumentation.Ordering.ORDERED, MultiTaskDocumentation.RunType.RUN_ONE,
 								ImmutableList.of(Pair.of(new WizardBabyTask(), 1)))),
 				lookAtMany(), Pair.of(99, new UpdateActivityTask()));
 	}

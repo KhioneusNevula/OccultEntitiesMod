@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.gm910.occentmod.entities.wizard.WizardEntity;
-import com.gm910.occentmod.init.AIInit;
+import com.gm910.occentmod.init.DataInit;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
@@ -23,7 +23,7 @@ public class WizardSecondaryPositionSensor extends Sensor<WizardEntity> {
 	public static void forceClinit() {
 	}
 
-	public static final RegistryObject<SensorType<WizardSecondaryPositionSensor>> TYPE = AIInit
+	public static final RegistryObject<SensorType<WizardSecondaryPositionSensor>> TYPE = DataInit
 			.registerSensor(WizardEntity.PREFIX + "_wizard_secondary_position", WizardSecondaryPositionSensor::new);
 
 	private int xspread;

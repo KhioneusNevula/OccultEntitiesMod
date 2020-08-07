@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.gm910.occentmod.entities.wizard.WizardEntity;
-import com.gm910.occentmod.init.AIInit;
+import com.gm910.occentmod.init.DataInit;
 import com.gm910.occentmod.init.EntityInit;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -22,7 +22,7 @@ public class WizardBabiesSensor extends Sensor<LivingEntity> {
 	public static void forceClinit() {
 	}
 
-	public static final RegistryObject<SensorType<WizardBabiesSensor>> TYPE = AIInit
+	public static final RegistryObject<SensorType<WizardBabiesSensor>> TYPE = DataInit
 			.registerSensor(WizardEntity.PREFIX + "_wizard_babies", WizardBabiesSensor::new);
 
 	public Set<MemoryModuleType<?>> getUsedMemories() {

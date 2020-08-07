@@ -8,9 +8,9 @@ import org.apache.logging.log4j.Logger;
 import com.gm910.occentmod.api.networking.messages.ModChannels;
 import com.gm910.occentmod.api.networking.messages.Networking.TaskMessage;
 import com.gm910.occentmod.capabilities.CapabilityProvider;
-import com.gm910.occentmod.init.AIInit;
 import com.gm910.occentmod.init.BiomeInit;
 import com.gm910.occentmod.init.BlockInit;
+import com.gm910.occentmod.init.DataInit;
 import com.gm910.occentmod.init.DimensionInit;
 import com.gm910.occentmod.init.EntityInit;
 import com.gm910.occentmod.init.ItemInit;
@@ -56,38 +56,51 @@ public class OccultEntities {
 
 		// Register the setup method for modloading
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+		System.out.println("Setup method added to event bus");
 		// Register the enqueueIMC method for modloading
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::enqueueIMC);
+		System.out.println("Enqueue imc method added to event bus");
 		// Register the processIMC method for modloading
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
+		System.out.println("Process imc method added to event bus");
 		// Register the doClientStuff method for modloading
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+		System.out.println("Do client stuff method added to event bus");
 
 		// Register ourselves for server and other game events we are interested in
 		MinecraftForge.EVENT_BUS.register(this);
+		System.out.println("Mod added to event bus");
 		ModKeys.firstinit();
+		System.out.println("Mod keys first init completed");
 
 		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
 		BlockInit.BLOCKS.register(modBus);
+		System.out.println("BlocksRegistered");
 
 		ItemInit.ITEMS.register(modBus);
+		System.out.println("ITems registered");
 
 		TileInit.TILE_TYPES.register(modBus);
+		System.out.println("TileTypes registered");
 
-		AIInit.registerToEventBus(modBus);
+		DataInit.registerToEventBus(modBus);
+		System.out.println("DataInit registered");
 
 		EntityInit.ENTITY_TYPES.register(modBus);
+		System.out.println("EntityTypes registered");
 
 		BiomeInit.BIOMES.register(modBus);
+		System.out.println("Biomes registered");
 
 		DimensionInit.WORLD_MAKERS.register(modBus);
+		System.out.println("World-makers registered");
 
 	}
 
 	@SuppressWarnings("deprecation")
 	private void setup(final FMLCommonSetupEvent event) {
-		LOGGER.info("HELLO FROM PREINIT");
+		System.out.println("HELLO FROM PREINIT");
 		CapabilityProvider.preInit();
 		DeferredWorkQueue.runLater(StructureInit::registerStructures);
 
@@ -152,6 +165,7 @@ public class OccultEntities {
 
 		@SubscribeEvent
 		public static void onDimensionRegister(RegisterDimensionsEvent event) {
+			System.out.println("Register dimensions event");
 			DimensionData.registerInitialDimensionsStatic();
 		}
 

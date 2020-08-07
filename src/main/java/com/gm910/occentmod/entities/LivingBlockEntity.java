@@ -12,7 +12,7 @@ import com.gm910.occentmod.api.networking.messages.types.TaskChangeBlock;
 import com.gm910.occentmod.api.util.BlockInfo;
 import com.gm910.occentmod.api.util.ModReflect;
 import com.gm910.occentmod.api.util.ServerPos;
-import com.gm910.occentmod.init.AIInit;
+import com.gm910.occentmod.init.DataInit;
 import com.gm910.occentmod.init.EntityInit;
 import com.gm910.occentmod.vaettr.Vaettr;
 import com.gm910.occentmod.world.VaettrData;
@@ -85,20 +85,20 @@ public class LivingBlockEntity extends FlyingEntity {
 	public static void forceClinit() {
 	}
 
-	public static final RegistryObject<MemoryModuleType<UUID>> LIVING_OWNER_MEMORY = AIInit.MEMORY_MODULES
+	public static final RegistryObject<MemoryModuleType<UUID>> LIVING_OWNER_MEMORY = DataInit.MEMORY_MODULES
 			.register("lbe_living_owner", () -> {
 				return new MemoryModuleType<>(Optional.of((ops) -> {
 					return UUID.fromString(ops.asString(UUID.randomUUID() + ""));
 				}));
 			});
-	public static final RegistryObject<MemoryModuleType<UUID>> VAETTR_OWNER_MEMORY = AIInit.MEMORY_MODULES
+	public static final RegistryObject<MemoryModuleType<UUID>> VAETTR_OWNER_MEMORY = DataInit.MEMORY_MODULES
 			.register("lbe_vaettr_owner", () -> {
 				return new MemoryModuleType<>(Optional.of((ops) -> {
 					return UUID.fromString(ops.asString(UUID.randomUUID() + ""));
 				}));
 			});
 
-	public static final RegistryObject<MemoryModuleType<BlockInfo>> BLOCK_MEMORY = AIInit.MEMORY_MODULES
+	public static final RegistryObject<MemoryModuleType<BlockInfo>> BLOCK_MEMORY = DataInit.MEMORY_MODULES
 			.register("lbe_block", () -> {
 				return new MemoryModuleType<>(Optional.of(BlockInfo::fromDynamic));
 			});

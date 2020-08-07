@@ -146,9 +146,9 @@ public class SitEntity extends Entity {
 			return;
 		BlockPos pos = entity.getPosition();
 		EntitySize size = entity.getSize(entity.getPose());
-		for (int x = (int) -size.width - 1; x <= size.width + 1; x++) {
-			for (int y = (int) -size.height - 1; y <= -size.height + 1; y++) {
-				for (int z = (int) -size.width - 1; z <= size.width + 1; z++) {
+		for (int x = (int) (-size.width - 0.5) - 1; x <= (int) (size.width + 0.5) + 1; x++) {
+			for (int y = (int) (-size.height - 0.5) - 1; y <= (int) (size.height + 0.5) + 1; y++) {
+				for (int z = (int) (-size.width - 0.5) - 1; z <= (int) (size.width + 0.5) + 1; z++) {
 					BlockPos newpos = pos.add(x, y, z);
 					if (!world.getBlockState(newpos).getShape(world, newpos).isEmpty()) {
 						AxisAlignedBB box = world.getBlockState(newpos).getShape(world, newpos).getBoundingBox()

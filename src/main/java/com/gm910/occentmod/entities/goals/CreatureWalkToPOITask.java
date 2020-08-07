@@ -1,4 +1,4 @@
-package com.gm910.occentmod.entities.wizard.tasks.wizard;
+package com.gm910.occentmod.entities.goals;
 
 import com.google.common.collect.ImmutableMap;
 

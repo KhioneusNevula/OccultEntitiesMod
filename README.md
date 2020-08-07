@@ -1,5 +1,6 @@
 This mod is intended to be a magic mod based around binding different metaphysical entities.
-It will also have wizard villages and dragons. The dragons aren't necessarily connected to the point of the mod, but are STILL NECESSARY. Because... DRAGONS.
+However, the "entity" aspect of it goes one step further--EMPIRES. These are conceptual collections of villages which are ruled by a single ruler. They are comprised of "citizens," entities which are like Sims in that they have motives, emotions, memories, and the like.
+It will also have dragons. The dragons aren't necessarily connected to the point of the mod, but are STILL NECESSARY. Because... DRAGONS.
 
 Ores:
 * Silver: Found in the same configurations as gold
@@ -29,6 +30,29 @@ Items:
 * 
 
 Mobs:
+* Living Block: Used by landvaettir to attack enemies; essentially just entities appearing like blocks
+* Citizen: Citizens are the most complex being in all of the mod. They either work in villages (a special kind) or are part of empires. Every citizen has a personality with certain traits which determine the chance of them performing certain actions. Citizens have: 
+<ul>
+<li>SCHEDULES (like villagers; they wake up, eat, do hobbies, meet and check mail, work, eat, work, meet and check mail, hobby, and rest)
+<li>MOTIVES (basically goals which they want to complete)
+<li>MOODS (data that changes their behavior and is affected by what happens to them)
+<li>GOSSIP (information they remember which they give to each other and to players who ask them; these info bits may be lies; if the information is about a certain entity this affects their behavior)
+<li>SIGHTS (citizens can see other entities; if the entity is doing a certain action while the citizen looks at it the citizen will remember the action and react appropriately. E.g. a citizen seeing a murder might run away or spread gossip about it or step in to help)
+<li>TRADES (some citizens can trade)
+<li>SKILLS (these are their capability at performing certain tasks)
+<li>JOBS (citizens do jobs like villagers but can change jobs if their motive is easily completed with a job or if they're doing badly in a job)
+<li>HOBBIES (tasks citizens do when they're not in their job that make them happy)
+<li>RELATIONSHIPS (citizens can have [genderless] parents, children, and make friends based on similar hobbies; they can milk friendships into romantic relationships and have children if their daring personality value lets them)
+<li>PLOTS (citizens may have secret goals which are more sinister in nature and may organize them with others).
+</ul>
+
+Concepts:
+* Empires: These are centered in "palaces" (woodland mansion-type buildings with a throne in their center) and have a leader. They also have a network of information via mailbox blocks. An empire conquers villages by forcing them to convert to their religion. When enough citizens of a village convert, the empire has taken over the village (based on the positions of the villagers' beds and meeting point). At that point, a mailbox will be built for the empire.
+
+Blocks:
+* Throne: The center of an empire; the throne is the place the ruler goes and determines the empire's center. Only one throne can exist in an empire center chunk; more thrones will simply break and if no thrones are in an empire center chunk the empire will either rebuild or will change its center chunk.
+
+DEPRECATED
 * Wizard: This is a complex mob. Like villagers, they have villages, schedules, memories, and tasks. 
 
 Wizard Mechanics: 

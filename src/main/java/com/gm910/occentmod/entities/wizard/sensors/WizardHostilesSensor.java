@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.gm910.occentmod.entities.wizard.WizardEntity;
-import com.gm910.occentmod.init.AIInit;
+import com.gm910.occentmod.init.DataInit;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
@@ -23,7 +23,7 @@ public class WizardHostilesSensor extends Sensor<LivingEntity> {
 	public static void forceClinit() {
 	}
 
-	public static final RegistryObject<SensorType<WizardHostilesSensor>> TYPE = AIInit
+	public static final RegistryObject<SensorType<WizardHostilesSensor>> TYPE = DataInit
 			.registerSensor(WizardEntity.PREFIX + "_wizard_hostiles", WizardHostilesSensor::new);
 
 	private static final ImmutableMap<EntityType<?>, Float> HOSTILES = ImmutableMap.<EntityType<?>, Float>builder()

@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import com.gm910.occentmod.init.AIInit;
+import com.gm910.occentmod.init.DataInit;
 import com.google.common.collect.ImmutableSet;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.village.PointOfInterestType;
 import net.minecraftforge.fml.RegistryObject;
 
+@Deprecated
 public final class WizardPOIS {
 	private WizardPOIS() {
 	}
@@ -24,12 +25,12 @@ public final class WizardPOIS {
 			.anyMatch((p) -> e.equals(p.get()));
 
 	public static final RegistryObject<PointOfInterestType> JOBLESS_POI = register(
-			AIInit.registerPOIFromPredicateAndStates(WizardEntity.PREFIX + "_jobless", () -> ImmutableSet.of(),
+			DataInit.registerPOIFromPredicateAndStates(WizardEntity.PREFIX + "_jobless", () -> ImmutableSet.of(),
 					ANY_WIZARD_JOBSITE_PREDICATE, 2, 2));
 
 	public static final RegistryObject<PointOfInterestType> SUMMONER_POI = register(
-			AIInit.registerPOIFromBlocks(WizardEntity.PREFIX + "_summoner_job", () -> ImmutableSet.of(), 2, 2));
-	public static final RegistryObject<PointOfInterestType> CUPID_POI = register(AIInit
+			DataInit.registerPOIFromBlocks(WizardEntity.PREFIX + "_summoner_job", () -> ImmutableSet.of(), 2, 2));
+	public static final RegistryObject<PointOfInterestType> CUPID_POI = register(DataInit
 			.registerPOIFromBlocks(WizardEntity.PREFIX + "_cupid_job", () -> ImmutableSet.of(Blocks.GLOWSTONE), 2, 2));
 
 	public static <T extends PointOfInterestType> RegistryObject<T> register(RegistryObject<T> t) {

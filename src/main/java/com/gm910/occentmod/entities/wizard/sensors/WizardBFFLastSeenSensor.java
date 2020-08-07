@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.gm910.occentmod.entities.wizard.WizardEntity;
-import com.gm910.occentmod.init.AIInit;
+import com.gm910.occentmod.init.DataInit;
 import com.google.common.collect.ImmutableSet;
 
 import net.minecraft.entity.LivingEntity;
@@ -22,7 +22,7 @@ public class WizardBFFLastSeenSensor extends Sensor<WizardEntity> {
 	public static void forceClinit() {
 	}
 
-	public static final RegistryObject<SensorType<WizardBFFLastSeenSensor>> TYPE = AIInit
+	public static final RegistryObject<SensorType<WizardBFFLastSeenSensor>> TYPE = DataInit
 			.registerSensor(WizardEntity.PREFIX + "_wizard_bff_last_seen", WizardBFFLastSeenSensor::new);
 
 	public WizardBFFLastSeenSensor() {

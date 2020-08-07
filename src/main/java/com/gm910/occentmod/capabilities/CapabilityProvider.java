@@ -1,5 +1,7 @@
 package com.gm910.occentmod.capabilities;
 
+import com.gm910.occentmod.capabilities.rooms.RoomManager;
+import com.gm910.occentmod.capabilities.rooms.RoomStorage;
 import com.gm910.occentmod.capabilities.speciallocs.SpecialLocationManager;
 import com.gm910.occentmod.capabilities.speciallocs.SpecialLocationStorage;
 import com.gm910.occentmod.capabilities.wizardcap.IWizard;
@@ -29,6 +31,9 @@ public class CapabilityProvider<T, K> implements ICapabilitySerializable<Compoun
 
 	@CapabilityInject(SpecialLocationManager.class)
 	public static Capability<SpecialLocationManager> SPECIAL_LOCS = null;
+
+	@CapabilityInject(RoomManager.class)
+	public static Capability<RoomManager> ROOMS = null;
 
 	private Capability<T> capability;
 
@@ -80,6 +85,11 @@ public class CapabilityProvider<T, K> implements ICapabilitySerializable<Compoun
 			return new SpecialLocationManager();
 		});
 		System.out.println("THE VALUE OF CP SPECIAL_LOCS IS NOW " + CapabilityProvider.SPECIAL_LOCS);
+
+		CapabilityManager.INSTANCE.register(RoomManager.class, new RoomStorage(), () -> {
+			return new RoomManager();
+		});
+		System.out.println("THE VALUE OF CP rooms IS NOW " + CapabilityProvider.ROOMS);
 	}
 
 	@SubscribeEvent
@@ -96,6 +106,8 @@ public class CapabilityProvider<T, K> implements ICapabilitySerializable<Compoun
 		if (!(world.isRemote)) {
 			event.addCapability(SpecialLocationManager.LOC, new CapabilityProvider<SpecialLocationManager, World>(
 					CapabilityProvider.SPECIAL_LOCS, event.getObject()));
+			event.addCapability(RoomManager.LOC,
+					new CapabilityProvider<RoomManager, World>(CapabilityProvider.ROOMS, event.getObject()));
 		}
 
 	}

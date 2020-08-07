@@ -1,4 +1,4 @@
-package com.gm910.occentmod.entities.wizard.tasks;
+package com.gm910.occentmod.entities.goals;
 
 import java.util.List;
 import java.util.Map;
@@ -16,14 +16,14 @@ import net.minecraft.entity.ai.brain.task.Task;
 import net.minecraft.util.WeightedList;
 import net.minecraft.world.server.ServerWorld;
 
-public class MultiTask<E extends LivingEntity> extends Task<E> {
+public class MultiTaskDocumentation<E extends LivingEntity> extends Task<E> {
 	private final Set<MemoryModuleType<?>> field_220416_b;
-	private final MultiTask.Ordering field_220417_c;
-	private final MultiTask.RunType field_220418_d;
+	private final MultiTaskDocumentation.Ordering field_220417_c;
+	private final MultiTaskDocumentation.RunType field_220418_d;
 	private final WeightedList<Task<? super E>> field_220419_e = new WeightedList<>();
 
-	public MultiTask(Map<MemoryModuleType<?>, MemoryModuleStatus> p_i51503_1_, Set<MemoryModuleType<?>> p_i51503_2_,
-			MultiTask.Ordering p_i51503_3_, MultiTask.RunType p_i51503_4_,
+	public MultiTaskDocumentation(Map<MemoryModuleType<?>, MemoryModuleStatus> p_i51503_1_, Set<MemoryModuleType<?>> p_i51503_2_,
+			MultiTaskDocumentation.Ordering p_i51503_3_, MultiTaskDocumentation.RunType p_i51503_4_,
 			List<Pair<Task<? super E>, Integer>> p_i51503_5_) {
 		super(p_i51503_1_);
 		this.field_220416_b = p_i51503_2_;
@@ -78,7 +78,7 @@ public class MultiTask<E extends LivingEntity> extends Task<E> {
 		return "(" + this.getClass().getSimpleName() + "): " + set;
 	}
 
-	static enum Ordering {
+	public static enum Ordering {
 		ORDERED((p_220627_0_) -> {
 		}), SHUFFLED(WeightedList::func_226309_a_);
 
@@ -88,12 +88,21 @@ public class MultiTask<E extends LivingEntity> extends Task<E> {
 			this.field_220629_c = p_i50849_3_;
 		}
 
+		public <T extends Enum<T>> T get() {
+			try {
+				return Enum.valueOf((Class<T>) Class.forName("net.minecraft.entity.ai.brain.task.MultiTask$Ordering"),
+						this.name());
+			} catch (ClassNotFoundException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
 		public void func_220628_a(WeightedList<?> p_220628_1_) {
 			this.field_220629_c.accept(p_220628_1_);
 		}
 	}
 
-	static enum RunType {
+	public static enum RunType {
 		RUN_ONE {
 			public <E extends LivingEntity> void func_220630_a(WeightedList<Task<? super E>> p_220630_1_,
 					ServerWorld p_220630_2_, E p_220630_3_, long p_220630_4_) {
@@ -116,6 +125,15 @@ public class MultiTask<E extends LivingEntity> extends Task<E> {
 		};
 
 		private RunType() {
+		}
+
+		public <T extends Enum<T>> T get() {
+			try {
+				return Enum.valueOf((Class<T>) Class.forName("net.minecraft.entity.ai.brain.task.MultiTask$RunType"),
+						this.name());
+			} catch (ClassNotFoundException e) {
+				throw new RuntimeException(e);
+			}
 		}
 
 		public abstract <E extends LivingEntity> void func_220630_a(WeightedList<Task<? super E>> p_220630_1_,

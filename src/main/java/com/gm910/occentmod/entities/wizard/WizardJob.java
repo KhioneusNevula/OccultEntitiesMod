@@ -16,9 +16,11 @@ import net.minecraft.village.PointOfInterestType;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.TriPredicate;
 
+@Deprecated
 public enum WizardJob {
-	JOBLESS("jobless", WizardPOIS.JOBLESS_POI.get(), false), SUMMONER("summoner", WizardPOIS.SUMMONER_POI.get(), true),
-	CUPID("cupid", WizardPOIS.CUPID_POI.get(), true, ImmutableSet.of(),
+	JOBLESS("jobless", null/*WizardPOIS.JOBLESS_POI.get()*/, false),
+	SUMMONER("summoner", null/*WizardPOIS.SUMMONER_POI.get()*/, true),
+	CUPID("cupid", null/*WizardPOIS.CUPID_POI.get()*/, true, ImmutableSet.of(),
 			ImmutableSet.of(Ingredient.fromItems(Items.HONEY_BOTTLE), Ingredient.fromItems(Items.BONE_MEAL),
 					Ingredient.fromItems(Items.EGG)));
 

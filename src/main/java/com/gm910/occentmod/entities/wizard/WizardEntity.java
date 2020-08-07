@@ -20,7 +20,7 @@ import com.gm910.occentmod.entities.wizard.sensors.WizardHostilesSensor;
 import com.gm910.occentmod.entities.wizard.sensors.WizardSecondaryPositionSensor;
 import com.gm910.occentmod.entities.wizard.tasks.WizardTasks;
 import com.gm910.occentmod.entities.wizard.tasks.seidhvaettr.SeidhTask;
-import com.gm910.occentmod.init.AIInit;
+import com.gm910.occentmod.init.DataInit;
 import com.gm910.occentmod.init.EntityInit;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -79,19 +79,19 @@ public class WizardEntity extends AgeableEntity {
 	public static void forceClinit() {
 	}
 
-	public static final RegistryObject<MemoryModuleType<List<LivingEntity>>> VISIBLE_BABIES = AIInit
+	public static final RegistryObject<MemoryModuleType<List<LivingEntity>>> VISIBLE_BABIES = DataInit
 			.registerMemoryModule(PREFIX + "_visible_babies");
 
-	public static final RegistryObject<MemoryModuleType<UUIDSerializable>> BEST_FRIEND = AIInit
+	public static final RegistryObject<MemoryModuleType<UUIDSerializable>> BEST_FRIEND = DataInit
 			.registerMemoryModule(PREFIX + "_best_friend", Optional.of(UUIDSerializable::new));
 
-	public static final RegistryObject<MemoryModuleType<EnumSerializable<WizardJob>>> PROFESSION = AIInit
+	public static final RegistryObject<MemoryModuleType<EnumSerializable<WizardJob>>> PROFESSION = DataInit
 			.registerMemoryModule(PREFIX + "_profession", (e) -> new EnumSerializable<>(e, WizardJob.class));
 
-	public static final RegistryObject<MemoryModuleType<LongSerializable>> BFF_LAST_SEEN_TIME = AIInit
+	public static final RegistryObject<MemoryModuleType<LongSerializable>> BFF_LAST_SEEN_TIME = DataInit
 			.registerMemoryModule(PREFIX + "_bff_last_seen_time", LongSerializable::deserialize);
 
-	public static final RegistryObject<MemoryModuleType<WizardEntity>> BREED_TARGET = AIInit
+	public static final RegistryObject<MemoryModuleType<WizardEntity>> BREED_TARGET = DataInit
 			.registerMemoryModule(PREFIX + "_breed_target");
 
 	public final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.HOME,

@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.api.util.GMNBT;
-import com.gm910.occentmod.empires.Empire.EmpireName;
 import com.gm910.occentmod.util.GMFiles;
 import com.google.common.collect.Sets;
 
@@ -80,9 +79,9 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 
 	public Empire createNewEmpire(DimensionType dimension, ChunkPos center) {
 		Empire emp = new Empire(this, dimension, center, structureTypeName.toString());
-		emp.setName(this.giveRandomName());
 		emp.setId();
 		this.addEmpire(emp);
+		emp.initializeEmpire();
 		return emp;
 	}
 
@@ -98,6 +97,37 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 			}
 		}
 		return null;
+	}
+
+	public Set<Empire> getInRadius(DimensionType type, BlockPos anyPos, double maxRadius) {
+		Set<Empire> emps = this.getEmpiresInWorld(type);
+
+		for (Empire empire : emps) {
+			boolean cont = false;
+			for (ChunkPos pos : empire.getChunkPositions(type)) {
+				for (int x = 0; x < 16; x++) {
+					for (int y = 0; y < 256; y++) {
+						for (int z = 0; z < 16; z++) {
+							BlockPos pos1 = new BlockPos(pos.getXStart(), 0, pos.getZStart()).add(x, y, z);
+							if (pos1.withinDistance(anyPos, maxRadius)) {
+								emps.add(empire);
+								cont = true;
+								continue;
+							}
+						}
+						if (cont)
+							continue;
+					}
+					if (cont)
+						continue;
+				}
+				if (cont)
+					continue;
+			}
+			if (cont)
+				continue;
+		}
+		return emps;
 	}
 
 	public Empire getEmpire(DimensionType t, BlockPos anyPos) {

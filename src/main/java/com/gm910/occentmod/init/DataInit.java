@@ -14,13 +14,10 @@ import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.api.util.ModReflect;
 import com.gm910.occentmod.blocks.VaettrTileEntity;
 import com.gm910.occentmod.entities.LivingBlockEntity;
-import com.gm910.occentmod.entities.wizard.WizardActivities;
-import com.gm910.occentmod.entities.wizard.WizardEntity;
-import com.gm910.occentmod.entities.wizard.WizardPOIS;
-import com.gm910.occentmod.entities.wizard.sensors.WizardBFFLastSeenSensor;
-import com.gm910.occentmod.entities.wizard.sensors.WizardBabiesSensor;
-import com.gm910.occentmod.entities.wizard.sensors.WizardHostilesSensor;
-import com.gm910.occentmod.entities.wizard.sensors.WizardSecondaryPositionSensor;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenMemoryAndSensors;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Genetics;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenSchedule;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.work.CitizenPOIS;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.Dynamic;
 
@@ -35,17 +32,19 @@ import net.minecraft.entity.ai.brain.sensor.Sensor;
 import net.minecraft.entity.ai.brain.sensor.SensorType;
 import net.minecraft.entity.merchant.villager.VillagerProfession;
 import net.minecraft.item.Item;
+import net.minecraft.network.datasync.IDataSerializer;
 import net.minecraft.util.IDynamicSerializable;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.village.PointOfInterestType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.DataSerializerEntry;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public final class AIInit {
-	private AIInit() {
+public final class DataInit {
+	private DataInit() {
 	}
 
 	public static final DeferredRegister<PointOfInterestType> POIS = new DeferredRegister<>(ForgeRegistries.POI_TYPES,
@@ -60,6 +59,8 @@ public final class AIInit {
 			OccultEntities.MODID);
 	public static final DeferredRegister<Schedule> SCHEDULES = new DeferredRegister<>(ForgeRegistries.SCHEDULES,
 			OccultEntities.MODID);
+	public static final DeferredRegister<DataSerializerEntry> SERIALIZERS = new DeferredRegister<>(
+			ForgeRegistries.DATA_SERIALIZERS, OccultEntities.MODID);
 
 	// POI's
 	public static final RegistryObject<PointOfInterestType> VAETTR_POI = registerPOIFromBlocks("vaettr",
@@ -77,6 +78,11 @@ public final class AIInit {
 			@Nullable Supplier<SoundEvent> sound) {
 		return registerProfession(name, () -> poi.get(), () -> ImmutableSet.of(), () -> ImmutableSet.of(),
 				() -> sound.get());
+	}
+
+	public static RegistryObject<DataSerializerEntry> registerSerializer(String name,
+			Supplier<IDataSerializer<?>> sup) {
+		return SERIALIZERS.register(name, () -> new DataSerializerEntry(sup.get()));
 	}
 
 	public static RegistryObject<VillagerProfession> registerProfession(String name, Supplier<PointOfInterestType> poi,
@@ -161,8 +167,10 @@ public final class AIInit {
 	}
 
 	public static ScheduleBuilder registerSchedule(String key) {
-		Schedule schedule = SCHEDULES.register(key, () -> new Schedule()).get();
-		return new ScheduleBuilder(schedule);
+		RegistryObject<Schedule> schedule = SCHEDULES.register(key, () -> new Schedule());
+		while (!schedule.isPresent()) {
+		}
+		return new ScheduleBuilder(schedule.get());
 	}
 
 	public static RegistryObject<Activity> registerActivity(String key) {
@@ -171,14 +179,18 @@ public final class AIInit {
 
 	public static void forceClinits() {
 
-		WizardEntity.forceClinit();
+		// WizardEntity.forceClinit();
 		LivingBlockEntity.forceClinit();
-		WizardActivities.forceClinit();
-		WizardPOIS.forceClinit();
-		WizardBabiesSensor.forceClinit();
-		WizardBFFLastSeenSensor.forceClinit();
-		WizardHostilesSensor.forceClinit();
-		WizardSecondaryPositionSensor.forceClinit();
+		// WizardActivities.forceClinit();
+		// WizardPOIS.forceClinit();
+		// WizardBabiesSensor.forceClinit();
+		// WizardBFFLastSeenSensor.forceClinit();
+		// WizardHostilesSensor.forceClinit();
+		// WizardSecondaryPositionSensor.forceClinit();
+		CitizenSchedule.forceClinit();
+		CitizenPOIS.reg();
+		CitizenMemoryAndSensors.reg();
+		Genetics.forceClinit();
 	}
 
 	public static void registerToEventBus(IEventBus bus) {

@@ -194,6 +194,8 @@ public class ModReflect {
 			X r = (X) b;
 			return true;
 		} catch (ClassCastException e) {
+
+			// Lists.newArrayList());
 			return false;
 		}
 	}
@@ -202,7 +204,8 @@ public class ModReflect {
 
 		Class<?>[] classes = clazz.getDeclaredClasses();
 		for (Class<?> clazz2 : classes) {
-			if (clazz2.getSimpleName().equals(simpleName) || clazz2.getName().equals(obfusname)) {
+
+			if (clazz2.getName().equals(obfusname) || clazz2.getSimpleName().equals(simpleName)) {
 				return clazz2;
 			}
 		}
