@@ -12,4 +12,5 @@ public interface INeedsTask<T extends NeedType<?>> {
 	public default boolean shouldContinueExecuting(ServerWorld worldIn, CitizenEntity entityIn, long gameTimeIn) {
 		return !entityIn.getNeeds().getChecker(getNeedType()).areNeedsFulfilled();
 	}
+
 }

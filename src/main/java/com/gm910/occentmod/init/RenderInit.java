@@ -1,5 +1,6 @@
 package com.gm910.occentmod.init;
 
+import com.gm910.occentmod.api.sitting.EmptyRenderer;
 import com.gm910.occentmod.api.sitting.SitEntity;
 import com.gm910.occentmod.entityrender.CitizenRender;
 import com.gm910.occentmod.entityrender.LivingBlockRender;
@@ -25,8 +26,7 @@ public final class RenderInit {
 		// RenderingRegistry.registerEntityRenderingHandler(EntityInit.WIZARD.get(),
 		// WizardRender::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityInit.CITIZEN.get(), CitizenRender::new);
-		if (SitEntity.SIT_ENTITY_TYPE != null)
-			RenderingRegistry.registerEntityRenderingHandler(SitEntity.SIT_ENTITY_TYPE.get(),
-					SitEntity.EmptyRenderer::new);
+		RenderingRegistry.registerEntityRenderingHandler(SitEntity.SIT_ENTITY_TYPE.get(),
+				EmptyRenderer<SitEntity>::new);
 	}
 }

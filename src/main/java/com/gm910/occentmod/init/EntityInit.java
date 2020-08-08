@@ -4,7 +4,6 @@ import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.api.sitting.SitEntity;
 import com.gm910.occentmod.entities.LivingBlockEntity;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
-import com.gm910.occentmod.entities.wizard.WizardEntity;
 
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
@@ -36,11 +35,6 @@ public final class EntityInit {
 				return EntityType.Builder.<LivingBlockEntity>create(LivingBlockEntity::new, EntityClassification.MISC)
 						.size(1.0f, 1.0f).build(new ResourceLocation(OccultEntities.MODID, "living_block").toString());
 			});
-
-	public static final RegistryObject<EntityType<WizardEntity>> WIZARD = null;/*ENTITY_TYPES.register("wizard", () -> {
-																				return EntityType.Builder.<WizardEntity>create(WizardEntity::new, EntityClassification.MISC).size(1.0f, 1.0f)
-																				.build(new ResourceLocation(OccultEntities.MODID, "wizard").toString());
-																				});*/
 
 	public static final RegistryObject<EntityType<CitizenEntity>> CITIZEN = ENTITY_TYPES.register("citizen", () -> {
 		return EntityType.Builder.<CitizenEntity>create(CitizenEntity::new, EntityClassification.CREATURE)

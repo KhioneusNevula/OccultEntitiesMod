@@ -17,7 +17,7 @@ import com.mojang.datafixers.types.DynamicOps;
 import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
-import it.unimi.dsi.fastutil.objects.Object2FloatMaps;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 
 public class Relationships extends EntityDependentInformationHolder<CitizenEntity> {
 
@@ -28,7 +28,7 @@ public class Relationships extends EntityDependentInformationHolder<CitizenEntit
 	 * acquaintanceship. 2 is friendship. 3 is strong love. 4 is either strong
 	 * familial love or romantic love if the two aren't related.
 	 */
-	private Object2FloatMap<CitizenIdentity> identities = Object2FloatMaps.emptyMap();
+	private Object2FloatMap<CitizenIdentity> identities = new Object2FloatOpenHashMap<>();
 	/**
 	 * The deeds that this person believes a citizen has done
 	 */

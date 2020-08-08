@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.api.util.GMNBT;
-import com.gm910.occentmod.api.util.ModReflect;
 import com.gm910.occentmod.empires.Empire;
 import com.gm910.occentmod.empires.EmpireData;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenInformation;
@@ -58,7 +57,6 @@ import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.network.datasync.IDataSerializer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
@@ -92,8 +90,6 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 	public static final DataParameter<Float> FOOD_LEVEL = EntityDataManager.createKey(CitizenEntity.class,
 			DataSerializers.FLOAT);
 
-	public static final DataParameter<Genetics<CitizenEntity>> GENETICS = null;
-
 	private double previousFoodPosX;
 	private double previousFoodPosY;
 	private double previousFoodPosZ;
@@ -103,7 +99,6 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		super(type, worldIn);
 		this.info = new CitizenInformation<CitizenEntity>(this);
 		info.initialize();
-		info.setGenetics(this.dataManager.get(GENETICS));
 		if (worldIn instanceof ServerWorld) {
 			this.empdata = EmpireData.get((ServerWorld) worldIn);
 		}
@@ -153,16 +148,10 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 
 	@Override
 	protected void registerAttributes() {
-		if (GENETICS == null) {
-			ModReflect.setField(CitizenEntity.class, DataParameter.class, "GENETICS", null, null,
-					EntityDataManager.createKey(CitizenEntity.class,
-							(IDataSerializer<Genetics<CitizenEntity>>) Genetics.CITIZEN_SERIALIZER.get()
-									.getSerializer()));
-		}
+		super.registerAttributes();
 		this.getAttributes().registerAttribute(MAX_FOOD_LEVEL).setBaseValue(20.0);
 		this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(20.0);
 		this.dataManager.set(FOOD_LEVEL, (float) this.getAttribute(MAX_FOOD_LEVEL).getValue());
-		this.dataManager.set(GENETICS, new Genetics<>());
 	}
 
 	@Override
@@ -185,7 +174,6 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 
 	public void setGenetics(Genetics<CitizenEntity> genetics) {
 		this.info.setGenetics(genetics);
-		this.dataManager.set(GENETICS, genetics);
 	}
 
 	public void setAutonomy(Autonomy aut) {
@@ -247,6 +235,10 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 
 	@Override
 	protected Brain<?> createBrain(Dynamic<?> dynamicIn) {
+		if (MEMORY_TYPES == null)
+			MEMORY_TYPES = ImmutableSet.of();
+		if (SENSOR_TYPES == null)
+			SENSOR_TYPES = ImmutableSet.of();
 		Brain<CitizenEntity> brain = new Brain<>(MEMORY_TYPES, SENSOR_TYPES, dynamicIn);
 		return brain;
 	}
@@ -369,7 +361,7 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 	}
 
 	public Genetics<CitizenEntity> getGenetics() {
-		return dataManager.get(GENETICS);
+		return info.getGenetics();
 	}
 
 	public CitizenInformation<CitizenEntity> getInformation() {
@@ -410,7 +402,6 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 	public void readAdditional(CompoundNBT compound) {
 		super.readAdditional(compound);
 		this.info = new CitizenInformation<CitizenEntity>(this, GMNBT.makeDynamic(compound.get("CitizenInformation")));
-		info.setGenetics(this.getDataManager().get(GENETICS));
 	}
 
 	@Override

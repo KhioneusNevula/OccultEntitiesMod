@@ -39,7 +39,7 @@ public abstract class NeedChecker<E> {
 
 		boolean fulf = this.fulfillNeeds();
 
-		if (fulf) {
+		if (fulf && need != null) {
 			need.fulfill();
 			need = null;
 		}

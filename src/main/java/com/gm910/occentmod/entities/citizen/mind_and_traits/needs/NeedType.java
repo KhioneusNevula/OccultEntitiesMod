@@ -2,7 +2,6 @@ package com.gm910.occentmod.entities.citizen.mind_and_traits.needs;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -12,7 +11,9 @@ import java.util.stream.Collectors;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.checkers.HungerChecker;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.task.needs.EatFoodFromInventory;
 import com.gm910.occentmod.util.GMFiles;
+import com.google.common.collect.Sets;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
@@ -20,12 +21,11 @@ import net.minecraft.util.ResourceLocation;
 
 public class NeedType<T> {
 
-	public static final NeedType<Float> HUNGER = new NeedType<Float>(GMFiles.rl("hunger"), (en) -> en.getFoodLevel(),
-			(a, d) -> d.asFloat(0), (d, n) -> d.createFloat(n.getDesiredValue()), (m, e) -> new HungerChecker(m, e),
-			(m, e) -> new HashSet<>(), true); // TODO
-
 	private static final Map<ResourceLocation, NeedType<?>> TYPES = new HashMap<>();
 
+	public static final NeedType<Float> HUNGER = new NeedType<Float>(GMFiles.rl("hunger"), (en) -> en.getFoodLevel(),
+			(a, d) -> d.asFloat(0), (d, n) -> d.createFloat(n.getDesiredValue()), (m, e) -> new HungerChecker(m, e),
+			(m, e) -> Sets.newHashSet(new EatFoodFromInventory()), true); // TODO
 	ResourceLocation resource;
 
 	Function<CitizenEntity, T> getVal;

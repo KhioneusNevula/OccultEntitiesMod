@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import com.gm910.occentmod.api.networking.messages.ModChannels;
 import com.gm910.occentmod.api.networking.messages.Networking.TaskMessage;
 import com.gm910.occentmod.capabilities.CapabilityProvider;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race;
 import com.gm910.occentmod.init.BiomeInit;
 import com.gm910.occentmod.init.BlockInit;
 import com.gm910.occentmod.init.DataInit;
@@ -75,6 +76,8 @@ public class OccultEntities {
 
 		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+		Race.registerRaceGeneTypes();
+
 		BlockInit.BLOCKS.register(modBus);
 		System.out.println("BlocksRegistered");
 
@@ -84,11 +87,11 @@ public class OccultEntities {
 		TileInit.TILE_TYPES.register(modBus);
 		System.out.println("TileTypes registered");
 
-		DataInit.registerToEventBus(modBus);
-		System.out.println("DataInit registered");
-
 		EntityInit.ENTITY_TYPES.register(modBus);
 		System.out.println("EntityTypes registered");
+
+		DataInit.registerToEventBus(modBus);
+		System.out.println("DataInit registered");
 
 		BiomeInit.BIOMES.register(modBus);
 		System.out.println("Biomes registered");

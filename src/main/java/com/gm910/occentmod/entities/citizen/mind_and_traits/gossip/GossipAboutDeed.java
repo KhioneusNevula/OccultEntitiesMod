@@ -7,8 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
-import net.minecraft.util.ResourceLocation;
-
 public class GossipAboutDeed extends CitizenGossip {
 
 	private CitizenDeed deed;
@@ -19,8 +17,7 @@ public class GossipAboutDeed extends CitizenGossip {
 	}
 
 	public GossipAboutDeed(CitizenEntity owner, Dynamic<?> dyn) {
-		this(owner, CitizenDeedType.get(new ResourceLocation(dyn.get("id").asString("")))
-				.deserialize(dyn.get("deed").get().get()));
+		this(owner, CitizenDeedType.deserialize(dyn.get("deed").get().get()));
 	}
 
 	@Override

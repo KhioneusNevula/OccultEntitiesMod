@@ -1,9 +1,5 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.task;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.gm910.occentmod.api.util.ModReflect;
@@ -45,35 +41,5 @@ public interface IPersistentTask extends IDynamicSerializable {
 	}
 
 	public <T> T writeData(DynamicOps<T> ops);
-
-	public static class PersistentTaskType<I extends CitizenTask & IPersistentTask> {
-
-		private static final Map<ResourceLocation, PersistentTaskType<?>> TYPES = new HashMap<>();
-
-		Function<Dynamic<?>, I> deserializer;
-		ResourceLocation rl;
-
-		public PersistentTaskType(ResourceLocation rl, Function<Dynamic<?>, I> deserializer) {
-			this.rl = rl;
-			this.deserializer = deserializer;
-			TYPES.put(rl, this);
-		}
-
-		public ResourceLocation getResourceLocation() {
-			return rl;
-		}
-
-		public I deserialize(Dynamic<?> dyn) {
-			return deserializer.apply(dyn);
-		}
-
-		public static <I extends CitizenTask & IPersistentTask> PersistentTaskType<I> get(ResourceLocation rl) {
-			return (PersistentTaskType<I>) TYPES.get(rl);
-		}
-
-		public static Collection<PersistentTaskType<?>> getValues() {
-			return TYPES.values();
-		}
-	}
 
 }

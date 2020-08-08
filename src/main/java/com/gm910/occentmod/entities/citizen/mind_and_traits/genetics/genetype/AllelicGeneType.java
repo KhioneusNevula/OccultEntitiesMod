@@ -59,7 +59,7 @@ public class AllelicGeneType<E extends LivingEntity> extends GeneType<DoubleAlle
 	}
 
 	@Override
-	protected Gene<DoubleAllele> defaultGetRandom(Race race, E en) {
+	public Gene<DoubleAllele> defaultGetRandom(Race race, E en) {
 		return new Gene<>(this, forRace(race)).setRaceMarker(race);
 	}
 

@@ -12,12 +12,8 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.math.Fraction;
 
-import com.gm910.occentmod.api.util.GMNBT;
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.InformationHolder;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race.SpiritRace;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.genetype.GeneType;
-import com.gm910.occentmod.init.DataInit;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -28,37 +24,16 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTDynamicOps;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.IDataSerializer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.registries.DataSerializerEntry;
 
 public class Genetics<E extends LivingEntity> extends InformationHolder {
 
 	private Map<GeneType<?, E>, Gene<?>> genes = Maps.newHashMap();
 
-	public static final RegistryObject<DataSerializerEntry> CITIZEN_SERIALIZER = DataInit
-			.registerSerializer("citizen_gene_serializer", () -> new IDataSerializer<Genetics<CitizenEntity>>() {
-				public void write(PacketBuffer buf, Genetics<CitizenEntity> value) {
-					buf.writeCompoundTag((CompoundNBT) value.serialize(NBTDynamicOps.INSTANCE));
-				}
-
-				public Genetics<CitizenEntity> read(PacketBuffer buf) {
-
-					return new Genetics<CitizenEntity>(GMNBT.makeDynamic(buf.readCompoundTag()));
-				}
-
-				public Genetics<CitizenEntity> copyValue(Genetics<CitizenEntity> value) {
-					return value.copy();
-				}
-			});
-
-	public static void forceClinit() {
-	}
-
+	/*
+		public static void forceClinit() {
+		}
+	*/
 	public Genetics() {
 	}
 
@@ -155,8 +130,7 @@ public class Genetics<E extends LivingEntity> extends InformationHolder {
 			valsForEach.put(race, 0);
 		}
 		for (Gene<?> gene : geneSet) {
-			if (gene.getRaceMarker() == Race.MIXED || gene.getRaceMarker() == null
-					|| gene.getRaceMarker() instanceof SpiritRace)
+			if (gene.getRaceMarker() == Race.MIXED || gene.getRaceMarker() == null || gene.getRaceMarker().isHidden())
 				continue;
 			valsForEach.put(gene.getRaceMarker(), valsForEach.getInt(gene.getRaceMarker()) + 1);
 		}

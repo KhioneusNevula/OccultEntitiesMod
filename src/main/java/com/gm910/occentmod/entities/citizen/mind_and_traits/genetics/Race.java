@@ -17,22 +17,29 @@ import net.minecraft.util.ResourceLocation;
 @SuppressWarnings("unchecked")
 public class Race {
 
-	public static final Race HUMAN = Race.create("human").setGeneTypes(GeneType.MOVEMENT_SPEED);
-	public static final Race FAIRY = Race.create("fairy").setGeneTypes(GeneType.FAIRY_ANIMAL_EFFECT,
-			GeneType.FAIRY_EARS, GeneType.FLICK, GeneType.FAIRY_PLANT_EFFECT, GeneType.FLICK_SIGHT,
-			GeneType.MOVEMENT_SPEED, GeneType.WINGS);
-	public static final Race TROLL = Race.create("troll").setGeneTypes(GeneType.DAMAGE, GeneType.HORNS,
-			GeneType.MINE_TIER, GeneType.SHOCKWAVE, GeneType.MOVEMENT_SPEED);
-	public static final Race DRACONIAN = Race.create("draconian").setGeneTypes(GeneType.DAMAGE, GeneType.DRAGON_FIRE,
-			GeneType.DRAGON_TAIL, GeneType.HORNS, GeneType.MOVEMENT_SPEED, GeneType.WEREDRAGON, GeneType.WINGS);
-	public static final Race MIXED = new Race(GMFiles.rl("mixed"));
-
 	public static final Set<Race> TYPES = new HashSet<>();
 
 	/**
 	 * All races, including spirit and transformed
 	 */
 	public static final Set<Race> ALL_TYPES = new HashSet<>();
+
+	public static final Race HUMAN = Race.create("human");
+	public static final Race FAIRY = Race.create("fairy");
+	public static final Race TROLL = Race.create("troll");
+	public static final Race DRACONIAN = Race.create("draconian");
+	public static final Race MIXED = new Race(GMFiles.rl("mixed"));
+
+	public static void registerRaceGeneTypes() {
+		HUMAN.setGeneTypes(GeneType.MOVEMENT_SPEED);
+		FAIRY.setGeneTypes(GeneType.FAIRY_ANIMAL_EFFECT, GeneType.FAIRY_EARS, GeneType.FLICK,
+				GeneType.FAIRY_PLANT_EFFECT, GeneType.FLICK_SIGHT, GeneType.MOVEMENT_SPEED, GeneType.WINGS);
+		TROLL.setGeneTypes(GeneType.DAMAGE, GeneType.HORNS, GeneType.MINE_TIER, GeneType.SHOCKWAVE,
+				GeneType.MOVEMENT_SPEED);
+		DRACONIAN.setGeneTypes(GeneType.DAMAGE, GeneType.DRAGON_FIRE, GeneType.DRAGON_TAIL, GeneType.HORNS,
+				GeneType.MOVEMENT_SPEED, GeneType.WEREDRAGON, GeneType.WINGS);
+
+	}
 
 	private static int nextUseId = 1;
 
@@ -84,21 +91,21 @@ public class Race {
 	}
 
 	public static Race fromName(ResourceLocation loc) {
-		for (Race type : TYPES) {
+		for (Race type : ALL_TYPES) {
 			if (type.regName.equals(loc)) {
 				return type;
 			}
 		}
-		return MIXED.getRegName().equals(loc) ? MIXED : null;
+		return null;
 	}
 
 	public static Race fromId(int loc) {
-		for (Race type : TYPES) {
+		for (Race type : ALL_TYPES) {
 			if (type.id == loc) {
 				return type;
 			}
 		}
-		return MIXED.getId() == loc ? MIXED : null;
+		return null;
 	}
 
 	public static Race fromId(String loc) {
@@ -120,6 +127,14 @@ public class Race {
 		return set;
 	}
 
+	public static Set<Race> getAllTypesIncludingSpiritual() {
+		return new HashSet<>(ALL_TYPES);
+	}
+
+	public boolean isHidden() {
+		return false;
+	}
+
 	/*public static enum PhysicalTrait implements IDynamicSerializable {
 		DRAGON_HORNS, TROLL_HORNS, DRAGON_WINGS, FAIRY_WINGS, FAIRY_EARS, DRAGON_TAIL;
 	
@@ -136,6 +151,7 @@ public class Race {
 
 	public static class SpiritRace extends Race {
 
+		private static final Map<ResourceLocation, SpiritRace> TYPES = new HashMap<>();
 		/**
 		 * Takes a physical form as a CitizenEntity; nature-based powers
 		 */
@@ -154,8 +170,6 @@ public class Race {
 		 * Takes a physical form as a CitizenEntity
 		 */
 		public static final SpiritRace DEITY = new SpiritRace(GMFiles.rl("deity"));
-
-		private static final Map<ResourceLocation, SpiritRace> TYPES = new HashMap<>();
 
 		private ResourceLocation rec;
 
@@ -177,10 +191,17 @@ public class Race {
 			return TYPES.values();
 		}
 
+		@Override
+		public boolean isHidden() {
+			// TODO Auto-generated method stub
+			return true;
+		}
+
 	}
 
 	public static class TransformedRace extends Race {
 
+		private static final Map<ResourceLocation, TransformedRace> TYPES = new HashMap<>();
 		/**
 		 * Drinks blood to survive, can turn invisible and burns in sunlight. Children
 		 * may not inherit the burning in sunlight
@@ -192,7 +213,16 @@ public class Race {
 		 */
 		public static final TransformedRace WEREWOLF = new TransformedRace(GMFiles.rl("werewolf"));
 
-		private static final Map<ResourceLocation, TransformedRace> TYPES = new HashMap<>();
+		/**
+		 * Is mostly intangible and cannot reproduce. Insanity level is always at its
+		 * highest
+		 */
+		public static final TransformedRace GHOST = new TransformedRace(GMFiles.rl("ghost"));
+
+		/**
+		 * Acts like a zombie but stores citizen data
+		 */
+		public static final TransformedRace ZOMBIE = new TransformedRace(GMFiles.rl("zombie"));
 
 		private ResourceLocation rec;
 
@@ -212,6 +242,12 @@ public class Race {
 
 		public static Collection<TransformedRace> getAll() {
 			return TYPES.values();
+		}
+
+		@Override
+		public boolean isHidden() {
+			// TODO Auto-generated method stub
+			return true;
 		}
 
 	}

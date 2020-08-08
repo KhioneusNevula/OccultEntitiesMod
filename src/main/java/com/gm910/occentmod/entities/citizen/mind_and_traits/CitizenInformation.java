@@ -42,13 +42,34 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 
 	public <T> CitizenInformation(E en, Dynamic<T> dyn) {
 		this(en);
-		this.personality = new Personality(dyn.get("personality").get().get());
-		this.gossipKnowledge = new GossipHolder(en, dyn.get("gossip").get().get());
-		this.relationships = new Relationships(en, dyn.get("relationships").get().get());
-		this.identity = new DynamicCitizenIdentity(dyn.get("identity").get().get());
-		this.genetics = new Genetics<E>(dyn.get("genetics").get().get());
-		this.autonomy = new Autonomy(en, dyn.get("autonomy").get().get());
-		this.needs = new Needs(en, dyn.get("needs").get().get());
+		if (dyn.get("gossip").get().isPresent())
+			this.gossipKnowledge = new GossipHolder(en, dyn.get("gossip").get().get());
+		else
+			this.gossipKnowledge = new GossipHolder(en);
+		if (dyn.get("personality").get().isPresent())
+			this.personality = new Personality(dyn.get("personality").get().get());
+		else
+			this.personality = new Personality();
+		if (dyn.get("personality").get().isPresent())
+			this.relationships = new Relationships(en, dyn.get("relationships").get().get());
+		else
+			this.relationships = new Relationships(en);
+		if (dyn.get("identity").get().isPresent())
+			this.identity = new DynamicCitizenIdentity(dyn.get("identity").get().get());
+		else
+			this.identity = new DynamicCitizenIdentity(en.getUniqueID());
+		if (dyn.get("genetics").get().isPresent())
+			this.genetics = new Genetics<E>(dyn.get("genetics").get().get());
+		else
+			this.genetics = new Genetics<E>();
+		if (dyn.get("autonomy").get().isPresent())
+			this.autonomy = new Autonomy(en, dyn.get("autonomy").get().get());
+		else
+			this.autonomy = new Autonomy(en);
+		if (dyn.get("needs").get().isPresent())
+			this.needs = new Needs(en, dyn.get("needs").get().get());
+		else
+			this.needs = new Needs(en);
 	}
 
 	public void initialize() {

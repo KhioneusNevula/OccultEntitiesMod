@@ -20,12 +20,13 @@ import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatMaps;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
 
 public class Personality extends InformationHolder {
 
-	private Object2FloatMap<NumericPersonalityTrait> traits = Object2FloatMaps.emptyMap();
+	private Object2FloatMap<NumericPersonalityTrait> traits = new Object2FloatOpenHashMap<>();
 
 	private List<GossipType<?>> gossipPriority = new ArrayList<>();
 
@@ -50,7 +51,7 @@ public class Personality extends InformationHolder {
 
 	public Personality() {
 		for (NumericPersonalityTrait trait : NumericPersonalityTrait.values()) {
-			traits.put(trait, 0);
+			traits.put(trait, 0.0f);
 		}
 		Collection<GossipType<?>> ls = GossipType.getGossipTypes();
 		this.gossipPriority = new ArrayList<>(ls);

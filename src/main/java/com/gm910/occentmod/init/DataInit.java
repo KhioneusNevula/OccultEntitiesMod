@@ -15,7 +15,6 @@ import com.gm910.occentmod.api.util.ModReflect;
 import com.gm910.occentmod.blocks.VaettrTileEntity;
 import com.gm910.occentmod.entities.LivingBlockEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenMemoryAndSensors;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Genetics;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenSchedule;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.work.CitizenPOIS;
 import com.google.common.collect.ImmutableSet;
@@ -190,7 +189,7 @@ public final class DataInit {
 		CitizenSchedule.forceClinit();
 		CitizenPOIS.reg();
 		CitizenMemoryAndSensors.reg();
-		Genetics.forceClinit();
+		// Genetics.forceClinit();
 	}
 
 	public static void registerToEventBus(IEventBus bus) {

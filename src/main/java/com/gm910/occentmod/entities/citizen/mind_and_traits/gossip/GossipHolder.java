@@ -12,14 +12,14 @@ import com.mojang.datafixers.types.DynamicOps;
 import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMaps;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 public class GossipHolder extends EntityDependentInformationHolder<CitizenEntity> {
 
 	/**
 	 * Int: ticks until the citizen stops spreading gossip and forgets it.
 	 */
-	private Object2IntMap<CitizenGossip> gossip = Object2IntMaps.emptyMap();
+	private Object2IntMap<CitizenGossip> gossip = new Object2IntOpenHashMap<>();
 
 	@Override
 	public <T> T serialize(DynamicOps<T> ops) {

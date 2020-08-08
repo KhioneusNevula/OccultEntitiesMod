@@ -23,6 +23,10 @@ public class Needs extends EntityDependentInformationHolder<CitizenEntity> {
 		super(entity);
 	}
 
+	public Set<NeedType<?>> getNeedTypes() {
+		return needCheckers.keySet();
+	}
+
 	public Needs(CitizenEntity en, Dynamic<?> des) {
 		this(en);
 		Set<Need<?>> need1s = des.get("needs").asStream().map((d) -> NeedType.deserializeStatic(d))
@@ -32,8 +36,8 @@ public class Needs extends EntityDependentInformationHolder<CitizenEntity> {
 		}
 	}
 
-	public <T> Set<Need<T>> getNeeds(NeedType<T> type) {
-		return needs.get(type).stream().map((e) -> (Need<T>) e).collect(Collectors.toSet());
+	public Set<Need<?>> getNeeds(NeedType<?> type) {
+		return Sets.newHashSet(needs.get(type));
 	}
 
 	public void addNeed(Need<?> need) {

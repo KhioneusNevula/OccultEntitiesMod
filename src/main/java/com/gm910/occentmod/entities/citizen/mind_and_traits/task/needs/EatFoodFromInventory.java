@@ -27,6 +27,7 @@ public class EatFoodFromInventory extends ImmediateTask implements INeedsTask<Ne
 
 	public EatFoodFromInventory() {
 		super(ImmutableMap.of());
+		addContext(Context.CORE);
 	}
 
 	@Override
@@ -81,6 +82,12 @@ public class EatFoodFromInventory extends ImmediateTask implements INeedsTask<Ne
 	public NeedType<Float> getNeedType() {
 		// TODO Auto-generated method stub
 		return NeedType.HUNGER;
+	}
+
+	@Override
+	public boolean isUrgent(CitizenEntity en) {
+		// TODO Auto-generated method stub
+		return en.getFoodLevel() < en.getMaxFoodLevel() / 6;
 	}
 
 }

@@ -24,7 +24,7 @@ import net.minecraft.world.gen.feature.template.TemplateManager;
 
 public class EmpireCenterStructure extends Structure<NoFeatureConfig> {
 	private static final List<Biome.SpawnListEntry> SPAWN_LIST = Lists
-			.newArrayList(new Biome.SpawnListEntry(EntityInit.WIZARD.get(), 1, 1, 1));
+			.newArrayList(new Biome.SpawnListEntry(EntityInit.CITIZEN.get(), 1, 1, 1));
 	private static final List<Biome.SpawnListEntry> CREATURE_SPAWN_LIST = Lists
 			.newArrayList(new Biome.SpawnListEntry(EntityInit.LIVING_BLOCK.get(), 1, 1, 1));
 

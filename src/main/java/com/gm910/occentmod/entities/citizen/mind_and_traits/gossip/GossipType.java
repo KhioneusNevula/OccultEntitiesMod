@@ -16,6 +16,8 @@ import net.minecraft.util.text.ITextComponent;
 
 public class GossipType<T extends CitizenGossip> {
 
+	private static final Map<ResourceLocation, GossipType<?>> TYPES = new HashMap<>();
+
 	public static final GossipType<GossipAboutDeed> DEED = new GossipType<GossipAboutDeed>(GMFiles.rl("deed"),
 			GossipAboutDeed::new) {
 		@Override
@@ -25,8 +27,6 @@ public class GossipType<T extends CitizenGossip> {
 					+ gos.getDeed().getType().getName().getPath(), gos.getDeed().getDataForDisplay(obj.owner));
 		}
 	};
-
-	private static final Map<ResourceLocation, GossipType<?>> TYPES = new HashMap<>();
 
 	public final ResourceLocation regName;
 

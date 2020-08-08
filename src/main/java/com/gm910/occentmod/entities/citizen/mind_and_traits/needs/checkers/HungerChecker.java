@@ -8,7 +8,7 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedChecker;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedType;
 
 public class HungerChecker extends NeedChecker<Float> {
-	private Function<CitizenEntity, Float> calc = (e) -> {
+	private static Function<CitizenEntity, Float> calc = (e) -> {
 		return e.getMaxFoodLevel() * 3 / 4;
 	};
 

@@ -8,6 +8,9 @@ import java.util.stream.Collectors;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.EntityDependentInformationHolder;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Need;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedType;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask.Context;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -93,6 +96,19 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 		return this;
 	}
 
+	public Autonomy addTask(int ord, CitizenTask task, boolean makeFirstTask) {
+		Pair<Integer, CitizenTask> pair = Pair.of(ord, task);
+		if (pair.getSecond().getContexts().contains(Context.BACKGROUND)) {
+			this.addBackgroundTask(ord, task);
+		} else if (pair.getSecond().getContexts().contains(Context.CORE)) {
+			this.addCoreTask(ord, task);
+		} else {
+
+			this.addActiveTask(ord, task, makeFirstTask);
+		}
+		return this;
+	}
+
 	public void refreshInactiveTask(CitizenTask task) {
 		toExecute.add(task);
 	}
@@ -141,6 +157,16 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 
 	public Set<CitizenTask> getRunningTasks() {
 		Set<CitizenTask> tasks = Sets.newHashSet();
+		Needs needs = this.getEntityIn().getNeeds();
+		for (NeedType<?> type : needs.getNeedTypes()) {
+			Set<Need<?>> ns = needs.getNeeds(type);
+			for (Need<?> need : ns) {
+				if (!need.isFulfilled()) {
+					Set<CitizenTask> fulTasks = need.getFulfillmentTasks(this.getEntityIn());
+					fulTasks.forEach((tasq) -> this.addTask(0, tasq, tasq.isUrgent(this.getEntityIn())));
+				}
+			}
+		}
 		tasks.addAll(this.activeTasks.values().stream().flatMap((mapa) -> mapa.stream()).collect(Collectors.toSet()));
 		tasks.addAll(this.backgroundTasks.values().stream().flatMap((e) -> e.stream()).collect(Collectors.toSet()));
 		tasks.addAll(this.coreTasks.values().stream().flatMap((e) -> e.stream()).collect(Collectors.toSet()));

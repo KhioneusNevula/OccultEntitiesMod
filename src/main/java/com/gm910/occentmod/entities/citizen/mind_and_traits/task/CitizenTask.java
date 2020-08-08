@@ -62,6 +62,10 @@ public abstract class CitizenTask extends Task<CitizenEntity> {
 
 	public abstract Map<NumericPersonalityTrait, ReactionDeterminer<ImmediateTask>> getPotentialWitnessReactions();
 
+	public boolean isUrgent(CitizenEntity en) {
+		return false;
+	}
+
 	public enum Context {
 		TALK, USE_ITEM, MOVE, WORK, MAGIC,
 		/**

@@ -47,7 +47,7 @@ public class RegularGeneType<E extends LivingEntity> extends GeneType<Boolean, E
 	}
 
 	@Override
-	protected Gene<Boolean> defaultGetRandom(Race race, E en) {
+	public Gene<Boolean> defaultGetRandom(Race race, E en) {
 		return new Gene<>(this, ofRace.getOrDefault(race, false)).setRaceMarker(race);
 	}
 

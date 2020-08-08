@@ -11,9 +11,6 @@ import com.google.common.collect.Sets;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.culling.ClippingHelperImpl;
-import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntitySize;
@@ -207,23 +204,6 @@ public class SitEntity extends Entity {
 		if (!event.getWorldObj().isRemote && event.isDismounting()
 				&& event.getEntityBeingMounted() instanceof SitEntity) {
 			event.getEntityBeingMounted().remove();
-		}
-	}
-
-	public static class EmptyRenderer extends EntityRenderer<SitEntity> {
-		public EmptyRenderer(EntityRendererManager renderManager) {
-			super(renderManager);
-		}
-
-		@Override
-		public boolean shouldRender(SitEntity p_225626_1_, ClippingHelperImpl p_225626_2_, double p_225626_3_,
-				double p_225626_5_, double p_225626_7_) {
-			return false;
-		}
-
-		@Override
-		public ResourceLocation getEntityTexture(SitEntity entity) {
-			return null;
 		}
 	}
 }

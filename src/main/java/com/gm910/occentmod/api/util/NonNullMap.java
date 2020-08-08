@@ -1,13 +1,11 @@
 package com.gm910.occentmod.api.util;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * This map's <code>{@link java.util.Map#get get}</code> method is equivalent to
@@ -64,39 +62,13 @@ public class NonNullMap<K, V> extends HashMap<K, V> {
 	}
 
 	@Override
-	public V put(K key, V value) {
-		if (isEmptyCollection(value)) {
-			return super.get(key);
-		}
-		return super.put(key, value);
-	}
-
-	public boolean isEmptyCollection(Object value) {
-		return (value instanceof Collection) && ((Collection<?>) value).isEmpty();
-	}
-
-	@Override
-	public void putAll(Map<? extends K, ? extends V> m) {
-
-		super.putAll(m.entrySet().stream().filter((e) -> !isEmptyCollection(e))
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
-	}
-
-	@Override
-	public V putIfAbsent(K key, V value) {
-		if (isEmptyCollection(value)) {
-			return super.get(key);
-		}
-		return super.putIfAbsent(key, value);
-	}
-
-	@Override
 	public V get(Object key) {
-
-		if (super.get(key) == null && ModReflect.<K>instanceOf(key, null)) {
-			this.put((K) key, supplier.apply((K) key, this));
+		V val = super.get(key);
+		if (val == null && ModReflect.<K>instanceOf(key, null)) {
+			val = supplier.apply((K) key, this);
+			super.put((K) key, val);
 		}
-		return super.get(key);
+		return val;
 	}
 
 	/**

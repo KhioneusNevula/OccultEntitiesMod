@@ -73,7 +73,7 @@ public class IntegerIncompleteDominantGeneType<E extends LivingEntity> extends G
 	}
 
 	@Override
-	protected Gene<Integer> defaultGetRandom(Race race, E en) {
+	public Gene<Integer> defaultGetRandom(Race race, E en) {
 
 		return new Gene<>(this, ofRace.getOrDefault(race, defVal)).setRaceMarker(race);
 	}
