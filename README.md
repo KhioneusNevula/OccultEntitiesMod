@@ -1,6 +1,6 @@
 This mod is intended to be a complete dynamic RPG addition to minecraft. It can be ignored in a minecraft world if necessary (literally just avoid going near any village-like settlements that aren't regular villages) but is probably very useful and fun (i may be biased)
 It includes:
-* Sim-like entities (they are agender/non-binary and I will not give them genders) known as citizens appearing as players. They have personalities, hobbies, jobs, relationships, and genes which they can pass on.
+* Sim-like entities (they are agender/non-binary and I will not give them genders, so do not request genders, please) known as citizens appearing as players. They have personalities, hobbies, jobs, relationships, and genes which they can pass on.
 * Empires, collections of village-like areas all centered around a single village-like structure which has inter-village interaction and a central government with leaders. It also will (usually?) have a deity that is central to it.
 * A magic system involving practical ritualism.
 * A more deity-oriented magic system involving the "inner realm of the mind" which expands regular mystical capabilities
@@ -35,8 +35,17 @@ Mobs:
   </ul>
 
 Concepts:
+* Skill: Both citizens and players have a "sliding" skill level. Some skills are only available to citizens, though, since players have no use for them, and citizens need them for certain jobs. Skills cannot be developed unless they're "activated," which must be performed by a MASTER. They can be LAYPERSON (does not have skill), NOVICE (first level; first level abilities), APPRENTICE (second level; capable of doing this skill but not of making money from it), WORKER (third level; capable of doing a job using this skill and making money), MASTER (fourth level; capable of activating another entity's ability to start leveling up in this skill), and GRANDMASTER (fifth level; usually has special power over this skill, e.g. a Grandmaster Explorer can give out tasks to lower explorers). Skill levels deteriorate very, very slowly, by neglect; three days of neglect might decrease one level. Skills can be maintained by certain tasks related to the skill. Skills exclusive to players will be labeled "Player-Only Skill"; skills exclusive to citizens will be labeled "Citizen-Only Skill".
+<ul>
+  <li>Combat: This skill introduces more attack damage, quicker attack speed, (longer attack reach?), and the ability to attack by spinning (maybe more skills, idk, combat balancing isn't really my strong suit). This skill is maintained through attacking, which can be done on Dummies if there are no monsters around
+    <li>Farming: This skill introduces higher reaps when farming and actually causes hoes to have a chance of not losing durability when farming, which increases with skill levels. A grandmaster can use a hoe without it losing durability and always is capable of replanting crops after harvesting them. Bone-meal chance also increases with this skill's increase. Additionally, with this skill above novice-level players have a chance of obtaining Fertilizer from destroying grass blocks, which acts as automatic bonemeal with no random chance to it and which has a small radius of effect. If fertilizer is used on a bare dirt/grass block, it will turn into fertilized dirt for one day, which causes plants planted on it to grow faster without need for water and have a greater harvest
+      <li>
+  </ul>
 * Empires: These are centered in "palaces" (woodland mansion-type buildings with a throne in their center) and have a leader. They also have a network of information via mailbox blocks. An empire conquers villages by forcing them to convert to their religion. When enough citizens of a village convert, the empire has taken over the village (based on the positions of the villagers' beds and meeting point). At that point, a mailbox will be built for the empire.
-* Ritualism: This requires an altar and certain block configurations to perform a magical effect. 
+* Ritualism: This requires a sufficient Magic skill
+<ul>
+  <li>
+  </ul>
 * Inner Realm: A personal dimension for each player where they have limitless building capability (a creative menu with all vanilla items and all craftable modded items, though items can be excluded in config or by using a helper method which I will add to API). Since items cannot be transferred from the inner realm <strong>to</strong> the physical realm without high level magic, this shouldn't be a huge deal. The inner realm can be used by a player to not only build creatively <strong>from survival</strong>, but also view their own relationships and status effects in a physical form (perhaps among other things, this mod is still in the brainstorming and some-development stage). One important part of the inner realm is that it allows for ritual creation within it to allow for dynamic ritual creation, or rather, spellcasting. E.g. right click an item and apply the effects of a ritual instead of taking the time to build it in the middle of a battle. Perhaps citizens will be able to use something similar, though there is <strong>no way in hell</strong> I am giving every citizen their own personal dimension because that would use up too much memory and lag everything.
 
 Blocks:
