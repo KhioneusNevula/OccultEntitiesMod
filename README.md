@@ -5,7 +5,7 @@ It includes:
 * A magic system involving practical ritualism.
 * A more deity-oriented magic system involving the "inner realm of the mind" which expands regular mystical capabilities
 * 4 major races; these races aren't completely quadrinary because genes can be mixed creating different hybrids. Humans, fairies, draconians, and trolls
-* Higher beings, vaettir, which can take the forms of citizens or possess them: spirits and demons, which possess; landvaettir, which take the forms of citizens; and deities, which take the forms of citizens and are worshiped by them, their power changing with their worship.
+* Higher beings, spirits, which can take the forms of citizens or possess them: specters and demons, which possess; fae/vaettir, which take the forms of citizens; and deities, which take the forms of citizens and are worshiped by them, their power changing with their worship.
 * Transformed beings transformed with magic: vampires, werewolves, zombies, and ghosts. Zombies are just citizens with their AI overriden to be a zombie-like AI. Werewolves shapeshift uncontrollably on the full-moon phase (but can learn to control it, perhaps?). Vampires must drink blood from citizens or players regularly. Ghosts have an Insanity level at its highest and can phase through blocks and fly and are not considered living citizens.
 * Perhaps a way to create your own transformed beings with magic? That would be REALLY cool. And maybe your own genes, too.
 
@@ -28,11 +28,16 @@ Mobs:
 <li>HOBBIES (tasks citizens do when they're not in their job that make them happy)
 <li>RELATIONSHIPS (citizens can have [genderless] parents, children, and make friends based on similar hobbies; they can milk friendships into romantic relationships and have children if their personality value lets them)
 <li>PLANS (citizens can queue tasks involving multiple steps and even multiple citizens)
+<li>PROJECTIONS (maybe citizens can build schematics by storing it in memory and performing plan-queued tasks to complete it in a sufficiently empty space; this would be useful for citizens with magic skill to build rituals. It could also allow citizens to remember the configurations of their "houses" so they can fix it, which could be cool)
 </ul>
+* Spirits:
+<ul>
+  </ul>
 
 Concepts:
 * Empires: These are centered in "palaces" (woodland mansion-type buildings with a throne in their center) and have a leader. They also have a network of information via mailbox blocks. An empire conquers villages by forcing them to convert to their religion. When enough citizens of a village convert, the empire has taken over the village (based on the positions of the villagers' beds and meeting point). At that point, a mailbox will be built for the empire.
-* Ritualism: This requires an altar and certain configurations to perform an effect
+* Ritualism: This requires an altar and certain block configurations to perform a magical effect. 
+* Inner Realm: A personal dimension for each player where they have limitless building capability (a creative menu with all vanilla items and all craftable modded items, though items can be excluded in config or by using a helper method which I will add to API). Since items cannot be transferred from the inner realm <strong>to</strong> the physical realm without high level magic, this shouldn't be a huge deal. The inner realm can be used by a player to not only build creatively <strong>from survival</strong>, but also view their own relationships and status effects in a physical form (perhaps among other things, this mod is still in the brainstorming and some-development stage). One important part of the inner realm is that it allows for ritual creation within it to allow for dynamic ritual creation, or rather, spellcasting. E.g. right click an item and apply the effects of a ritual instead of taking the time to build it in the middle of a battle. Perhaps citizens will be able to use something similar, though there is <strong>no way in hell</strong> I am giving every citizen their own personal dimension because that would use up too much memory and lag everything.
 
 Blocks:
 * Throne: The center of an empire; the throne is the place the ruler goes and determines the empire's center. Only one throne can exist in an empire center chunk; more thrones will simply break and if no thrones are in an empire center chunk the empire will either rebuild or will change its center chunk.
