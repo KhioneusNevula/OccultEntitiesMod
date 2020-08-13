@@ -12,6 +12,7 @@ import com.gm910.occentmod.entityrender.model.traits.FairyEarsModel;
 import com.gm910.occentmod.entityrender.model.traits.FairyWingsModel;
 import com.gm910.occentmod.entityrender.model.traits.TrollHornsModel;
 
+import net.minecraft.client.renderer.culling.ClippingHelperImpl;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
@@ -55,6 +56,14 @@ public class CitizenRender extends MobRenderer<CitizenEntity, CitizenModel> {
 																													// special
 																													// logic,
 																													// etc
+	}
+
+	@Override
+	public boolean shouldRender(CitizenEntity livingEntityIn, ClippingHelperImpl camera, double camX, double camY,
+			double camZ) {
+		// TODO Auto-generated method stub
+
+		return super.shouldRender(livingEntityIn, camera, camX, camY, camZ);
 	}
 
 	@Override

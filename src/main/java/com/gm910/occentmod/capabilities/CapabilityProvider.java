@@ -1,5 +1,9 @@
 package com.gm910.occentmod.capabilities;
 
+import com.gm910.occentmod.capabilities.formshifting.FormStorage;
+import com.gm910.occentmod.capabilities.formshifting.Formshift;
+import com.gm910.occentmod.capabilities.mental_inventory.MindInventory;
+import com.gm910.occentmod.capabilities.mental_inventory.MindInventoryStorage;
 import com.gm910.occentmod.capabilities.rooms.RoomManager;
 import com.gm910.occentmod.capabilities.rooms.RoomStorage;
 import com.gm910.occentmod.capabilities.speciallocs.SpecialLocationManager;
@@ -34,6 +38,12 @@ public class CapabilityProvider<T, K> implements ICapabilitySerializable<Compoun
 
 	@CapabilityInject(RoomManager.class)
 	public static Capability<RoomManager> ROOMS = null;
+
+	@CapabilityInject(MindInventory.class)
+	public static Capability<MindInventory> MIND_INVENTORY = null;
+
+	@CapabilityInject(Formshift.class)
+	public static Capability<Formshift> FORM = null;
 
 	private Capability<T> capability;
 
@@ -90,6 +100,15 @@ public class CapabilityProvider<T, K> implements ICapabilitySerializable<Compoun
 			return new RoomManager();
 		});
 		System.out.println("THE VALUE OF CP rooms IS NOW " + CapabilityProvider.ROOMS);
+
+		CapabilityManager.INSTANCE.register(MindInventory.class, new MindInventoryStorage(), () -> {
+			return new MindInventory();
+		});
+		System.out.println("THE VALUE OF CP inventory IS NOW " + CapabilityProvider.MIND_INVENTORY);
+		CapabilityManager.INSTANCE.register(Formshift.class, new FormStorage(), () -> {
+			return new Formshift();
+		});
+		System.out.println("THE VALUE OF CP form IS NOW " + CapabilityProvider.FORM);
 	}
 
 	@SubscribeEvent
@@ -97,7 +116,12 @@ public class CapabilityProvider<T, K> implements ICapabilitySerializable<Compoun
 		if (event.getObject() instanceof PlayerEntity) {
 			event.addCapability(Wizard.LOC, new CapabilityProvider<IWizard, LivingEntity>(CapabilityProvider.WIZARD,
 					(LivingEntity) event.getObject()));
+			event.addCapability(MindInventory.LOC, new CapabilityProvider<MindInventory, PlayerEntity>(
+					CapabilityProvider.MIND_INVENTORY, (PlayerEntity) event.getObject()));
 		}
+		if (event.getObject() instanceof LivingEntity)
+			event.addCapability(Formshift.LOC, new CapabilityProvider<Formshift, LivingEntity>(
+					CapabilityProvider.FORM, (LivingEntity) event.getObject()));
 	}
 
 	@SubscribeEvent

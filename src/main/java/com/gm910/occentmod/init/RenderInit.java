@@ -1,16 +1,18 @@
 package com.gm910.occentmod.init;
 
+import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.api.sitting.EmptyRenderer;
 import com.gm910.occentmod.api.sitting.SitEntity;
 import com.gm910.occentmod.entityrender.CitizenRender;
 import com.gm910.occentmod.entityrender.LivingBlockRender;
 
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = OccultEntities.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class RenderInit {
 	private RenderInit() {
 	}

@@ -29,6 +29,7 @@ public class Genealogy implements IDynamicSerializable {
 		this.secondParent = sp;
 		this.children = chil;
 		this.siblings = sibs;
+		this.siblings.remove(of);
 	}
 
 	public Genealogy(CitizenIdentity of) {
@@ -36,13 +37,11 @@ public class Genealogy implements IDynamicSerializable {
 	}
 
 	public Genealogy(Dynamic<?> dyn) {
-		this.of = new CitizenIdentity(dyn.get("of").get().get());
-		this.firstParent = new CitizenIdentity(dyn.get("parent1").get().get());
-		this.secondParent = new CitizenIdentity(dyn.get("parent2").get().get());
-		this.children = dyn.get("children").asStream().map((d) -> new CitizenIdentity(d))
-				.collect(Collectors.toSet());
-		this.siblings = dyn.get("siblings").asStream().map((d) -> new CitizenIdentity(d))
-				.collect(Collectors.toSet());
+		this(new CitizenIdentity(dyn.get("of").get().get()),
+				dyn.get("parent1").get().isPresent() ? new CitizenIdentity(dyn.get("parent1").get().get()) : null,
+				dyn.get("parent2").get().isPresent() ? new CitizenIdentity(dyn.get("parent2").get().get()) : null,
+				dyn.get("children").asStream().map((d) -> new CitizenIdentity(d)).collect(Collectors.toSet()),
+				dyn.get("siblings").asStream().map((d) -> new CitizenIdentity(d)).collect(Collectors.toSet()));
 	}
 
 	@Override
@@ -99,11 +98,13 @@ public class Genealogy implements IDynamicSerializable {
 
 	private Genealogy setSiblingsMutable(Set<CitizenIdentity> siblings) {
 		this.siblings = siblings;
+		this.siblings.remove(of);
 		return this;
 	}
 
 	private Genealogy setOfMutable(CitizenIdentity s) {
 		this.of = s;
+		this.siblings.remove(of);
 		return this;
 	}
 
@@ -141,6 +142,15 @@ public class Genealogy implements IDynamicSerializable {
 		f.add(child);
 		s.setChildrenMutable(f);
 		return s;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		Genealogy other = (Genealogy) obj;
+		return this.secondParent != null && other.secondParent != null && this.secondParent.equals(other.secondParent)
+				&& this.firstParent != null && other.firstParent != null && this.firstParent.equals(other.firstParent)
+				&& this.of != null && other.of != null && this.of.equals(other.of)
+				&& this.children.equals(other.children) && this.siblings.equals(other.siblings);
 	}
 
 }

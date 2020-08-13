@@ -67,7 +67,6 @@ public class Needs extends EntityDependentInformationHolder<CitizenEntity> {
 
 	@Override
 	public void tick() {
-		super.tick();
 		for (Need<?> need : this.needs.values().stream().flatMap((e) -> e.stream()).collect(Collectors.toSet())) {
 			if (need.isFulfilled()) {
 				this.needs.get(need.getType()).remove(need);
@@ -82,6 +81,8 @@ public class Needs extends EntityDependentInformationHolder<CitizenEntity> {
 				needs.get(check.getType()).add(check.getNeed());
 			}
 		}
+		System.out.println(this.needCheckers.values().stream()
+				.map((e) -> e + " : " + e.getType().getValue(this.getEntityIn())).collect(Collectors.toSet()));
 	}
 
 	@Override

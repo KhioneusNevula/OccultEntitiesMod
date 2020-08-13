@@ -1,11 +1,8 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.task;
 
-import java.util.Map;
 import java.util.Set;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality.NumericPersonalityTrait;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.ReactionDeterminer;
 
 import net.minecraft.world.server.ServerWorld;
 
@@ -46,10 +43,10 @@ public interface CitizenAction {
 	public Set<CitizenEntity> updateActionOn(ServerWorld world, CitizenEntity entity, long gameTime);
 
 	/**
-	 * Return null if the given citizen entity would not react
+	 * Return empty if the given citizen entity would not react
 	 * 
 	 * @return
 	 */
-	public Map<NumericPersonalityTrait, ReactionDeterminer<ImmediateTask>> getPotentialReactions();
+	public Set<ImmediateTask> getPotentialReactions();
 
 }

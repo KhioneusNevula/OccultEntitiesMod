@@ -25,7 +25,7 @@ public abstract class ImmediateTask extends CitizenTask {
 
 	@Override
 	public boolean shouldExecute(ServerWorld worldIn, CitizenEntity owner) {
-		return true;
+		return super.shouldExecute(worldIn, owner);
 	}
 
 	@Override

@@ -1,30 +1,36 @@
 package com.gm910.occentmod.entities.citizen;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.api.util.GMNBT;
+import com.gm910.occentmod.capabilities.formshifting.Formshift;
 import com.gm910.occentmod.empires.Empire;
 import com.gm910.occentmod.empires.EmpireData;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.BodyForm;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenInformation;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenMemoryAndSensors;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.deeds.CitizenDeed;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Genetics;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.gossip.GossipHolder;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality.NumericPersonalityTrait;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality.ReactionType;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.ReactionDeterminer;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.TraitTypeDeterminer;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity.DynamicCitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Genealogy;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relationships;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.Autonomy;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenAction;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.ImmediateTask;
 import com.gm910.occentmod.init.EntityInit;
 import com.google.common.collect.ImmutableSet;
@@ -75,17 +81,16 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 
 	{
 		if (MEMORY_TYPES == null)
-			MEMORY_TYPES = ImmutableSet.of();
+			MEMORY_TYPES = ImmutableSet.of(CitizenMemoryAndSensors.VISIBLE_CITIZENS.get());
 		if (SENSOR_TYPES == null)
-			SENSOR_TYPES = ImmutableSet.of();
+			SENSOR_TYPES = ImmutableSet.of(CitizenMemoryAndSensors.NEAREST_CITIZENS.get());
 	}
 
 	private CitizenInformation<CitizenEntity> info;
 	private EmpireData empdata;
 	public static final IAttribute MAX_FOOD_LEVEL = (new RangedAttribute((IAttribute) null,
 			OccultEntities.MODID + ".foodLevel", 20.0f, Float.MIN_VALUE, 1024.0D)).setDescription("Max Food Level")
-					.setShouldWatch(true); // Forge: set smallest max-health value to fix MC-119183. This gets rounded
-											// to float so we use the smallest positive float value.
+					.setShouldWatch(true);
 
 	public static final DataParameter<Float> FOOD_LEVEL = EntityDataManager.createKey(CitizenEntity.class,
 			DataSerializers.FLOAT);
@@ -131,7 +136,8 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 			}
 			this.getGenetics().initGenes(tryRace, this);
 			this.info.initValues(world);
-
+			info.getTrueIdentity().setName(EmpireData.get((ServerWorld) world).giveRandomCitizenName());
+			info.getTrueIdentity().setRace(this.getGenetics().getRace());
 		}
 
 		this.previousFoodPosX = getPosX();
@@ -213,19 +219,29 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		return stacks;
 	}
 
+	public CitizenEntity constructChild(LivingEntity other1) {
+
+		CitizenEntity child = new CitizenEntity(EntityInit.CITIZEN.get(), world);
+		if (other1 instanceof CitizenEntity) {
+			CitizenEntity other = (CitizenEntity) other1;
+
+			Set<CitizenIdentity> sibs = this.getIdentity().getGenealogy().getChildren();
+			sibs.addAll(other.getIdentity().getGenealogy().getChildren());
+
+			child.getTrueIdentity().setGenealogy(new Genealogy(child.getTrueIdentity(), this.copyIdentity(),
+					other.copyIdentity(), Sets.newHashSet(), sibs));
+			child.setGenetics(this.getGenetics().getChild(other.getGenetics(), child));
+		}
+		return child;
+	}
+
 	@Override
 	public AgeableEntity createChild(AgeableEntity ageable) {
 
 		if (!(ageable instanceof CitizenEntity))
 			return null;
-		CitizenEntity other = (CitizenEntity) ageable;
 
-		CitizenEntity child = new CitizenEntity(EntityInit.CITIZEN.get(), world);
-		child.setGenetics(this.getGenetics().getChild(other.getGenetics(), child));
-		child.getTrueIdentity().setGenealogy(new Genealogy(child.getTrueIdentity(), this.copyIdentity(),
-				other.copyIdentity(), Sets.newHashSet(), this.getIdentity().getGenealogy().getChildren()));
-
-		return child;
+		return constructChild((LivingEntity) ageable);
 	}
 
 	@Override
@@ -244,13 +260,13 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 	}
 
 	public void react(CitizenAction action) {
-		Map<NumericPersonalityTrait, ReactionDeterminer<ImmediateTask>> mapa = action.getPotentialReactions();
+		Map<NumericPersonalityTrait, TraitTypeDeterminer<ImmediateTask>> mapa = action.getPotentialReactions();
 		Object2IntMap<ImmediateTask> rxns = Object2IntMaps.emptyMap();
 		Personality per = this.getPersonality();
 		for (NumericPersonalityTrait trait : mapa.keySet()) {
-			ReactionDeterminer<ImmediateTask> determiner = mapa.get(trait);
+			TraitTypeDeterminer<ImmediateTask> determiner = mapa.get(trait);
 			float f = per.getTrait(trait);
-			ReactionType type = trait.getWeightedRandomReaction(f);
+			NumericPersonalityTrait.TraitLevel type = trait.getWeightedRandomReaction(f);
 			ImmediateTask react = determiner.get(type);
 			if (react != null) {
 				rxns.put(react, rxns.getInt(react) + 1);
@@ -264,6 +280,7 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		}
 
 		/// TODO
+
 	}
 
 	@Override
@@ -291,6 +308,20 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 			}
 			if (this.getFoodLevel() <= 0) {
 				this.damageEntity(DamageSource.STARVE, 0.05f);
+			}
+			Optional<Collection<CitizenEntity>> vis = this.brain
+					.getMemory(CitizenMemoryAndSensors.VISIBLE_CITIZENS.get());
+			if (vis.isPresent() && !vis.get().isEmpty()) {
+				for (CitizenEntity citizen : vis.get()) {
+					Set<CitizenTask> tasks = citizen.getAutonomy().getRunningTasks().stream()
+							.filter((e) -> e.isVisible()).collect(Collectors.toSet());
+					for (CitizenTask task : tasks) {
+						CitizenDeed deed = task.getDeed(citizen.getIdentity());
+						if (deed == null)
+							continue;
+
+					}
+				}
 			}
 		}
 	}
@@ -387,11 +418,19 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 	}
 
 	public CitizenIdentity getIdentity() {
-		return info.getIdentity();
+		return info.getIdentity().withCitizen(this.getForm());
 	}
 
 	public CitizenIdentity copyIdentity() {
-		return getIdentity();
+		return getIdentity().withCitizen(this.getForm());
+	}
+
+	public BodyForm getForm() {
+		return Formshift.get(this).getForm();
+	}
+
+	public BodyForm getTrueForm() {
+		return Formshift.get(this).getTrueForm();
 	}
 
 	public void setIdentity(DynamicCitizenIdentity identity) {
@@ -420,6 +459,10 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 
 	public boolean shouldHeal() {
 		return this.getHealth() > 0.0F && this.getHealth() < this.getMaxHealth();
+	}
+
+	public enum Mood {
+		VERY_HAPPY, HAPPY, FINE, SAD, VERY_SAD;
 	}
 
 }

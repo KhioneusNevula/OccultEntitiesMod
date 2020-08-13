@@ -64,4 +64,9 @@ public abstract class NeedChecker<E> {
 		return this.need == null ? true : this.need.isFulfilled();
 	}
 
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + " of type " + type + " with need " + this.need;
+	}
+
 }

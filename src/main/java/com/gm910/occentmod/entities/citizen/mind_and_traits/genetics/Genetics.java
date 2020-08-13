@@ -176,4 +176,13 @@ public class Genetics<E extends LivingEntity> extends InformationHolder {
 		return new1;
 	}
 
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + " : "
+				+ this.genes.entrySet().stream()
+						.<Pair<ResourceLocation, Object>>map(
+								(e) -> Pair.of(e.getKey().getResource(), (Object) e.getValue().getValue()))
+						.collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
+	}
+
 }

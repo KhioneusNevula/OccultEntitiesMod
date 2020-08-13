@@ -17,7 +17,7 @@ public class SpiritBiomeProvider extends BiomeProvider {
 
 	private Random rand;
 
-	private static Set<Biome> biomelist = null;/*ImmutableSet.of(Biomes.OCEAN, 
+	public static Set<Biome> biomelist = null;/*ImmutableSet.of(Biomes.OCEAN, 
 												Biomes.PLAINS, 
 												Biomes.DESERT, 
 												Biomes.MOUNTAINS, 

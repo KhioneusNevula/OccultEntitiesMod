@@ -1,8 +1,11 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.deeds;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.deeds.CitizenDeedType.Positivity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
@@ -48,10 +51,15 @@ public abstract class CitizenDeed implements IDynamicSerializable {
 				ImmutableMap.of(ops.createString("id"), uu, ops.createString("data"), dat, ops.createString("rl"), rl));
 	}
 
-	public Positivity getPositivity() {
-		return Positivity.NEUTRAL;
+	public abstract Object[] getDataForDisplay(CitizenEntity en);
+
+	public Set<CitizenTask> getPotentialWitnessReactions() {
+		return new HashSet<>();
 	}
 
-	public abstract Object[] getDataForDisplay(CitizenEntity en);
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + " of type " + this.getType();
+	}
 
 }

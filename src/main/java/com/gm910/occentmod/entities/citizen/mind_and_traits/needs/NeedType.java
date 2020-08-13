@@ -97,4 +97,10 @@ public class NeedType<T> {
 		return TYPES.values().stream().filter((e) -> e.citizenNeed).collect(Collectors.toSet());
 	}
 
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return this.getClass().getSimpleName() + " " + this.resource;
+	}
+
 }

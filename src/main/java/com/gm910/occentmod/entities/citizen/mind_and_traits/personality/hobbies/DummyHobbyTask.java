@@ -1,14 +1,9 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.personality.hobbies;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality.NumericPersonalityTrait;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.ReactionDeterminer;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.task.ImmediateTask;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
 import com.google.common.collect.ImmutableMap;
 
@@ -47,12 +42,6 @@ public class DummyHobbyTask extends CitizenTask {
 			this.time = gameTimeIn + 180L;
 		}
 
-	}
-
-	@Override
-	public Map<NumericPersonalityTrait, ReactionDeterminer<ImmediateTask>> getPotentialWitnessReactions() {
-		// TODO Auto-generated method stub
-		return new HashMap<>();
 	}
 
 }

@@ -68,4 +68,11 @@ public class Need<T> implements IDynamicSerializable {
 		return b;
 	}
 
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return (this.isFulfilled() ? "Fulfilled " : "Unfulfilled ") + this.getClass().getSimpleName() + " of type "
+				+ this.type + " with value " + this.desiredValue;
+	}
+
 }

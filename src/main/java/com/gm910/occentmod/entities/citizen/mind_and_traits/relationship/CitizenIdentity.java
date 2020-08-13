@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.gm910.occentmod.api.util.Translate;
 import com.gm910.occentmod.empires.Empire;
 import com.gm910.occentmod.empires.EmpireData;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.BodyForm;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
@@ -18,7 +19,7 @@ import net.minecraft.world.server.ServerWorld;
 
 public class CitizenIdentity implements IDynamicSerializable {
 
-	private UUID citizen;
+	private BodyForm citizen;
 
 	private String name;
 
@@ -28,7 +29,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 
 	private UUID empire;
 
-	public CitizenIdentity(UUID en) {
+	public CitizenIdentity(BodyForm en) {
 		this.citizen = en;
 
 	}
@@ -37,7 +38,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 		this(other.citizen, other.name, other.genealogy, other.race, other.empire);
 	}
 
-	public CitizenIdentity(UUID cit, String name, Genealogy gen, Race race, UUID empire) {
+	public CitizenIdentity(BodyForm cit, String name, Genealogy gen, Race race, UUID empire) {
 		this.citizen = cit;
 		this.name = name;
 		this.genealogy = gen;
@@ -45,7 +46,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 		this.empire = empire;
 	}
 
-	private CitizenIdentity setCitizenM(UUID citizen) {
+	private CitizenIdentity setCitizenM(BodyForm citizen) {
 		this.citizen = citizen;
 		return this;
 	}
@@ -74,7 +75,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 		return new CitizenIdentity(this).setNameM(name);
 	}
 
-	public CitizenIdentity withCitizen(UUID citizen) {
+	public CitizenIdentity withCitizen(BodyForm citizen) {
 		return new CitizenIdentity(this).setCitizenM(citizen);
 	}
 
@@ -116,7 +117,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 
 	public <T> CitizenIdentity(Dynamic<T> dyn) {
 
-		this.citizen = UUID.fromString(dyn.get("id").asString(""));
+		this.citizen = new BodyForm(UUID.fromString(dyn.get("id").asString("")));
 		this.name = dyn.get("name").asString("");
 		if (name.isEmpty()) {
 			name = null;
@@ -129,7 +130,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 		empire = dyn1.get("empire").get().isPresent() ? UUID.fromString(dyn.get("empire").asString("")) : null;
 	}
 
-	public UUID getCitizen() {
+	public BodyForm getCitizen() {
 		return citizen;
 	}
 
@@ -141,7 +142,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 
 	@Override
 	public <T> T serialize(DynamicOps<T> op) {
-		T id = op.createString(this.citizen.toString());
+		T id = op.createString(this.citizen.getFormId().toString());
 		T name = op.createString(this.name == null ? "" : this.name);
 		Map<T, T> mapi = new HashMap<>(ImmutableMap.of(op.createString("id"), id, op.createString("name"), name));
 		if (genealogy != null) {
@@ -178,7 +179,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 	}
 
 	public static class DynamicCitizenIdentity extends CitizenIdentity {
-		public DynamicCitizenIdentity(UUID en) {
+		public DynamicCitizenIdentity(BodyForm en) {
 			super(en);
 
 		}
@@ -187,7 +188,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 			super(other.citizen, other.name, other.genealogy, other.race, other.empire);
 		}
 
-		public DynamicCitizenIdentity(UUID cit, String name, Genealogy gen, Race race, UUID empire) {
+		public DynamicCitizenIdentity(BodyForm cit, String name, Genealogy gen, Race race, UUID empire) {
 			super(cit, name, gen, race, empire);
 		}
 
@@ -203,7 +204,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 			super.setEmpireM(emp);
 		}
 
-		public void setCitizen(UUID cit) {
+		public void setCitizen(BodyForm cit) {
 			super.setCitizenM(cit);
 		}
 

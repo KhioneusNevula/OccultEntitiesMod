@@ -1,6 +1,7 @@
 package com.gm910.occentmod.init;
 
 import com.gm910.occentmod.OccultEntities;
+import com.gm910.occentmod.blocks.MindJellyBlock;
 import com.gm910.occentmod.blocks.ModBlock.BlockRegistryObject;
 import com.gm910.occentmod.blocks.ThroneBlock;
 import com.gm910.occentmod.blocks.vaettrblocks.BrennisteinvaettrBlock;
@@ -40,5 +41,9 @@ public final class BlockInit {
 
 	public static final RegistryObject<Block> THRONE = (new BlockRegistryObject("throne", () -> new ThroneBlock()))
 			.makeItem(() -> new Item.Properties().group(ItemGroup.DECORATIONS)).createRegistryObject();
+
+	public static final RegistryObject<Block> MIND_JELLY = (new BlockRegistryObject("mind_jelly",
+			() -> new MindJellyBlock())).makeItem(() -> new Item.Properties().group(ItemGroup.DECORATIONS))
+					.createRegistryObject();
 
 }

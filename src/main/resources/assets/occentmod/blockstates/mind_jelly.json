@@ -1,0 +1,10 @@
+{
+    "variants": {
+        "facing=north": { "model": "occentmod:block/mind_jelly", "x" : 90},
+        "facing=south": { "model": "occentmod:block/mind_jelly", "y": 180 , "x" : 90},
+        "facing=west":  { "model": "occentmod:block/mind_jelly", "y": 270 , "x" : 90},
+        "facing=east":  { "model": "occentmod:block/mind_jelly", "y": 90 , "x" : 90},
+        "facing=up": { "model": "occentmod:block/mind_jelly" },
+        "facing=down": { "model": "occentmod:block/mind_jelly", "x": 180 },
+    }
+}

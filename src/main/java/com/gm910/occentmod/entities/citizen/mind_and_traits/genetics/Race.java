@@ -135,19 +135,10 @@ public class Race {
 		return false;
 	}
 
-	/*public static enum PhysicalTrait implements IDynamicSerializable {
-		DRAGON_HORNS, TROLL_HORNS, DRAGON_WINGS, FAIRY_WINGS, FAIRY_EARS, DRAGON_TAIL;
-	
-		@Override
-		public <T> T serialize(DynamicOps<T> o) {
-	
-			return o.createString(this.name());
-		}
-	
-		public static PhysicalTrait deserialize(Dynamic<?> dyn) {
-			return valueOf(dyn.asString(""));
-		}
-	}*/
+	@Override
+	public String toString() {
+		return this.regName + " " + this.getClass().getSimpleName();
+	}
 
 	public static class SpiritRace extends Race {
 

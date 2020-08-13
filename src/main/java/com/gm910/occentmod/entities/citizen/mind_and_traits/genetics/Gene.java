@@ -57,4 +57,10 @@ public class Gene<R> implements IDynamicSerializable {
 	public R getValue() {
 		return value;
 	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return this.getClass().getSimpleName() + " with value " + this.value;
+	}
 }

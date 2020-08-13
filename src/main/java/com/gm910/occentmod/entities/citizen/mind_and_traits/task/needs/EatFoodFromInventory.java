@@ -1,7 +1,5 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.task.needs;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -9,8 +7,6 @@ import com.gm910.occentmod.api.networking.messages.Networking;
 import com.gm910.occentmod.api.networking.messages.types.TaskParticles;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedType;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality.NumericPersonalityTrait;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.ReactionDeterminer;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.ImmediateTask;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
@@ -60,11 +56,6 @@ public class EatFoodFromInventory extends ImmediateTask implements INeedsTask<Ne
 	public boolean shouldContinueExecuting(ServerWorld worldIn, CitizenEntity entityIn, long gameTimeIn) {
 		return INeedsTask.super.shouldContinueExecuting(worldIn, entityIn, gameTimeIn)
 				&& !getFoodFromInventory().isEmpty();
-	}
-
-	@Override
-	public Map<NumericPersonalityTrait, ReactionDeterminer<ImmediateTask>> getPotentialWitnessReactions() {
-		return new HashMap<>();
 	}
 
 	public Set<ItemStack> getFoodFromInventory() {

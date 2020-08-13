@@ -55,8 +55,9 @@ public class CitizenDeedType<T extends CitizenDeed> {
 		return DEEDS.values();
 	}
 
-	public static enum Positivity {
-		HEROIC, GREAT, GOOD, NEUTRAL, BAD, CRIMINAL, EVIL
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + " named " + this.name;
 	}
 
 }

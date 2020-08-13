@@ -130,4 +130,9 @@ public abstract class GeneType<T, Q extends LivingEntity> {
 		return this.getRandomGene.apply(race, entity);
 	}
 
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + " " + this.resource;
+	}
+
 }

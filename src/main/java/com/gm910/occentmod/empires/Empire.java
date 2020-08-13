@@ -90,7 +90,7 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 	}
 
 	public void initializeEmpire() {
-		this.setName(data.giveRandomName());
+		this.setName(data.giveRandomEmpireName());
 
 		this.randomizeRaceWeights();
 	}
@@ -139,16 +139,9 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 
 	public boolean setId() {
 		UUID uu = null;
-		int toler = 50;
-		for (; toler >= 0 && (toler < 20 && data.getEmpire(uu) == null); toler--) {
-			uu = UUID.randomUUID();
-		}
-		if (toler < 0 || uu == null) {
-			return false;
-		} else {
-			this.empireId = uu;
-			return true;
-		}
+		uu = UUID.randomUUID();
+		this.empireId = uu;
+		return true;
 	}
 
 	public UUID getEmpireId() {
@@ -342,8 +335,8 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 		if (world.getDimension().getType() == center.getSecond()) {
 			Chunk chunk = this.getChunk(center.getSecond(), center.getFirst().asLong());
 			PointOfInterestManager manager = world.getPointOfInterestManager();
-			Stream<PointOfInterest> pois = manager.getInChunk(DataInit.THRONE_POI.get().getPredicate(), center.getFirst(),
-					PointOfInterestManager.Status.ANY);
+			Stream<PointOfInterest> pois = manager.getInChunk(DataInit.THRONE_POI.get().getPredicate(),
+					center.getFirst(), PointOfInterestManager.Status.ANY);
 
 			if (!pois.findAny().isPresent()) {
 				this.center = EMPTY_FLAG;

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.gm910.occentmod.capabilities.formshifting.Formshift;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Genetics;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.gossip.GossipHolder;
@@ -57,7 +58,7 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 		if (dyn.get("identity").get().isPresent())
 			this.identity = new DynamicCitizenIdentity(dyn.get("identity").get().get());
 		else
-			this.identity = new DynamicCitizenIdentity(en.getUniqueID());
+			this.identity = new DynamicCitizenIdentity(Formshift.get(en).getTrueForm());
 		if (dyn.get("genetics").get().isPresent())
 			this.genetics = new Genetics<E>(dyn.get("genetics").get().get());
 		else
@@ -77,7 +78,7 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 		this.personality = new Personality();
 		this.gossipKnowledge = new GossipHolder(this.citizen);
 		this.relationships = new Relationships(this.citizen);
-		this.identity = new DynamicCitizenIdentity(this.citizen.getUniqueID());
+		this.identity = new DynamicCitizenIdentity(Formshift.get(this.citizen).getTrueForm());
 		this.genetics = new Genetics<>();
 		this.autonomy = new Autonomy(this.citizen);
 		this.needs = new Needs(this.citizen);
