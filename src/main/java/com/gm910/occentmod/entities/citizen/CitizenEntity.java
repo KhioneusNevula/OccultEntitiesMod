@@ -1,7 +1,6 @@
 package com.gm910.occentmod.entities.citizen;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -19,11 +18,11 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenMemoryAndSens
 import com.gm910.occentmod.entities.citizen.mind_and_traits.deeds.CitizenDeed;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Genetics;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.gossip.GossipHolder;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.gossip.MemoryHolder;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait.TraitLevel;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.TraitTypeDeterminer;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity.DynamicCitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Genealogy;
@@ -37,8 +36,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.Dynamic;
 
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
@@ -170,8 +167,8 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		this.info.setPersonality(personality);
 	}
 
-	public void setGossipKnowledge(GossipHolder gossipKnowledge) {
-		this.info.setGossipKnowledge(gossipKnowledge);
+	public void setKnowledge(MemoryHolder gossipKnowledge) {
+		this.info.setKnowledge(gossipKnowledge);
 	}
 
 	public void setRelationships(Relationships relationships) {
@@ -260,25 +257,14 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 	}
 
 	public void react(CitizenAction action) {
-		Map<NumericPersonalityTrait, TraitTypeDeterminer<ImmediateTask>> mapa = action.getPotentialReactions();
-		Object2IntMap<ImmediateTask> rxns = Object2IntMaps.emptyMap();
-		Personality per = this.getPersonality();
-		for (NumericPersonalityTrait trait : mapa.keySet()) {
-			TraitTypeDeterminer<ImmediateTask> determiner = mapa.get(trait);
-			float f = per.getTrait(trait);
-			NumericPersonalityTrait.TraitLevel type = trait.getWeightedRandomReaction(f);
-			ImmediateTask react = determiner.get(type);
-			if (react != null) {
-				rxns.put(react, rxns.getInt(react) + 1);
+		Set<ImmediateTask> mapa = action.getPotentialReactions();
+		Map<NumericPersonalityTrait, TraitLevel> trets = this.getPersonality().generateTraitReactionMap();
+		for (ImmediateTask tasque : mapa) {
+			if (tasque.canExecuteWithPersonality(trets)) {
+				this.getAutonomy().addActiveTask(tasque.isPersistent() ? 0 : getAutonomy().getImmediateTasks().size(),
+						tasque, tasque.isUrgent(this));
 			}
 		}
-		Set<ImmediateTask> reactions = new HashSet<>();
-		for (ImmediateTask rxn : rxns.keySet()) {
-			if (rxns.getInt(rxn) == mapa.size()) {
-				reactions.add(rxn);
-			}
-		}
-
 		/// TODO
 
 	}
@@ -383,8 +369,8 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		return info.getPersonality();
 	}
 
-	public GossipHolder getGossipKnowledge() {
-		return info.getGossipKnowledge();
+	public MemoryHolder getKnowledge() {
+		return info.getKnowledge();
 	}
 
 	public Relationships getRelationships() {

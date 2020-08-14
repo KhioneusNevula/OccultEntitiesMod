@@ -39,7 +39,8 @@ public abstract class CitizenTask extends Task<CitizenEntity> {
 	 * @param willPerform if this is false, it will determine which trait-levels do
 	 *                    NOT perform this task
 	 * @param pairs       the trait-types and the reaction-types that allow for this
-	 *                    task's performance
+	 *                    task's performance. If empty, this means all citizens are
+	 *                    capable of performing the task regardless of personality.
 	 * @return
 	 */
 	public CitizenTask setPersonalityConditions(boolean willPerform,
@@ -71,10 +72,13 @@ public abstract class CitizenTask extends Task<CitizenEntity> {
 	}
 
 	public boolean canExecuteWithPersonality(Map<NumericPersonalityTrait, TraitLevel> e) {
+		boolean cond = true;
 		for (NumericPersonalityTrait trait : e.keySet()) {
-
+			cond = cond && this.willPerform.get(trait).contains(e.get(trait));
+			if (!cond)
+				break;
 		}
-		return true;
+		return cond;
 	}
 
 	public CitizenTask addContext(Context... contexts) {

@@ -2,22 +2,22 @@ package com.gm910.occentmod.entities.citizen.mind_and_traits.gossip;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.deeds.CitizenDeed;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.deeds.CitizenDeedType;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.deeds.OccurrenceType;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
-public class GossipAboutDeed extends CitizenGossip {
+public class MemoryOfDeed extends CitizenMemory {
 
 	private CitizenDeed deed;
 
-	public GossipAboutDeed(CitizenEntity owner, CitizenDeed deed) {
-		super(owner, GossipType.DEED);
+	public MemoryOfDeed(CitizenEntity owner, CitizenDeed deed) {
+		super(owner, CitizenMemoryType.DEED);
 		this.deed = deed;
 	}
 
-	public GossipAboutDeed(CitizenEntity owner, Dynamic<?> dyn) {
-		this(owner, CitizenDeedType.deserialize(dyn.get("deed").get().get()));
+	public MemoryOfDeed(CitizenEntity owner, Dynamic<?> dyn) {
+		this(owner, (CitizenDeed) OccurrenceType.deserialize(dyn.get("deed").get().get()));
 	}
 
 	@Override
@@ -29,6 +29,12 @@ public class GossipAboutDeed extends CitizenGossip {
 
 	public CitizenDeed getDeed() {
 		return deed;
+	}
+
+	@Override
+	public void affectCitizen(CitizenEntity en) {
+		en.getRelationships().changeLikeValue(en.getIdentity(), deed.getRelationshipChange(en));
+		deed.affectCitizen(en.getInfo());
 	}
 
 }

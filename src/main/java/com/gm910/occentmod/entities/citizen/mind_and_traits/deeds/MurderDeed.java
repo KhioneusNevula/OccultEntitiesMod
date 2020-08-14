@@ -1,7 +1,10 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.deeds;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenInformation;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relationships;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
@@ -17,7 +20,7 @@ public class MurderDeed extends CitizenDeed {
 	 * @param citizen
 	 */
 	public MurderDeed(CitizenIdentity citizen) {
-		super(CitizenDeedType.MURDER, citizen);
+		super(OccurrenceType.MURDER, citizen);
 	}
 
 	public MurderDeed(CitizenIdentity murderer, CitizenIdentity victim) {
@@ -34,12 +37,12 @@ public class MurderDeed extends CitizenDeed {
 	}
 
 	@Override
-	public void readData(Dynamic<?> dyn) {
+	public void readAdditionalData(Dynamic<?> dyn) {
 		killed = new CitizenIdentity(dyn);
 	}
 
 	@Override
-	public <T> T writeData(DynamicOps<T> ops) {
+	public <T> T writeAdditionalData(DynamicOps<T> ops) {
 
 		return killed.serialize(ops);
 	}
@@ -48,6 +51,21 @@ public class MurderDeed extends CitizenDeed {
 	public Object[] getDataForDisplay(CitizenEntity en) {
 		return new Object[] { citizen.getString((ServerWorld) en.getEntityWorld()),
 				killed.getString((ServerWorld) en.getEntityWorld()) };
+	}
+
+	@Override
+	public void affectCitizen(CitizenInformation<CitizenEntity> e) {
+		super.affectCitizen(e);
+		// TODO happiness and all that
+	}
+
+	@Override
+	public int getRelationshipChange(CitizenEntity en) {
+		Relationships ships = en.getRelationships();
+		float sadism = en.getPersonality().getTrait(NumericPersonalityTrait.SADISM);
+		int change = (int) ships.getLikeValue(killed);
+
+		return (int) (-sadism * (change));
 	}
 
 }

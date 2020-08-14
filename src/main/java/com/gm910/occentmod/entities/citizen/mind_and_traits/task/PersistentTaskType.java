@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import com.gm910.occentmod.util.GMFiles;
 import com.mojang.datafixers.Dynamic;
 
 import net.minecraft.util.ResourceLocation;
@@ -12,6 +13,8 @@ import net.minecraft.util.ResourceLocation;
 public class PersistentTaskType<I extends CitizenTask & IPersistentTask> {
 
 	private static final Map<ResourceLocation, PersistentTaskType<?>> TYPES = new HashMap<>();
+
+	public static final PersistentTaskType<PlanTask> PLAN = new PersistentTaskType<>(GMFiles.rl("plan"), PlanTask::new);
 
 	Function<Dynamic<?>, I> deserializer;
 	ResourceLocation rl;

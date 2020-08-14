@@ -7,7 +7,7 @@ import java.util.Set;
 import com.gm910.occentmod.capabilities.formshifting.Formshift;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Genetics;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.gossip.GossipHolder;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.gossip.MemoryHolder;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality;
@@ -30,7 +30,7 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 	private E citizen;
 
 	private Personality personality;
-	private GossipHolder gossipKnowledge;
+	private MemoryHolder knowledge;
 	private Relationships relationships;
 	private DynamicCitizenIdentity identity;
 	private Genetics<E> genetics;
@@ -44,9 +44,9 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 	public <T> CitizenInformation(E en, Dynamic<T> dyn) {
 		this(en);
 		if (dyn.get("gossip").get().isPresent())
-			this.gossipKnowledge = new GossipHolder(en, dyn.get("gossip").get().get());
+			this.knowledge = new MemoryHolder(en, dyn.get("gossip").get().get());
 		else
-			this.gossipKnowledge = new GossipHolder(en);
+			this.knowledge = new MemoryHolder(en);
 		if (dyn.get("personality").get().isPresent())
 			this.personality = new Personality(dyn.get("personality").get().get());
 		else
@@ -76,7 +76,7 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 	public void initialize() {
 
 		this.personality = new Personality();
-		this.gossipKnowledge = new GossipHolder(this.citizen);
+		this.knowledge = new MemoryHolder(this.citizen);
 		this.relationships = new Relationships(this.citizen);
 		this.identity = new DynamicCitizenIdentity(Formshift.get(this.citizen).getTrueForm());
 		this.genetics = new Genetics<>();
@@ -109,7 +109,7 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 	public <T> T serialize(DynamicOps<T> ops) {
 
 		Map<T, T> mapa = new HashMap<>(ImmutableMap.<T, T>of(ops.createString("personality"),
-				personality.serialize(ops), ops.createString("gossip"), gossipKnowledge.serialize(ops),
+				personality.serialize(ops), ops.createString("gossip"), knowledge.serialize(ops),
 				ops.createString("relationships"), relationships.serialize(ops), ops.createString("identity"),
 				identity.serialize(ops), ops.createString("genetics"), genetics.serialize(ops)));
 		mapa.put(ops.createString("autonomy"), autonomy.serialize(ops));
@@ -119,8 +119,8 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 
 	public void update(ServerWorld world) {
 
-		world.getProfiler().startSection("gossipknowledge");
-		this.getGossipKnowledge().tick();
+		world.getProfiler().startSection("knowledge");
+		this.getKnowledge().tick();
 		world.getProfiler().endSection();
 		world.getProfiler().startSection("personality");
 		this.getPersonality().tick();
@@ -148,8 +148,8 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 		return needs;
 	}
 
-	public GossipHolder getGossipKnowledge() {
-		return gossipKnowledge;
+	public MemoryHolder getKnowledge() {
+		return knowledge;
 	}
 
 	public DynamicCitizenIdentity getTrueIdentity() {
@@ -176,8 +176,8 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 		this.citizen = citizen;
 	}
 
-	public void setGossipKnowledge(GossipHolder gossipKnowledge) {
-		this.gossipKnowledge = gossipKnowledge;
+	public void setKnowledge(MemoryHolder gossipKnowledge) {
+		this.knowledge = gossipKnowledge;
 	}
 
 	public void setIdentity(CitizenIdentity identity) {

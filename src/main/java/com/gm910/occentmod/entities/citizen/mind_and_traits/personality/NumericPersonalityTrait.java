@@ -31,10 +31,22 @@ public enum NumericPersonalityTrait implements IStringSerializable {
 	 */
 	BOLDNESS("boldness"),
 	/**
-	 * higher values = more likely to have outrageously violent reactions. A
-	 * completely sane person is at 0; an insane person is at 1
+	 * higher values = more likely to have outrageously violent or deadly reactions.
+	 * A completely sane person is at 0; an insane person is at 1
 	 */
 	INSANITY("insanity", 0, 1),
+	/**
+	 * positive values = more likely to take pleasure in pain and death of those
+	 * they dislike and like the pain-causers or killers<br>
+	 * negative values = more likely to be sad at the death of those they dislike
+	 */
+	SADISM("sadism"),
+	/**
+	 * higher = more likely to have a mood lowering if others are in pain or
+	 * hurt<br>
+	 * lower = more likely to not change in mood if others are hurt or in pain
+	 */
+	SYMPATHY("sympathy", 0, 1),
 	/**
 	 * less than zero = likely to react negatively if offended <br>
 	 * more than zero = likely to not blame and just let go of offense

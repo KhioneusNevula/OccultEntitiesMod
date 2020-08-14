@@ -3,14 +3,14 @@ package com.gm910.occentmod.entities.citizen.mind_and_traits.relationship;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.gm910.occentmod.api.util.NonNullMap;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.BodyForm;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.EntityDependentInformationHolder;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.deeds.CitizenDeed;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.deeds.CitizenDeedType;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.deeds.OccurrenceType;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
@@ -18,8 +18,12 @@ import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import net.minecraft.util.math.MathHelper;
 
 public class Relationships extends EntityDependentInformationHolder<CitizenEntity> {
+
+	public static final float MIN_LIKE_VALUE = -3;
+	public static final float MAX_LIKE_VALUE = 4;
 
 	/**
 	 * this is a map of how much a citizen likes certain people AS WELL AS their
@@ -52,8 +56,8 @@ public class Relationships extends EntityDependentInformationHolder<CitizenEntit
 		Map<CitizenIdentity, Float> map = dyn.get("identities").asMap(CitizenIdentity::new, (d) -> d.asFloat(0));
 		Map<CitizenIdentity, Set<CitizenDeed>> map2 = new NonNullMap<CitizenIdentity, Set<CitizenDeed>>(
 				() -> new HashSet<>())
-						.setAs(dyn.get("deeds").asMap(CitizenIdentity::new,
-								(e) -> new HashSet<>(e.asList(CitizenDeedType::deserialize))));
+						.setAs(dyn.get("deeds").asMap(CitizenIdentity::new, (e) -> new HashSet<>(
+								e.asList((xcxc) -> (CitizenDeed) OccurrenceType.deserialize(xcxc)))));
 		identities.putAll(map);
 		deeds.putAll(map2);
 	}
@@ -95,11 +99,19 @@ public class Relationships extends EntityDependentInformationHolder<CitizenEntit
 		return this.identities.getFloat(citizen);
 	}
 
-	public float getLikeValue(UUID citizen) {
+	public void setLikeValue(CitizenIdentity citizen, float value) {
+		this.identities.put(citizen, MathHelper.clamp(value, MIN_LIKE_VALUE, MAX_LIKE_VALUE));
+	}
+
+	public void changeLikeValue(CitizenIdentity cit, float value) {
+		this.setLikeValue(cit, this.getLikeValue(cit) + value);
+	}
+
+	public float getLikeValue(BodyForm citizen) {
 		return this.identities.getFloat(getIdentityFor(citizen));
 	}
 
-	public CitizenIdentity getIdentityFor(UUID cit) {
+	public CitizenIdentity getIdentityFor(BodyForm cit) {
 		for (CitizenIdentity e : identities.keySet()) {
 			if (e.getCitizen() != null && e.getCitizen().equals(cit)) {
 				return e;

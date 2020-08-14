@@ -14,17 +14,27 @@ import com.mojang.datafixers.Dynamic;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
-public class GossipType<T extends CitizenGossip> {
+public class CitizenMemoryType<T extends CitizenMemory> {
 
-	private static final Map<ResourceLocation, GossipType<?>> TYPES = new HashMap<>();
+	private static final Map<ResourceLocation, CitizenMemoryType<?>> TYPES = new HashMap<>();
 
-	public static final GossipType<GossipAboutDeed> DEED = new GossipType<GossipAboutDeed>(GMFiles.rl("deed"),
-			GossipAboutDeed::new) {
+	public static final CitizenMemoryType<MemoryOfDeed> DEED = new CitizenMemoryType<MemoryOfDeed>(GMFiles.rl("deed"),
+			MemoryOfDeed::new) {
 		@Override
-		public ITextComponent display(CitizenGossip obj) {
-			GossipAboutDeed gos = (GossipAboutDeed) obj;
+		public ITextComponent display(CitizenMemory obj) {
+			MemoryOfDeed gos = (MemoryOfDeed) obj;
 			return Translate.make("deed." + gos.getDeed().getType().getName().getNamespace() + "."
 					+ gos.getDeed().getType().getName().getPath(), gos.getDeed().getDataForDisplay(obj.owner));
+		}
+	};
+
+	public static final CitizenMemoryType<MemoryOfOccurrence> EVENT = new CitizenMemoryType<MemoryOfOccurrence>(
+			GMFiles.rl("event"), MemoryOfOccurrence::new) {
+		@Override
+		public ITextComponent display(CitizenMemory obj) {
+			MemoryOfOccurrence gos = (MemoryOfOccurrence) obj;
+			return Translate.make("citizen.event." + gos.getEvent().getType().getName().getNamespace() + "."
+					+ gos.getEvent().getType().getName().getPath(), gos.getEvent().getDataForDisplay(obj.owner));
 		}
 	};
 
@@ -34,11 +44,11 @@ public class GossipType<T extends CitizenGossip> {
 
 	public final Function<T, Object[]> displayer;
 
-	public GossipType(ResourceLocation regName, BiFunction<CitizenEntity, Dynamic<?>, T> deserializer) {
+	public CitizenMemoryType(ResourceLocation regName, BiFunction<CitizenEntity, Dynamic<?>, T> deserializer) {
 		this(regName, deserializer, (e) -> new Object[] { e.getDisplayText() });
 	}
 
-	public GossipType(ResourceLocation regName, BiFunction<CitizenEntity, Dynamic<?>, T> deserializer,
+	public CitizenMemoryType(ResourceLocation regName, BiFunction<CitizenEntity, Dynamic<?>, T> deserializer,
 			Function<T, Object[]> displayer) {
 		this.regName = regName;
 		this.deserializer = deserializer;
@@ -46,15 +56,15 @@ public class GossipType<T extends CitizenGossip> {
 		TYPES.put(regName, this);
 	}
 
-	public static GossipType<?> get(ResourceLocation rl) {
+	public static CitizenMemoryType<?> get(ResourceLocation rl) {
 		return TYPES.get(rl);
 	}
 
-	public static Collection<GossipType<?>> getGossipTypes() {
+	public static Collection<CitizenMemoryType<?>> getGossipTypes() {
 		return TYPES.values();
 	}
 
-	public ITextComponent display(CitizenGossip obj) {
+	public ITextComponent display(CitizenMemory obj) {
 		return Translate.make("gossip." + this.regName.getNamespace() + "." + this.regName.getPath(),
 				displayer.apply((T) obj));
 	}

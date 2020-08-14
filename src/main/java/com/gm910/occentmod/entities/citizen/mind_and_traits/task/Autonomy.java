@@ -29,7 +29,7 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 	/**
 	 * <order, map<context, task, priority>>
 	 */
-	private Map<Context, List<CitizenTask>> activeTasks = Maps.newTreeMap();
+	private Map<Context, List<CitizenTask>> immediateTasks = Maps.newTreeMap();
 	private Map<Integer, Set<CitizenTask>> backgroundTasks = Maps.newTreeMap();
 	private Map<Integer, Set<CitizenTask>> coreTasks = Maps.newTreeMap();
 	private Set<CitizenTask> toExecute = Sets.newHashSet();
@@ -40,7 +40,7 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 
 	public Autonomy(CitizenEntity en, Dynamic<?> dyn) {
 		this(en);
-		activeTasks = dyn.get("persistentTasks").asMap((d1) -> Context.valueOf(d1.asString("")), (d2) -> d2.asStream()
+		immediateTasks = dyn.get("persistentTasks").asMap((d1) -> Context.valueOf(d1.asString("")), (d2) -> d2.asStream()
 				.<CitizenTask>map((dr) -> IPersistentTask.deserialize(dr)).collect(Collectors.toList()));
 		/*backgroundTasks = dyn.get("persistentBGTasks").<Integer, Set<CitizenTask>>asMap((dyn2) -> dyn2.asInt(0),
 				(dyn1) -> dyn1.asStream().<CitizenTask>map((dynn) -> IPersistentTask.deserialize(dynn))
@@ -89,7 +89,7 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 		sorted.sort((t1, t2) -> t1.getFirst().compareTo(t2.getFirst()));
 		for (Pair<Integer, CitizenTask> pair : sorted) {
 			for (Context cont : pair.getSecond().getContexts()) {
-				activeTasks.computeIfAbsent(cont, (e) -> Lists.newArrayList()).add(pair.getSecond());
+				immediateTasks.computeIfAbsent(cont, (e) -> Lists.newArrayList()).add(pair.getSecond());
 				toExecute.add(pair.getSecond());
 			}
 		}
@@ -115,7 +115,7 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 
 	public Autonomy addActiveTask(int order, CitizenTask task, boolean makeFirstTask) {
 		for (Context con : task.getContexts()) {
-			List<CitizenTask> list = this.activeTasks.computeIfAbsent(con, (e) -> Lists.newArrayList());
+			List<CitizenTask> list = this.immediateTasks.computeIfAbsent(con, (e) -> Lists.newArrayList());
 			if (list.isEmpty()) {
 				list.add(task);
 				toExecute.add(task);
@@ -143,8 +143,8 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 		return this;
 	}
 
-	public Set<CitizenTask> getImportantTasks() {
-		return this.activeTasks.values().stream().flatMap((mapa) -> mapa.stream()).collect(Collectors.toSet());
+	public Set<CitizenTask> getImmediateTasks() {
+		return this.immediateTasks.values().stream().flatMap((mapa) -> mapa.stream()).collect(Collectors.toSet());
 	}
 
 	public Set<CitizenTask> getBackgroundTasks() {
@@ -167,7 +167,7 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 				}
 			}
 		}
-		tasks.addAll(this.activeTasks.values().stream().flatMap((mapa) -> mapa.stream()).collect(Collectors.toSet()));
+		tasks.addAll(this.immediateTasks.values().stream().flatMap((mapa) -> mapa.stream()).collect(Collectors.toSet()));
 		tasks.addAll(this.backgroundTasks.values().stream().flatMap((e) -> e.stream()).collect(Collectors.toSet()));
 		tasks.addAll(this.coreTasks.values().stream().flatMap((e) -> e.stream()).collect(Collectors.toSet()));
 		tasks.removeIf((t) -> t.getStatus() != Task.Status.RUNNING);
@@ -197,7 +197,7 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 
 	@Override
 	public <T> T serialize(DynamicOps<T> ops) {
-		T persTasks = ops.createMap(activeTasks.entrySet().stream()
+		T persTasks = ops.createMap(immediateTasks.entrySet().stream()
 				.map((entry1) -> Pair.of(ops.createString(entry1.getKey().name()),
 						ops.createList(entry1.getValue().stream().filter((tasca) -> tasca.isPersistent())
 								.map((tasca) -> ((IPersistentTask) tasca).serialize(ops)))))
@@ -227,8 +227,8 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 	}
 
 	public void tickImportantTasks(ServerWorld world, CitizenEntity en, long time) {
-		for (Context c : this.activeTasks.keySet()) {
-			List<CitizenTask> tasks = activeTasks.computeIfAbsent(c, (e) -> Lists.newArrayList());
+		for (Context c : this.immediateTasks.keySet()) {
+			List<CitizenTask> tasks = immediateTasks.computeIfAbsent(c, (e) -> Lists.newArrayList());
 			if (tasks.isEmpty())
 				continue;
 			tasks.get(0).tick(world, en, time);
@@ -245,8 +245,8 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 				}
 			});
 		}
-		for (Context c : this.activeTasks.keySet()) {
-			List<CitizenTask> tasks = activeTasks.computeIfAbsent(c, (e) -> Lists.newArrayList());
+		for (Context c : this.immediateTasks.keySet()) {
+			List<CitizenTask> tasks = immediateTasks.computeIfAbsent(c, (e) -> Lists.newArrayList());
 			if (tasks.isEmpty())
 				continue;
 			if (toExecute.contains(tasks.get(0))) {

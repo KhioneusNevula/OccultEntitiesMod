@@ -5,7 +5,7 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.EntityDependentInfor
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
-public class Emotions extends EntityDependentInformationHolder {
+public class Emotions extends EntityDependentInformationHolder<CitizenEntity> {
 
 	/**
 	 * Positive: entertained<br>
@@ -15,10 +15,17 @@ public class Emotions extends EntityDependentInformationHolder {
 	private float funLevel;
 
 	/**
+	 * Positive: happy<br>
+	 * Negative: sad<br>
+	 * May cause citizen to do hobbies or talk with people they like
+	 */
+	private float happinessLevel;
+
+	/**
 	 * above threshhold: doesn't need more socializing <Br>
 	 * below threshhold / 3: deprived of socialization <br>
 	 * Resets upon sleeping<br>
-	 * May cause citizen to attempt socializing
+	 * May cause citizen to attempt talking with people they like or new people
 	 */
 	private float socialLevel;
 

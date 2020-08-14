@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.InformationHolder;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.gossip.GossipType;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.gossip.CitizenMemoryType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait.TraitLevel;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
@@ -26,7 +26,7 @@ public class Personality extends InformationHolder {
 
 	private Object2FloatMap<NumericPersonalityTrait> traits = new Object2FloatOpenHashMap<>();
 
-	private List<GossipType<?>> gossipPriority = new ArrayList<>();
+	private List<CitizenMemoryType<?>> gossipPriority = new ArrayList<>();
 
 	@Override
 	public <T> T serialize(DynamicOps<T> ops) {
@@ -42,8 +42,8 @@ public class Personality extends InformationHolder {
 		Map<NumericPersonalityTrait, Float> map = dyn.get("traits")
 				.asMap((d) -> NumericPersonalityTrait.fromName(d.asString("")), (d) -> d.asFloat(0));
 		traits.putAll(map);
-		List<GossipType<?>> gos = dyn.get("gossipPriority")
-				.asList((ee) -> GossipType.get(new ResourceLocation(ee.asString(""))));
+		List<CitizenMemoryType<?>> gos = dyn.get("gossipPriority")
+				.asList((ee) -> CitizenMemoryType.get(new ResourceLocation(ee.asString(""))));
 		this.gossipPriority.addAll(gos);
 	}
 
@@ -51,7 +51,7 @@ public class Personality extends InformationHolder {
 		for (NumericPersonalityTrait trait : NumericPersonalityTrait.values()) {
 			traits.put(trait, 0.0f);
 		}
-		Collection<GossipType<?>> ls = GossipType.getGossipTypes();
+		Collection<CitizenMemoryType<?>> ls = CitizenMemoryType.getGossipTypes();
 		this.gossipPriority = new ArrayList<>(ls);
 		Collections.shuffle(gossipPriority);
 	}
