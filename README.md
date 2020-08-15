@@ -1,4 +1,4 @@
-This mod is intended to be a complete dynamic RPG addition to minecraft. It can be ignored in a minecraft world if necessary (literally just avoid going near any village-like settlements that aren't regular villages) but is probably very useful and fun (i may be biased)
+This mod is intended to be a complete dynamic RPG addition to minecraft. It can be ignored in a minecraft world if necessary (literally just avoid going near any village-like settlements that aren't regular villages; don't talk to the people, don't be seen by them, don't even carry a sword when near them or they will TALK). 
 It includes:
 * Sim-like entities (they are agender/non-binary and I will not give them genders, so do not request genders, please) known as citizens appearing as players. They have personalities, hobbies, jobs, relationships, and genes which they can pass on.
 * Empires, collections of village-like areas all centered around a single village-like structure which has inter-village interaction and a central government with leaders. It also will (usually?) have a deity that is central to it.
@@ -7,7 +7,7 @@ It includes:
 * 4 major races; these races aren't completely quadrinary because genes can be mixed creating different hybrids. Humans, fairies, draconians, and trolls
 * Higher beings, spirits, which can take the forms of citizens or possess them: specters and demons, which possess; fae/vaettir, which take the forms of citizens; and deities, which take the forms of citizens and are worshiped by them, their power changing with their worship.
 * Transformed beings transformed with magic: vampires, werewolves, zombies, and ghosts. Zombies are just citizens with their AI overriden to be a zombie-like AI. Werewolves shapeshift uncontrollably on the full-moon phase (but can learn to control it, perhaps?). Vampires must drink blood from citizens or players regularly. Ghosts have an Insanity level at its highest and can phase through blocks and fly and are not considered living citizens.
-* Perhaps a way to create your own transformed beings with magic? That would be REALLY cool. And maybe your own genes, too.
+* Perhaps a way to create your own transformed beings with magic? That would be REALLY cool. And maybe your own genes, too. Make an entire race of supernatural beings by cursing someone?
 
 Ores:
 * Salt: Found in the same configuration as coal
@@ -23,19 +23,20 @@ Plants:
 Mobs:
 * Living Block: We'll see if there's a use for these... they basically just look like blocks and have health proportional to their blocktype.
 * Citizen: Citizens are the most complex being in all of the mod. They either work in villages (a special kind) or are part of empires. Every citizen has a mind with certain traits and memories which determine the chance of them performing certain actions. Citizens have: <ul>
+  <li>GENES: Inheritable traits which can be Mendelian or random that determine their appearance and abilities
 <li>PERSONALITY TRAITS (data which determines which actions they can perform and when they perform them)
 <li>NEEDS (data which determines which action they intend to perform at a given moment by examining their stats)
 <li>Hunger (simple enough, eat to replenish it. When citizens get hungry, they look for food. If they don't have food, they look for money and go buy. IF they don't have money, they work. Simple)
 <li>EMOTION (social needs, mental needs, etc, which motivate citizens to perform tasks)
-<li>GOSSIP (information they remember which they give to each other and to players who ask them; these info bits may be lies; if the information is about a certain entity this affects their behavior toward the entity)
-<li>SIGHTS (citizens can see other entities; if the entity is doing a certain action while the citizen looks at it the citizen will remember the action and react appropriately. E.g. a citizen seeing a murder might run away or spread gossip about it or step in to help)
+<li>KNOWLEDGE (information they remember which impact their mood and relationships and abilities; they can give this knowledge to each other and to players who ask them; they may also lie about their knowledge if their honesty level is low)
+<li>OCCURRENCES (citizens can witness other entities performing certain actions; the citizen will remember the actions it witnesses and react to them appropriately. E.g. a citizen seeing a murder might run away or spread gossip about it or step in to help. Certain citizen actions also directly affect another citizen and thus cause the citizen to directly react)
 <li>TRADES (some citizens can trade; specifically merchants)
 <li>SKILLS (these are their capability at performing certain tasks and can influence citizen's actions; e.g. a butcher citizen with magic skills might ask animals for meat rather than killing them for it)
 <li>JOBS (citizens do jobs like villagers but can change jobs if they don't like a job or if they're doing badly in a job)
 <li>HOBBIES (tasks citizens do when they're not in their job that make them happy)
 <li>RELATIONSHIPS (citizens can have [genderless] parents, children, and make friends based on similar hobbies; they can milk friendships into romantic relationships and have children if their personality value lets them)
-<li>PLANS (citizens can queue tasks involving multiple steps and even multiple citizens)
-<li>PROJECTIONS (maybe citizens can build schematics by storing it in memory and performing plan-queued tasks to complete it in a sufficiently empty space; this would be useful for citizens with magic skill to build rituals. It could also allow citizens to remember the configurations of their "houses" so they can fix it, which could be cool)
+<li>PLANS (citizens can queue tasks involving multiple steps and even multiple citizens for the future)
+<li>PROJECTIONS (maybe citizens can build schematics by storing it in memory and performing queued tasks to complete it in a sufficiently empty space; this would be useful for citizens with magic skill to build rituals. It could also allow citizens to remember the configurations of their "houses" so they can fix it, which could be cool)
 </ul>
 * Spirits:<ul>
   <li>?
