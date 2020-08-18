@@ -2,7 +2,7 @@ package com.gm910.occentmod.entities.citizen.mind_and_traits;
 
 import java.util.UUID;
 
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.entity.Entity;
 
 /**
  * Simply represents the concept of a unique appearance, since every citizen and
@@ -16,8 +16,8 @@ public class BodyForm {
 
 	private UUID formId;
 
-	public BodyForm() {
-		this.formId = MathHelper.getRandomUUID();
+	public BodyForm(Entity e) {
+		this.formId = e.getUniqueID();
 	}
 
 	public BodyForm(UUID basis) {

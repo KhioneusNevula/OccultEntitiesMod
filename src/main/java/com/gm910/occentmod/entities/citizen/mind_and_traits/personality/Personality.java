@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.InformationHolder;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.gossip.CitizenMemoryType;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.CitizenMemoryType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait.TraitLevel;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
@@ -51,7 +51,7 @@ public class Personality extends InformationHolder {
 		for (NumericPersonalityTrait trait : NumericPersonalityTrait.values()) {
 			traits.put(trait, 0.0f);
 		}
-		Collection<CitizenMemoryType<?>> ls = CitizenMemoryType.getGossipTypes();
+		Collection<CitizenMemoryType<?>> ls = CitizenMemoryType.getMemoryTypes();
 		this.gossipPriority = new ArrayList<>(ls);
 		Collections.shuffle(gossipPriority);
 	}

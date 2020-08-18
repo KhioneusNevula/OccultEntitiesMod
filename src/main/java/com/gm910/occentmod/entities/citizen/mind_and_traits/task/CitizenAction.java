@@ -47,6 +47,6 @@ public interface CitizenAction {
 	 * 
 	 * @return
 	 */
-	public Set<ImmediateTask> getPotentialReactions();
+	public Set<CitizenTask> getPotentialReactions();
 
 }

@@ -30,7 +30,7 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 	 * <order, map<context, task, priority>>
 	 */
 	private Map<Context, List<CitizenTask>> immediateTasks = Maps.newTreeMap();
-	private Map<Integer, Set<CitizenTask>> backgroundTasks = Maps.newTreeMap();
+	private Map<Integer, Set<Task<? super CitizenEntity>>> backgroundTasks = Maps.newTreeMap();
 	private Map<Integer, Set<CitizenTask>> coreTasks = Maps.newTreeMap();
 	private Set<CitizenTask> toExecute = Sets.newHashSet();
 
@@ -40,13 +40,13 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 
 	public Autonomy(CitizenEntity en, Dynamic<?> dyn) {
 		this(en);
-		immediateTasks = dyn.get("persistentTasks").asMap((d1) -> Context.valueOf(d1.asString("")), (d2) -> d2.asStream()
-				.<CitizenTask>map((dr) -> IPersistentTask.deserialize(dr)).collect(Collectors.toList()));
+		immediateTasks = dyn.get("persistentTasks").asMap((d1) -> Context.valueOf(d1.asString("")),
+				(d2) -> d2.asStream().<CitizenTask>map((dr) -> TaskType.deserialize(dr)).collect(Collectors.toList()));
 		/*backgroundTasks = dyn.get("persistentBGTasks").<Integer, Set<CitizenTask>>asMap((dyn2) -> dyn2.asInt(0),
 				(dyn1) -> dyn1.asStream().<CitizenTask>map((dynn) -> IPersistentTask.deserialize(dynn))
 						.collect(Collectors.toSet()));*/
 		coreTasks = dyn.get("persistentCoreTasks").<Integer, Set<CitizenTask>>asMap((dyn2) -> dyn2.asInt(0),
-				(dyn1) -> dyn1.asStream().<CitizenTask>map((dynn) -> IPersistentTask.deserialize(dynn))
+				(dyn1) -> dyn1.asStream().<CitizenTask>map((dynn) -> TaskType.deserialize(dynn))
 						.collect(Collectors.toSet()));
 	}
 
@@ -56,8 +56,8 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 	 * @param tasks
 	 * @return
 	 */
-	public Autonomy registerBackgroundTasks(Set<Pair<Integer, CitizenTask>> tasks) {
-		for (Pair<Integer, CitizenTask> tasque : tasks) {
+	public Autonomy registerBackgroundTasks(Set<Pair<Integer, Task<? super CitizenEntity>>> tasks) {
+		for (Pair<Integer, Task<? super CitizenEntity>> tasque : tasks) {
 			this.addBackgroundTask(tasque.getFirst(), tasque.getSecond());
 		}
 		return this;
@@ -147,7 +147,7 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 		return this.immediateTasks.values().stream().flatMap((mapa) -> mapa.stream()).collect(Collectors.toSet());
 	}
 
-	public Set<CitizenTask> getBackgroundTasks() {
+	public Set<Task<? super CitizenEntity>> getBackgroundTasks() {
 		return this.backgroundTasks.values().stream().flatMap((e) -> e.stream()).collect(Collectors.toSet());
 	}
 
@@ -155,8 +155,8 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 		return this.coreTasks.values().stream().flatMap((e) -> e.stream()).collect(Collectors.toSet());
 	}
 
-	public Set<CitizenTask> getRunningTasks() {
-		Set<CitizenTask> tasks = Sets.newHashSet();
+	public Set<Task<? super CitizenEntity>> getRunningTasks() {
+		Set<Task<? super CitizenEntity>> tasks = Sets.newHashSet();
 		Needs needs = this.getEntityIn().getNeeds();
 		for (NeedType<?> type : needs.getNeedTypes()) {
 			Set<Need<?>> ns = needs.getNeeds(type);
@@ -167,7 +167,8 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 				}
 			}
 		}
-		tasks.addAll(this.immediateTasks.values().stream().flatMap((mapa) -> mapa.stream()).collect(Collectors.toSet()));
+		tasks.addAll(
+				this.immediateTasks.values().stream().flatMap((mapa) -> mapa.stream()).collect(Collectors.toSet()));
 		tasks.addAll(this.backgroundTasks.values().stream().flatMap((e) -> e.stream()).collect(Collectors.toSet()));
 		tasks.addAll(this.coreTasks.values().stream().flatMap((e) -> e.stream()).collect(Collectors.toSet()));
 		tasks.removeIf((t) -> t.getStatus() != Task.Status.RUNNING);
@@ -178,8 +179,8 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 		this.getRunningTasks().forEach((m) -> m.stop(world, en, world.getGameTime()));
 	}
 
-	public Autonomy addBackgroundTask(int ord, CitizenTask task) {
-		if (!task.getContexts().contains(Context.BACKGROUND)) {
+	public Autonomy addBackgroundTask(int ord, Task<? super CitizenEntity> task) {
+		if (task instanceof CitizenTask && !((CitizenTask) task).getContexts().contains(Context.BACKGROUND)) {
 			throw new IllegalArgumentException("Task " + task + " for " + this.getEntityIn() + " is not a bg task");
 		}
 		backgroundTasks.computeIfAbsent(ord, (e) -> Sets.newHashSet()).add(task);
@@ -199,8 +200,7 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 	public <T> T serialize(DynamicOps<T> ops) {
 		T persTasks = ops.createMap(immediateTasks.entrySet().stream()
 				.map((entry1) -> Pair.of(ops.createString(entry1.getKey().name()),
-						ops.createList(entry1.getValue().stream().filter((tasca) -> tasca.isPersistent())
-								.map((tasca) -> ((IPersistentTask) tasca).serialize(ops)))))
+						ops.createList(entry1.getValue().stream().map((tasca) -> tasca.serialize(ops)))))
 				.collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));
 		/*T coree = ops.createMap(backgroundTasks.entrySet().stream()
 				.map((e) -> Pair.<T, T>of(ops.createInt(e.getKey()),
@@ -208,7 +208,7 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 				.collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));*/
 		T coreee = ops.createMap(coreTasks.entrySet().stream()
 				.map((e) -> Pair.<T, T>of(ops.createInt(e.getKey()),
-						ops.createList(e.getValue().stream().map((m) -> ((IPersistentTask) m).serialize(ops)))))
+						ops.createList(e.getValue().stream().map((m) -> m.serialize(ops)))))
 				.collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));
 		return ops.createMap(ImmutableMap.of(ops.createString("persistentTasks"), persTasks,
 				/*ops.createString("persistentBGTasks"), coree,*/ ops.createString("persistentCoreTasks"), coreee));

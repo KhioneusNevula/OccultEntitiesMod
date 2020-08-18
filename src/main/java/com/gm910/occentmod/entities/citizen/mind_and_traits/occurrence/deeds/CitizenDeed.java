@@ -1,19 +1,24 @@
-package com.gm910.occentmod.entities.citizen.mind_and_traits.deeds;
+package com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds;
 
+import com.gm910.occentmod.api.util.ServerPos;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenInformation;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
+
+import net.minecraft.entity.Entity;
+import net.minecraftforge.event.TickEvent.WorldTickEvent;
 
 public abstract class CitizenDeed extends Occurrence {
 
 	protected CitizenIdentity citizen;
 
 	public CitizenDeed(OccurrenceType<?> type, CitizenIdentity citizen) {
-		super(type);
+		super(type, null, 0);
 		this.citizen = citizen;
 	}
 
@@ -29,6 +34,14 @@ public abstract class CitizenDeed extends Occurrence {
 
 	public CitizenIdentity getCitizen() {
 		return citizen;
+	}
+
+	@Override
+	public void tick(WorldTickEvent event, long gameTime, long dayTime) {
+		Entity e = ServerPos.getEntityFromUUID(this.citizen.getTrueId(), event.world.getServer());
+		this.position = e.getPositionVector();
+		this.dimension = e.dimension.getId();
+		super.tick(event, gameTime, dayTime);
 	}
 
 	@Override

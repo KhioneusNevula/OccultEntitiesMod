@@ -6,8 +6,9 @@ import java.util.Set;
 
 import com.gm910.occentmod.capabilities.formshifting.Formshift;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.emotions.Emotions;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Genetics;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.gossip.MemoryHolder;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryHolder;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality;
@@ -15,13 +16,18 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Citizen
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity.DynamicCitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relationships;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.Autonomy;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.task.background.CitizenPickupItemsTask;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 import com.mojang.datafixers.util.Pair;
 
+import net.minecraft.entity.ai.brain.task.InteractWithDoorTask;
+import net.minecraft.entity.ai.brain.task.LookTask;
+import net.minecraft.entity.ai.brain.task.SwimTask;
+import net.minecraft.entity.ai.brain.task.Task;
+import net.minecraft.entity.ai.brain.task.WalkToTargetTask;
 import net.minecraft.util.IDynamicSerializable;
 import net.minecraft.world.server.ServerWorld;
 
@@ -36,6 +42,7 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 	private Genetics<E> genetics;
 	private Autonomy autonomy;
 	private Needs needs;
+	private Emotions emotions;
 
 	public CitizenInformation(E en) {
 		this.citizen = en;
@@ -58,7 +65,7 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 		if (dyn.get("identity").get().isPresent())
 			this.identity = new DynamicCitizenIdentity(dyn.get("identity").get().get());
 		else
-			this.identity = new DynamicCitizenIdentity(Formshift.get(en).getTrueForm());
+			this.identity = new DynamicCitizenIdentity(Formshift.get(en).getTrueForm(), en.getUniqueID());
 		if (dyn.get("genetics").get().isPresent())
 			this.genetics = new Genetics<E>(dyn.get("genetics").get().get());
 		else
@@ -71,6 +78,10 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 			this.needs = new Needs(en, dyn.get("needs").get().get());
 		else
 			this.needs = new Needs(en);
+		if (dyn.get("emotions").get().isPresent())
+			this.emotions = new Emotions(en, dyn.get("needs").get().get());
+		else
+			this.emotions = new Emotions(en);
 	}
 
 	public void initialize() {
@@ -78,11 +89,12 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 		this.personality = new Personality();
 		this.knowledge = new MemoryHolder(this.citizen);
 		this.relationships = new Relationships(this.citizen);
-		this.identity = new DynamicCitizenIdentity(Formshift.get(this.citizen).getTrueForm());
+		this.identity = new DynamicCitizenIdentity(Formshift.get(this.citizen).getTrueForm(),
+				this.citizen.getUniqueID());
 		this.genetics = new Genetics<>();
 		this.autonomy = new Autonomy(this.citizen);
 		this.needs = new Needs(this.citizen);
-
+		this.emotions = new Emotions(this.citizen);
 		this.autonomy.registerBackgroundTasks(getDefaultBackgroundTasks());
 	}
 
@@ -96,9 +108,11 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 		this.needs.registerNeeds(NeedType.getCitizenNeeds());
 	}
 
-	public Set<Pair<Integer, CitizenTask>> getDefaultBackgroundTasks() {
+	public Set<Pair<Integer, Task<? super CitizenEntity>>> getDefaultBackgroundTasks() {
 		// TODO
-		return ImmutableSet.of();
+		return ImmutableSet.of(Pair.of(0, new SwimTask(0.4F, 0.8F)), Pair.of(0, new InteractWithDoorTask()),
+				Pair.of(0, new LookTask(45, 90)), Pair.of(1, new WalkToTargetTask(200)),
+				Pair.of(5, new CitizenPickupItemsTask()));
 	}
 
 	public E getCitizen() {
@@ -114,6 +128,7 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 				identity.serialize(ops), ops.createString("genetics"), genetics.serialize(ops)));
 		mapa.put(ops.createString("autonomy"), autonomy.serialize(ops));
 		mapa.put(ops.createString("needs"), needs.serialize(ops));
+		mapa.put(ops.createString("emotions"), emotions.serialize(ops));
 		return ops.createMap(ImmutableMap.copyOf(mapa));
 	}
 
@@ -134,6 +149,13 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 		world.getProfiler().startSection("needs");
 		this.getNeeds().tick();
 		world.getProfiler().endSection();
+		world.getProfiler().startSection("emotions");
+		this.getEmotions().tick();
+		world.getProfiler().endSection();
+	}
+
+	public Emotions getEmotions() {
+		return emotions;
 	}
 
 	public Autonomy getAutonomy() {
@@ -178,6 +200,10 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 
 	public void setKnowledge(MemoryHolder gossipKnowledge) {
 		this.knowledge = gossipKnowledge;
+	}
+
+	public void setEmotions(Emotions emotions) {
+		this.emotions = emotions;
 	}
 
 	public void setIdentity(CitizenIdentity identity) {

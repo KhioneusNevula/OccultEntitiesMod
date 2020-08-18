@@ -1,4 +1,4 @@
-package com.gm910.occentmod.entities.citizen.mind_and_traits.gossip;
+package com.gm910.occentmod.entities.citizen.mind_and_traits.memory;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -9,6 +9,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.emotions.Emotions.EmotionType;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.checkers.EmotionChecker;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.checkers.HungerChecker;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.needs.EatFoodFromInventory;
@@ -26,6 +28,27 @@ public class NeedType<T> {
 	public static final NeedType<Float> HUNGER = new NeedType<Float>(GMFiles.rl("hunger"), (en) -> en.getFoodLevel(),
 			(a, d) -> d.asFloat(0), (d, n) -> d.createFloat(n.getDesiredValue()), (m, e) -> new HungerChecker(m, e),
 			(m, e) -> Sets.newHashSet(new EatFoodFromInventory()), true); // TODO
+
+	public static final NeedType<Float> HAPPINESS = new NeedType<Float>(GMFiles.rl("happiness"),
+			(en) -> en.getEmotions().getLevel(EmotionType.HAPPINESS), (a, d) -> d.asFloat(0),
+			(d, n) -> d.createFloat(n.getDesiredValue()), (m, e) -> new EmotionChecker(m, EmotionType.HAPPINESS, e),
+			(m, e) -> Sets.newHashSet(), true); // TODO
+
+	public static final NeedType<Float> SOCIAL = new NeedType<Float>(GMFiles.rl("social"),
+			(en) -> en.getEmotions().getLevel(EmotionType.SOCIAL), (a, d) -> d.asFloat(0),
+			(d, n) -> d.createFloat(n.getDesiredValue()), (m, e) -> new EmotionChecker(m, EmotionType.SOCIAL, e),
+			(m, e) -> Sets.newHashSet(), true); // TODO
+
+	public static final NeedType<Float> FUN = new NeedType<Float>(GMFiles.rl("fun"),
+			(en) -> en.getEmotions().getLevel(EmotionType.FUN), (a, d) -> d.asFloat(0),
+			(d, n) -> d.createFloat(n.getDesiredValue()), (m, e) -> new EmotionChecker(m, EmotionType.FUN, e),
+			(m, e) -> Sets.newHashSet(), true); // TODO
+
+	public static final NeedType<Float> COMFORT = new NeedType<Float>(GMFiles.rl("comfort"),
+			(en) -> en.getEmotions().getLevel(EmotionType.COMFORT), (a, d) -> d.asFloat(0),
+			(d, n) -> d.createFloat(n.getDesiredValue()), (m, e) -> new EmotionChecker(m, EmotionType.COMFORT, e),
+			(m, e) -> Sets.newHashSet(), true); // TODO
+
 	ResourceLocation resource;
 
 	Function<CitizenEntity, T> getVal;

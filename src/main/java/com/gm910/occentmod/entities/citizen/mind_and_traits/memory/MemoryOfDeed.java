@@ -1,8 +1,8 @@
-package com.gm910.occentmod.entities.citizen.mind_and_traits.gossip;
+package com.gm910.occentmod.entities.citizen.mind_and_traits.memory;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.deeds.CitizenDeed;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.deeds.OccurrenceType;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceType;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;

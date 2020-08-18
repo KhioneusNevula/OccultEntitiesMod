@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.task.TaskType;
 import com.google.common.collect.ImmutableMap;
+import com.mojang.datafixers.types.DynamicOps;
 
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
@@ -42,6 +44,19 @@ public class DummyHobbyTask extends CitizenTask {
 			this.time = gameTimeIn + 180L;
 		}
 
+	}
+
+	@Override
+	public <T> T serialize(DynamicOps<T> ops) {
+		T mem = ops.createString(this.memory.getRegistryName().toString());
+		T maxdist = ops.createInt(this.maxDistanceFromSite);
+		return ops.createMap(ImmutableMap.of(ops.createString("memory"), mem, ops.createString("maxdist"), maxdist));
+	}
+
+	@Override
+	public TaskType<?> getType() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

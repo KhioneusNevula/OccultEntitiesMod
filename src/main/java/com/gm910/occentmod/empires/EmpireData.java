@@ -343,7 +343,7 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 	}
 
 	public BodyForm birthBodyForm(UUID entity) {
-		BodyForm form = new BodyForm();
+		BodyForm form = new BodyForm(entity);
 		this.trueForms.put(entity, form);
 		return form;
 	}

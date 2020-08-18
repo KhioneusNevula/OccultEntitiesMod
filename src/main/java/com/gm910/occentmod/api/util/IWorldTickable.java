@@ -20,4 +20,8 @@ public interface IWorldTickable {
 		return false;
 	}
 
+	public default boolean canTick() {
+		return this instanceof IWorldTickable;
+	}
+
 }

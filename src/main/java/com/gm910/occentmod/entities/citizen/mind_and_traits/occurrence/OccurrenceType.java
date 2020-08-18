@@ -1,11 +1,11 @@
-package com.gm910.occentmod.entities.citizen.mind_and_traits.deeds;
+package com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.MurderDeed;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
 import com.gm910.occentmod.util.GMFiles;
 import com.mojang.datafixers.Dynamic;

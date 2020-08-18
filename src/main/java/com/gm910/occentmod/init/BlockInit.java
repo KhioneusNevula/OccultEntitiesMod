@@ -8,6 +8,7 @@ import com.gm910.occentmod.blocks.vaettrblocks.BrennisteinvaettrBlock;
 import com.gm910.occentmod.blocks.vaettrblocks.EndisteinvaettrBlock;
 import com.gm910.occentmod.blocks.vaettrblocks.LandvaettrBlock;
 import com.gm910.occentmod.blocks.vaettrblocks.StormvaettrBlock;
+import com.gm910.occentmod.blocks.worldcontroller.WorldControllerBlock;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -45,5 +46,8 @@ public final class BlockInit {
 	public static final RegistryObject<Block> MIND_JELLY = (new BlockRegistryObject("mind_jelly",
 			() -> new MindJellyBlock())).makeItem(() -> new Item.Properties().group(ItemGroup.DECORATIONS))
 					.createRegistryObject();
+
+	public static final RegistryObject<Block> WORLD_CONTROLLER = (new BlockRegistryObject("world_controller",
+			() -> new WorldControllerBlock())).createRegistryObject();
 
 }

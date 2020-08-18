@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.gm910.occentmod.api.networking.messages.ModChannels;
 import com.gm910.occentmod.api.networking.messages.Networking.TaskMessage;
+import com.gm910.occentmod.blocks.worldcontroller.SmallerUnitTESR;
 import com.gm910.occentmod.capabilities.CapabilityProvider;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race;
 import com.gm910.occentmod.init.BiomeInit;
@@ -21,12 +22,15 @@ import com.gm910.occentmod.keys.ModKeys;
 import com.gm910.occentmod.world.DimensionData;
 import com.gm910.occentmod.world.VaettrData;
 
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.RegisterDimensionsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.InterModComms;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -116,6 +120,9 @@ public class OccultEntities {
 		ModKeys.clientinit();
 		ModChannels.INSTANCE.registerMessage(ModChannels.id++, TaskMessage.class, TaskMessage::encode,
 				TaskMessage::fromBuffer, TaskMessage::handle);
+
+		ClientRegistry.bindTileEntityRenderer(TileInit.WORLD_CONTROLLER.get(), SmallerUnitTESR::new);
+		RenderTypeLookup.setRenderLayer(BlockInit.WORLD_CONTROLLER.get(), RenderType.getTranslucent());
 	}
 
 	private void enqueueIMC(final InterModEnqueueEvent event) {

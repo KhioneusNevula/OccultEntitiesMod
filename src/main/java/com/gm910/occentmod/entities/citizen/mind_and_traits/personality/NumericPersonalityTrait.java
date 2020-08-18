@@ -101,6 +101,10 @@ public enum NumericPersonalityTrait implements IStringSerializable {
 	 */
 	ACTIVENESS("activeness"),
 	/**
+	 * higher = fun level lowers quicker
+	 */
+	RESTLESSNESS("restlessness", 0, 1),
+	/**
 	 * higher values = needs more socialization and can more easily make friends<Br>
 	 * lower/zero values = doesn't often need socialization
 	 */

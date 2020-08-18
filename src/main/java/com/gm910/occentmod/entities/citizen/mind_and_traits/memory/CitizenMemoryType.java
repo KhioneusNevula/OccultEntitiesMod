@@ -1,4 +1,4 @@
-package com.gm910.occentmod.entities.citizen.mind_and_traits.gossip;
+package com.gm910.occentmod.entities.citizen.mind_and_traits.memory;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,6 +9,7 @@ import java.util.function.Function;
 import com.gm910.occentmod.api.util.Translate;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.util.GMFiles;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.Dynamic;
 
 import net.minecraft.util.ResourceLocation;
@@ -33,10 +34,21 @@ public class CitizenMemoryType<T extends CitizenMemory> {
 		@Override
 		public ITextComponent display(CitizenMemory obj) {
 			MemoryOfOccurrence gos = (MemoryOfOccurrence) obj;
-			return Translate.make("citizen.event." + gos.getEvent().getType().getName().getNamespace() + "."
-					+ gos.getEvent().getType().getName().getPath(), gos.getEvent().getDataForDisplay(obj.owner));
+			return Translate.make(
+					"citizen.event." + gos.getEvent().getType().getName().getNamespace() + "."
+							+ gos.getEvent().getType().getName().getPath(),
+					gos.getEvent().getDataForDisplay(obj.owner));
 		}
 	};
+
+	public static final CitizenMemoryType<MemoryOfBlockstate> BLOCKSTATE = new CitizenMemoryType<>(GMFiles.rl("event"),
+			(t, u) -> {
+				try {
+					return new MemoryOfBlockstate(t, u);
+				} catch (CommandSyntaxException e) {
+					return null;
+				}
+			});
 
 	public final ResourceLocation regName;
 
@@ -60,12 +72,12 @@ public class CitizenMemoryType<T extends CitizenMemory> {
 		return TYPES.get(rl);
 	}
 
-	public static Collection<CitizenMemoryType<?>> getGossipTypes() {
+	public static Collection<CitizenMemoryType<?>> getMemoryTypes() {
 		return TYPES.values();
 	}
 
 	public ITextComponent display(CitizenMemory obj) {
-		return Translate.make("gossip." + this.regName.getNamespace() + "." + this.regName.getPath(),
+		return Translate.make("memory." + this.regName.getNamespace() + "." + this.regName.getPath(),
 				displayer.apply((T) obj));
 	}
 }

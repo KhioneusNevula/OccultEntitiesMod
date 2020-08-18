@@ -1,37 +1,49 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.task;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.gm910.occentmod.api.util.ModReflect;
 import com.gm910.occentmod.api.util.NonNullMap;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.deeds.CitizenDeed;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait.TraitLevel;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import com.mojang.datafixers.types.DynamicOps;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.task.Task;
+import net.minecraft.util.IDynamicSerializable;
 import net.minecraft.world.server.ServerWorld;
 
-public abstract class CitizenTask extends Task<CitizenEntity> {
+public abstract class CitizenTask extends Task<CitizenEntity> implements IDynamicSerializable {
 
 	private Set<Context> contexts = Sets.newHashSet();
+
+	private Map<MemoryModuleType<?>, MemoryModuleStatus> delegateMemoryMap = new HashMap<>();
 
 	private Map<NumericPersonalityTrait, Set<TraitLevel>> willPerform = new NonNullMap<>(() -> Sets.newHashSet());
 
 	public CitizenTask(Map<MemoryModuleType<?>, MemoryModuleStatus> requiredMemoryStateIn, int durationMinIn,
 			int durationMaxIn) {
 		super(requiredMemoryStateIn, durationMinIn, durationMaxIn);
+		this.delegateMemoryMap.putAll(requiredMemoryStateIn);
 	}
 
 	public CitizenTask setContext(Context... contexts) {
 		this.contexts = Sets.newHashSet(contexts);
 		return this;
+	}
+
+	public Map<MemoryModuleType<?>, MemoryModuleStatus> getDelegateMemoryMap() {
+		return delegateMemoryMap;
 	}
 
 	/**
@@ -105,10 +117,6 @@ public abstract class CitizenTask extends Task<CitizenEntity> {
 		return null;
 	}
 
-	public final boolean isPersistent() {
-		return this instanceof IPersistentTask;
-	}
-
 	public boolean cannotBeOverriden() {
 		return false;
 	}
@@ -119,6 +127,24 @@ public abstract class CitizenTask extends Task<CitizenEntity> {
 
 	public boolean isVisible() {
 		return true;
+	}
+
+	public abstract TaskType<?> getType();
+
+	@Override
+	public <T> T serialize(DynamicOps<T> ops) {
+		CitizenTask task = (CitizenTask) this;
+		T type = ops.createString(getType().rl.toString());
+		T data = writeData(ops);
+		T cons = ops.createList(task.getContexts().stream().map((m) -> ops.createString(m.toString())));
+		T stat = ops.createBoolean(task.getStatus() == Task.Status.RUNNING);
+		T time = ops.createLong(ModReflect.getField(Task.class, long.class, "status", "field_220385_b", task));
+		return ops.createMap(ImmutableMap.of(ops.createString("type"), type, ops.createString("data"), data,
+				ops.createString("contexts"), cons, ops.createString("running"), stat, ops.createString("time"), time));
+	}
+
+	public <T> T writeData(DynamicOps<T> ops) {
+		return ops.createBoolean(false);
 	}
 
 	public enum Context {

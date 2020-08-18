@@ -15,11 +15,14 @@ import com.gm910.occentmod.empires.EmpireData;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.BodyForm;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenInformation;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenMemoryAndSensors;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.deeds.CitizenDeed;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.emotions.Emotions;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Genetics;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.gossip.MemoryHolder;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryHolder;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceData;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait.TraitLevel;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality;
@@ -30,7 +33,6 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relatio
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.Autonomy;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenAction;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.task.ImmediateTask;
 import com.gm910.occentmod.init.EntityInit;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -78,13 +80,22 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 
 	{
 		if (MEMORY_TYPES == null)
-			MEMORY_TYPES = ImmutableSet.of(CitizenMemoryAndSensors.VISIBLE_CITIZENS.get());
+			MEMORY_TYPES = ImmutableSet.of(CitizenMemoryAndSensors.VISIBLE_CITIZENS.get(), MemoryModuleType.WALK_TARGET,
+					MemoryModuleType.BREED_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
+					MemoryModuleType.INTERACTION_TARGET, MemoryModuleType.HURT_BY, MemoryModuleType.HURT_BY_ENTITY,
+					MemoryModuleType.INTERACTABLE_DOORS, MemoryModuleType.LAST_SLEPT, MemoryModuleType.LOOK_TARGET,
+					MemoryModuleType.NEAREST_PLAYERS, MemoryModuleType.NEAREST_HOSTILE,
+					MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.PATH, MemoryModuleType.NEAREST_BED,
+					MemoryModuleType.VISIBLE_MOBS);
 		if (SENSOR_TYPES == null)
-			SENSOR_TYPES = ImmutableSet.of(CitizenMemoryAndSensors.NEAREST_CITIZENS.get());
+			SENSOR_TYPES = ImmutableSet.of(CitizenMemoryAndSensors.NEAREST_CITIZENS.get(),
+					SensorType.INTERACTABLE_DOORS, SensorType.NEAREST_BED, SensorType.NEAREST_BED,
+					SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.HURT_BY);
 	}
 
 	private CitizenInformation<CitizenEntity> info;
 	private EmpireData empdata;
+	private OccurrenceData occurrences;
 	public static final IAttribute MAX_FOOD_LEVEL = (new RangedAttribute((IAttribute) null,
 			OccultEntities.MODID + ".foodLevel", 20.0f, Float.MIN_VALUE, 1024.0D)).setDescription("Max Food Level")
 					.setShouldWatch(true);
@@ -103,7 +114,9 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		info.initialize();
 		if (worldIn instanceof ServerWorld) {
 			this.empdata = EmpireData.get((ServerWorld) worldIn);
+			this.occurrences = OccurrenceData.get((ServerWorld) world);
 		}
+
 	}
 
 	public CitizenEntity(World world) {
@@ -257,16 +270,27 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 	}
 
 	public void react(CitizenAction action) {
-		Set<ImmediateTask> mapa = action.getPotentialReactions();
+		Set<CitizenTask> mapa = action.getPotentialReactions();
 		Map<NumericPersonalityTrait, TraitLevel> trets = this.getPersonality().generateTraitReactionMap();
-		for (ImmediateTask tasque : mapa) {
+		for (CitizenTask tasque : mapa) {
 			if (tasque.canExecuteWithPersonality(trets)) {
-				this.getAutonomy().addActiveTask(tasque.isPersistent() ? 0 : getAutonomy().getImmediateTasks().size(),
-						tasque, tasque.isUrgent(this));
+				this.getAutonomy().addTask(tasque.isUrgent(this) ? 0 : getAutonomy().getImmediateTasks().size(), tasque,
+						tasque.isUrgent(this));
 			}
 		}
 		/// TODO
 
+	}
+
+	public void reactToEvent(Occurrence event) {
+		Set<CitizenTask> tasques = event.getPotentialWitnessReactions();
+		Map<NumericPersonalityTrait, TraitLevel> trets = this.getPersonality().generateTraitReactionMap();
+		for (CitizenTask tasque : tasques) {
+			if (tasque.canExecuteWithPersonality(trets)) {
+				this.getAutonomy().addTask(tasque.isUrgent(this) ? 0 : getAutonomy().getImmediateTasks().size(), tasque,
+						tasque.isUrgent(this));
+			}
+		}
 	}
 
 	@Override
@@ -298,17 +322,20 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 			Optional<Collection<CitizenEntity>> vis = this.brain
 					.getMemory(CitizenMemoryAndSensors.VISIBLE_CITIZENS.get());
 			if (vis.isPresent() && !vis.get().isEmpty()) {
+
 				for (CitizenEntity citizen : vis.get()) {
 					Set<CitizenTask> tasks = citizen.getAutonomy().getRunningTasks().stream()
-							.filter((e) -> e.isVisible()).collect(Collectors.toSet());
+							.filter((e) -> e instanceof CitizenTask && ((CitizenTask) e).isVisible())
+							.map((a) -> (CitizenTask) a).collect(Collectors.toSet());
 					for (CitizenTask task : tasks) {
 						CitizenDeed deed = task.getDeed(citizen.getIdentity());
 						if (deed == null)
 							continue;
-
+						this.reactToEvent(deed);
 					}
 				}
 			}
+
 		}
 	}
 
@@ -409,6 +436,10 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 
 	public CitizenIdentity copyIdentity() {
 		return getIdentity().withCitizen(this.getForm());
+	}
+
+	public Emotions getEmotions() {
+		return info.getEmotions();
 	}
 
 	public BodyForm getForm() {

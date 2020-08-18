@@ -8,6 +8,7 @@ import com.gm910.occentmod.api.networking.messages.types.TaskParticles;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.ImmediateTask;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.task.TaskType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
@@ -79,6 +80,12 @@ public class EatFoodFromInventory extends ImmediateTask implements INeedsTask<Ne
 	public boolean isUrgent(CitizenEntity en) {
 		// TODO Auto-generated method stub
 		return en.getFoodLevel() < en.getMaxFoodLevel() / 6;
+	}
+
+	@Override
+	public TaskType<?> getType() {
+		// TODO Auto-generated method stub
+		return TaskType.EAT_FOOD_FROM_INVENTORY;
 	}
 
 }
