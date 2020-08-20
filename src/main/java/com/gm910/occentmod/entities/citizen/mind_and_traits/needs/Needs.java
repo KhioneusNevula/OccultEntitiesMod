@@ -13,14 +13,27 @@ import com.google.common.collect.Sets;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+
 public class Needs extends EntityDependentInformationHolder<CitizenEntity> {
 
 	private Map<NeedType<?>, NeedChecker<?>> needCheckers = new HashMap<>();
 
 	private Map<NeedType<?>, Set<Need<?>>> needs = new NonNullMap<>(Sets::newHashSet);
 
+	private Object2IntMap<NeedType<?>> randomCheckInterval = new Object2IntOpenHashMap<>();
+
 	public Needs(CitizenEntity entity) {
 		super(entity);
+	}
+
+	public int getRandomCheckInterval(NeedType<?> t) {
+		return randomCheckInterval.getInt(t);
+	}
+
+	public void newRandomCheckInterval(NeedType<?> t) {
+		randomCheckInterval.put(t, t.getCheckInterval(this.getEntityIn()));
 	}
 
 	public Set<NeedType<?>> getNeedTypes() {
@@ -33,6 +46,7 @@ public class Needs extends EntityDependentInformationHolder<CitizenEntity> {
 				.collect(Collectors.toSet());
 		for (Need<?> need : need1s) {
 			needs.get(need.getType()).add(need);
+			newRandomCheckInterval(need.getType());
 		}
 	}
 
@@ -54,8 +68,8 @@ public class Needs extends EntityDependentInformationHolder<CitizenEntity> {
 
 	public Needs registerNeeds(Set<NeedType<?>> needTypes) {
 		for (NeedType<?> type : needTypes) {
-			this.needCheckers.put(type, type.getNeedsChecker(this.getEntityIn()));
-
+			this.needCheckers.put(type, type.makeNeedsChecker(this.getEntityIn()));
+			this.newRandomCheckInterval(type);
 		}
 
 		return this;
@@ -77,8 +91,12 @@ public class Needs extends EntityDependentInformationHolder<CitizenEntity> {
 			if (check.areNeedsFulfilled()) {
 				this.needs.get(check.getType()).clear();
 			}
-			if (check.getNeed() != null && !needs.get(check.getType()).contains(check.getNeed())) {
-				needs.get(check.getType()).add(check.getNeed());
+			if (this.getTicksExisted() % this.getRandomCheckInterval(check.getType()) == 0) {
+				if (check.getNeed() != null && !needs.get(check.getType()).contains(check.getNeed())) {
+					needs.get(check.getType()).add(check.getNeed());
+					newRandomCheckInterval(check.getType());
+
+				}
 			}
 		}
 		System.out.println(this.needCheckers.values().stream()

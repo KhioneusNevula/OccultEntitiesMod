@@ -2,9 +2,11 @@ package com.gm910.occentmod.entities.citizen.mind_and_traits.memory;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.gm910.occentmod.api.util.GMNBT;
+import com.gm910.occentmod.api.util.ModReflect;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.EntityDependentInformationHolder;
 import com.google.common.collect.ImmutableMap;
@@ -47,6 +49,24 @@ public class MemoryHolder extends EntityDependentInformationHolder<CitizenEntity
 		return new HashSet<>(this.knowledge);
 	}
 
+	public boolean knows(CitizenMemory mem) {
+		return this.knowledge.contains(mem);
+	}
+
+	public boolean knows(Predicate<? super CitizenMemory> pred) {
+		return this.knowledge.stream().anyMatch(pred);
+	}
+
+	public <T extends CitizenMemory> Set<T> getByPredicate(Predicate<T> pred) {
+		return this.knowledge.stream().filter((m) -> ModReflect.<T>instanceOf(m, null)).map((d) -> (T) d).filter(pred)
+				.collect(Collectors.toSet());
+	}
+
+	public Set<CitizenMemory> fromTime(long minGrace, long maxGrace) {
+		return this
+				.getByPredicate((e) -> e.getMemoryCreationTime() >= minGrace && e.getMemoryCreationTime() <= maxGrace);
+	}
+
 	public void addKnowledge(CitizenMemory mem) {
 		this.knowledge.add(mem);
 	}
@@ -61,6 +81,7 @@ public class MemoryHolder extends EntityDependentInformationHolder<CitizenEntity
 				GMNBT.makeDynamic(mem.serialize(NBTDynamicOps.INSTANCE)));
 
 		copy.affectCitizen(this.getEntityIn());
+
 		this.addKnowledge(copy);
 	}
 

@@ -22,10 +22,18 @@ public abstract class CitizenDeed extends Occurrence {
 		this.citizen = citizen;
 	}
 
+	public CitizenDeed(OccurrenceType<?> type) {
+		super(type);
+	}
+
+	public void setCitizen(CitizenIdentity citizen) {
+		this.citizen = citizen;
+	}
+
 	public void readData(Dynamic<?> dyn) {
 
 		this.citizen = new CitizenIdentity(dyn.get("id").get().get());
-		this.readData(dyn.get("data").get().get());
+		this.readAdditionalData(dyn.get("data").get().get());
 	}
 
 	public abstract void readAdditionalData(Dynamic<?> dyn);
@@ -54,13 +62,13 @@ public abstract class CitizenDeed extends Occurrence {
 	 * @param e
 	 * @return
 	 */
-	public int getRelationshipChange(CitizenEntity e) {
+	public float getRelationshipChange(CitizenEntity e) {
 		return 0;
 	}
 
 	@Override
 	public <T> T writeData(DynamicOps<T> ops) {
-		T dat = writeData(ops);
+		T dat = writeAdditionalData(ops);
 		T uu = citizen.serialize(ops);
 		T rl = ops.createString(this.type.getName().toString());
 		return ops.createMap(

@@ -17,10 +17,21 @@ public class Need<T> implements IDynamicSerializable {
 
 	private boolean fulfilled;
 
+	private boolean inDanger;
+
 	public Need(NeedType<T> type, T desiredValue) {
 		this.type = type;
 		this.desiredValue = desiredValue;
 		this.fulfilled = false;
+	}
+
+	public Need<T> makeDangerous() {
+		this.inDanger = true;
+		return this;
+	}
+
+	public boolean isInDanger() {
+		return inDanger;
 	}
 
 	public T getDesiredValue() {
@@ -61,7 +72,8 @@ public class Need<T> implements IDynamicSerializable {
 	public boolean equals(Object obj) {
 		boolean b = false;
 		try {
-			b = this.type == ((Need) obj).type && this.desiredValue.equals(((Need) obj).desiredValue);
+			b = this.type == ((Need) obj).type && this.inDanger == ((Need) obj).inDanger
+					&& this.desiredValue.equals(((Need) obj).desiredValue);
 		} catch (ClassCastException e) {
 
 		}

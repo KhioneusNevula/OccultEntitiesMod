@@ -7,9 +7,11 @@ import java.util.function.BiFunction;
 import javax.annotation.Nullable;
 
 import com.gm910.occentmod.api.util.BlockInfo;
+import com.gm910.occentmod.api.util.WCFakePlayer;
 import com.gm910.occentmod.blocks.ModBlock;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
@@ -37,7 +39,6 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.TickPriority;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.util.FakePlayer;
 
 /**
  * Copied from Small Units mod
@@ -48,7 +49,14 @@ import net.minecraftforge.common.util.FakePlayer;
 public class WorldControllerBlock extends ModBlock {
 
 	public WorldControllerBlock() {
-		super(Block.Properties.create(Material.ROCK).notSolid().noDrops());
+		super(Block.Properties.create(Material.ROCK).noDrops());
+	}
+
+	@Override
+	public BlockRenderType getRenderType(BlockState state) {
+		// TODO Auto-generated method stub
+
+		return BlockRenderType.ENTITYBLOCK_ANIMATED;
 	}
 
 	@Override
@@ -256,6 +264,7 @@ public class WorldControllerBlock extends ModBlock {
 					}
 					return returnVal;
 
+				} else {
 				}
 			} catch (Exception ignored) {
 			}
@@ -335,15 +344,15 @@ public class WorldControllerBlock extends ModBlock {
 						if (!Block.getBlockFromItem(player.getHeldItem(handIn).getItem()).getDefaultState()
 								.equals(Blocks.AIR.getDefaultState())) {
 							loc = loc.offset(hit.getFace());
-							FakePlayer fakePlayer = new FakePlayer((ServerWorld) te.getContainedWorld(),
+							WCFakePlayer WCFakePlayer = new WCFakePlayer((ServerWorld) te.getContainedWorld(),
 									player.getGameProfile());
-							fakePlayer.setPositionAndRotation(player.getPosX() - pos.getX(),
+							WCFakePlayer.setPositionAndRotation(player.getPosX() - pos.getX(),
 									player.getPosY() - pos.getY(), player.getPosZ() - pos.getZ(), player.rotationYaw,
 									player.rotationPitch);
-							fakePlayer.setRotationYawHead(player.getRotationYawHead());
-							fakePlayer.setHeldItem(handIn, player.getHeldItem(handIn).copy());
+							WCFakePlayer.setRotationYawHead(player.getRotationYawHead());
+							WCFakePlayer.setHeldItem(handIn, player.getHeldItem(handIn).copy());
 							if (player.isCreative()) {
-								fakePlayer.setGameType(GameType.CREATIVE);
+								WCFakePlayer.setGameType(GameType.CREATIVE);
 							}
 							Vec3d start = player.getEyePosition(0).subtract(player.getLookVec().scale(1))
 									.subtract(new Vec3d(pos));
@@ -366,8 +375,8 @@ public class WorldControllerBlock extends ModBlock {
 							if (result != null) {
 								try {
 									result = result.withFace(hit.getFace());
-									fakePlayer.getHeldItem(handIn)
-											.onItemUse(new ItemUseContext(fakePlayer, handIn, result));
+									WCFakePlayer.getHeldItem(handIn)
+											.onItemUse(new ItemUseContext(WCFakePlayer, handIn, result));
 								} catch (Throwable err) {
 									StringBuilder stack = new StringBuilder(
 											"\n" + err.toString() + "(" + err.getMessage() + ")");

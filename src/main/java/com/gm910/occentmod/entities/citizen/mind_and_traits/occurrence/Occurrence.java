@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.IWorldTickable;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenInformation;
@@ -15,6 +16,7 @@ import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.util.IDynamicSerializable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -36,6 +38,10 @@ public abstract class Occurrence implements IDynamicSerializable, IWorldTickable
 		this.type = type;
 		this.position = pos;
 		this.dimension = dim;
+	}
+
+	public Occurrence(OccurrenceType<?> type) {
+		this.type = type;
 	}
 
 	public Occurrence setDimension(int dimension) {
@@ -145,9 +151,33 @@ public abstract class Occurrence implements IDynamicSerializable, IWorldTickable
 		return true;
 	}
 
+	public abstract OccurrenceEffect getEffect();
+
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName() + " of type " + this.getType();
+	}
+
+	public boolean equalsWithPos(Object o) {
+		if (!(o instanceof Occurrence))
+			return false;
+		Occurrence occ = (Occurrence) o;
+		return occ.serialize(NBTDynamicOps.INSTANCE).equals(this.serialize(NBTDynamicOps.INSTANCE));
+	}
+
+	public abstract boolean isSimilarTo(Occurrence other);
+
+	public boolean equals(Object oth) {
+		return ((Occurrence) oth).writeData(NBTDynamicOps.INSTANCE).equals(this.writeData(NBTDynamicOps.INSTANCE));
+	}
+
+	public static <T extends Occurrence> T copy(T one) {
+		T b = (T) one.getType().deserializeDat(GMNBT.makeDynamic(one.serialize(NBTDynamicOps.INSTANCE)));
+		return b;
+	}
+
+	public boolean couldBeCauseOf(Occurrence other, long thisPerformanceTime, long otherPerformanceTime) {
+		return otherPerformanceTime - thisPerformanceTime > 0 && otherPerformanceTime - thisPerformanceTime < 100;
 	}
 
 }

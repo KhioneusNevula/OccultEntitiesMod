@@ -55,6 +55,14 @@ public class BlockInfo implements INBTSerializable<CompoundNBT>, IDynamicSeriali
 		return tile;
 	}
 
+	public BlockInfo withState(BlockState state) {
+		return new BlockInfo(state);
+	}
+
+	public BlockInfo withTile(TileEntity te) {
+		return new BlockInfo(state, te);
+	}
+
 	/**
 	 * Places block and returns the info of the block that was previously there
 	 * 
@@ -104,6 +112,20 @@ public class BlockInfo implements INBTSerializable<CompoundNBT>, IDynamicSeriali
 		} catch (CommandSyntaxException e) {
 			return null;
 		}
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return this.serializeNBT().toString();
+	}
+
+	public static BlockInfo fromString(String s) {
+		try {
+			return new BlockInfo(JsonToNBT.getTagFromJson(s));
+		} catch (CommandSyntaxException e) {
+		}
+		return null;
 	}
 
 }

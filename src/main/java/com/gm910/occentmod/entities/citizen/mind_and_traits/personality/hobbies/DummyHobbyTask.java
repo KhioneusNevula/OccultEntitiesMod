@@ -29,7 +29,7 @@ public class DummyHobbyTask extends CitizenTask {
 		this.memory = memory;
 	}
 
-	protected boolean shouldExecute(ServerWorld worldIn, CitizenEntity owner) {
+	public boolean shouldExecute(ServerWorld worldIn, CitizenEntity owner) {
 		Optional<GlobalPos> optional = owner.getBrain().getMemory(memory);
 		return optional.isPresent() && Objects.equals(worldIn.getDimension().getType(), optional.get().getDimension())
 				&& optional.get().getPos().withinDistance(owner.getPositionVec(), (double) this.maxDistanceFromSite);

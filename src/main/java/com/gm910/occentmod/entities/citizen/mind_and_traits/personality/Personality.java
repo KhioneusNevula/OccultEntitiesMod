@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.InformationHolder;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.CitizenMemoryType;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait.TraitLevel;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait.TraitLevel;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
@@ -24,7 +24,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class Personality extends InformationHolder {
 
-	private Object2FloatMap<NumericPersonalityTrait> traits = new Object2FloatOpenHashMap<>();
+	private Object2FloatMap<PersonalityTrait> traits = new Object2FloatOpenHashMap<>();
 
 	private List<CitizenMemoryType<?>> gossipPriority = new ArrayList<>();
 
@@ -39,8 +39,8 @@ public class Personality extends InformationHolder {
 	}
 
 	public Personality(Dynamic<?> dyn) {
-		Map<NumericPersonalityTrait, Float> map = dyn.get("traits")
-				.asMap((d) -> NumericPersonalityTrait.fromName(d.asString("")), (d) -> d.asFloat(0));
+		Map<PersonalityTrait, Float> map = dyn.get("traits")
+				.asMap((d) -> PersonalityTrait.fromName(d.asString("")), (d) -> d.asFloat(0));
 		traits.putAll(map);
 		List<CitizenMemoryType<?>> gos = dyn.get("gossipPriority")
 				.asList((ee) -> CitizenMemoryType.get(new ResourceLocation(ee.asString(""))));
@@ -48,7 +48,7 @@ public class Personality extends InformationHolder {
 	}
 
 	public Personality() {
-		for (NumericPersonalityTrait trait : NumericPersonalityTrait.values()) {
+		for (PersonalityTrait trait : PersonalityTrait.values()) {
 			traits.put(trait, 0.0f);
 		}
 		Collection<CitizenMemoryType<?>> ls = CitizenMemoryType.getMemoryTypes();
@@ -61,7 +61,7 @@ public class Personality extends InformationHolder {
 	}
 
 	public Personality initializeRandomTraits(CitizenEntity e) {
-		for (NumericPersonalityTrait trait : NumericPersonalityTrait.values()) {
+		for (PersonalityTrait trait : PersonalityTrait.values()) {
 
 			traits.put(trait,
 					clamp((float) (gaussian(e.getRNG(), ((trait.max + trait.min) / 2), ((trait.max - trait.min) / 4))),
@@ -74,20 +74,25 @@ public class Personality extends InformationHolder {
 		return Math.max(min, Math.min(max, val));
 	}
 
-	public void setTrait(NumericPersonalityTrait trait, float value) {
+	public void setTrait(PersonalityTrait trait, float value) {
 		this.traits.put(trait, clamp(value, trait.min, trait.max));
 	}
 
-	public float getTrait(NumericPersonalityTrait trait) {
+	public float getTrait(PersonalityTrait trait) {
 		return this.traits.getFloat(trait);
 	}
 
-	public Map<NumericPersonalityTrait, TraitLevel> generateTraitReactionMap() {
-		Map<NumericPersonalityTrait, TraitLevel> mapa = new HashMap<>();
-		for (NumericPersonalityTrait trait : NumericPersonalityTrait.values()) {
+	public Map<PersonalityTrait, TraitLevel> generateTraitReactionMap() {
+		Map<PersonalityTrait, TraitLevel> mapa = new HashMap<>();
+		for (PersonalityTrait trait : PersonalityTrait.values()) {
 			mapa.put(trait, trait.getWeightedRandomReaction(this.getTrait(trait)));
 		}
 		return mapa;
+	}
+
+	@Override
+	public long getTicksExisted() {
+		return 0;
 	}
 
 }

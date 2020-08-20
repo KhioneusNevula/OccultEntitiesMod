@@ -8,9 +8,18 @@ import java.util.stream.Collectors;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.EntityDependentInformationHolder;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.CauseEffectTheory;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryOfDeed;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Need;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect.Connotation;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relationships;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask.Context;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -96,7 +105,70 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 		return this;
 	}
 
-	public Autonomy addTask(int ord, CitizenTask task, boolean makeFirstTask) {
+	/**
+	 * Takes into account previous experiences, personality, and skill in order to
+	 * consider adding a certain task
+	 * 
+	 * @param ord
+	 * @param task
+	 * @param makeFirstTask
+	 * @return
+	 */
+	public boolean considerTask(int ord, CitizenTask task, boolean makeFirstTask) {
+		if (!task.canExecute(this.getEntityIn())) {
+			return false;
+		}
+		CitizenEntity en = this.getEntityIn();
+		CitizenDeed d = task.getDeed(en.getIdentity());
+		float sympathy = en.getPersonality().getTrait(PersonalityTrait.SYMPATHY);
+		float selfishness = en.getPersonality().getTrait(PersonalityTrait.SELFISHNESS);
+		float kindness = -en.getPersonality().getTrait(PersonalityTrait.SADISM);
+		float activeness = en.getPersonality().getTrait(PersonalityTrait.ACTIVENESS);
+		float chance = makeFirstTask ? 1 : (activeness + 1) / 2;
+		if (d != null) {
+			Set<CauseEffectTheory> theories = en.getKnowledge().getByPredicate((e) -> e instanceof CauseEffectTheory);
+
+			for (CauseEffectTheory theory : theories) {
+				if (theory.getCause().isSimilarTo(d)) {
+					Occurrence effect = theory.getEffect();
+					OccurrenceEffect con = effect.getEffect();
+					Connotation selfCon = con.getEffect(en.getIdentity());
+					if (selfCon == Connotation.FATAL && selfishness >= 0) {
+						return false;
+					}
+					chance += (1 - chance) * (selfCon.getValue() / Connotation.MAX);
+					for (CitizenIdentity id : con.getAffected()) {
+						float like = en.getRelationships().getLikeValue(id) * 2 / Relationships.MAX_LIKE_VALUE;
+						float pleasureAtNegative = like * kindness;
+						float careFor = (((kindness * sympathy) - selfishness));
+						Connotation citcon = con.getEffect(id);
+						int conlevel = citcon.getValue();
+						if (like * 0.75 <= careFor) {
+							chance += (1 - chance) * (conlevel * pleasureAtNegative);
+						} else {
+							continue;
+						}
+					}
+				}
+			}
+		}
+		float rand = this.getEntityIn().getRNG().nextFloat();
+		if (rand <= chance) {
+			this.forceAddTask(ord, task, makeFirstTask);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Forces citizen to add this task to their queue
+	 * 
+	 * @param ord
+	 * @param task
+	 * @param makeFirstTask
+	 * @return
+	 */
+	public Autonomy forceAddTask(int ord, CitizenTask task, boolean makeFirstTask) {
 		Pair<Integer, CitizenTask> pair = Pair.of(ord, task);
 		if (pair.getSecond().getContexts().contains(Context.BACKGROUND)) {
 			this.addBackgroundTask(ord, task);
@@ -104,7 +176,7 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 			this.addCoreTask(ord, task);
 		} else {
 
-			this.addActiveTask(ord, task, makeFirstTask);
+			this.addActiveTask(task, makeFirstTask);
 		}
 		return this;
 	}
@@ -113,7 +185,7 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 		toExecute.add(task);
 	}
 
-	public Autonomy addActiveTask(int order, CitizenTask task, boolean makeFirstTask) {
+	private Autonomy addActiveTask(CitizenTask task, boolean makeFirstTask) {
 		for (Context con : task.getContexts()) {
 			List<CitizenTask> list = this.immediateTasks.computeIfAbsent(con, (e) -> Lists.newArrayList());
 			if (list.isEmpty()) {
@@ -123,7 +195,7 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 				if (makeFirstTask) {
 					boolean f = false;
 					for (int i = 0; i < list.size(); i++) {
-						if (!list.get(i).cannotBeOverriden()) {
+						if (!list.get(i).cannotBeOverriden(this.getEntityIn())) {
 							list.add(i, task);
 							toExecute.add(task);
 							f = true;
@@ -163,7 +235,8 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 			for (Need<?> need : ns) {
 				if (!need.isFulfilled()) {
 					Set<CitizenTask> fulTasks = need.getFulfillmentTasks(this.getEntityIn());
-					fulTasks.forEach((tasq) -> this.addTask(0, tasq, tasq.isUrgent(this.getEntityIn())));
+					fulTasks.forEach((tasq) -> this.considerTask(0, tasq,
+							need.isInDanger() || tasq.isUrgent(this.getEntityIn())));
 				}
 			}
 		}
@@ -171,7 +244,7 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 				this.immediateTasks.values().stream().flatMap((mapa) -> mapa.stream()).collect(Collectors.toSet()));
 		tasks.addAll(this.backgroundTasks.values().stream().flatMap((e) -> e.stream()).collect(Collectors.toSet()));
 		tasks.addAll(this.coreTasks.values().stream().flatMap((e) -> e.stream()).collect(Collectors.toSet()));
-		tasks.removeIf((t) -> t.getStatus() != Task.Status.RUNNING);
+		tasks.removeIf((t) -> t.getStatus() != Task.Status.RUNNING && !toExecute.contains(t));
 		return tasks;
 	}
 
@@ -187,7 +260,7 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 		return this;
 	}
 
-	public Autonomy addCoreTask(int ord, CitizenTask task) {
+	private Autonomy addCoreTask(int ord, CitizenTask task) {
 		if (!task.getContexts().contains(Context.CORE)) {
 			throw new IllegalArgumentException("Task " + task + " for " + this.getEntityIn() + " is not a core task");
 		}
@@ -255,6 +328,10 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 			} else {
 				if (tasks.get(0).getStatus() == Status.STOPPED) {
 					CitizenTask t = tasks.remove(0);
+					CitizenDeed d = t.getDeed(this.getEntityIn().getIdentity());
+					if (d != null) {
+						this.getEntityIn().getKnowledge().receiveKnowledge(new MemoryOfDeed(this.getEntityIn(), d));
+					}
 				}
 			}
 		}

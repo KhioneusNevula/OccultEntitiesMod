@@ -3,10 +3,10 @@ package com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.MurderDeed;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.task.needs.NeedFulfilledDeed;
 import com.gm910.occentmod.util.GMFiles;
 import com.mojang.datafixers.Dynamic;
 
@@ -17,16 +17,20 @@ public class OccurrenceType<T extends Occurrence> {
 	private ResourceLocation name;
 	private static final Map<ResourceLocation, OccurrenceType<?>> DEEDS = new HashMap<>();
 
-	public static final OccurrenceType<MurderDeed> MURDER = new OccurrenceType<>(GMFiles.rl("murder"), MurderDeed::new);
+	public static final OccurrenceType<MurderDeed> MURDER = new OccurrenceType<>(GMFiles.rl("murder"),
+			() -> new MurderDeed());
 
-	private Function<CitizenIdentity, Occurrence> supplier;
+	public static final OccurrenceType<NeedFulfilledDeed> NEED_FULFILLED = new OccurrenceType<>(
+			GMFiles.rl("need_fulfilled"), () -> new NeedFulfilledDeed());
+
+	private Supplier<T> supplier;
 
 	/**
 	 * 
 	 * @param name
 	 * @param func returns a blank citizen deed to deserialize
 	 */
-	public OccurrenceType(ResourceLocation name, Function<CitizenIdentity, Occurrence> func) {
+	public OccurrenceType(ResourceLocation name, Supplier<T> func) {
 		this.name = name;
 		this.supplier = func;
 		DEEDS.put(name, this);
@@ -41,10 +45,14 @@ public class OccurrenceType<T extends Occurrence> {
 		return type.deserializeDat(dyn);
 	}
 
-	public Occurrence deserializeDat(Dynamic<?> dyn) {
-		Occurrence deed = supplier.apply(new CitizenIdentity(dyn.get("id").get().get()));
+	public T deserializeDat(Dynamic<?> dyn) {
+		T deed = supplier.get();
 		deed.$readData(dyn);
 		return deed;
+	}
+
+	public T makeNew() {
+		return supplier.get();
 	}
 
 	public static OccurrenceType<?> get(ResourceLocation name) {

@@ -8,17 +8,19 @@ import net.minecraft.world.server.ServerWorld;
 
 public interface CitizenAction {
 
-	public default void startExecuting(ServerWorld worldIn, CitizenEntity entityIn, long gameTimeIn) {
-		Set<CitizenEntity> en = startActionOn(worldIn, entityIn, gameTimeIn);
+	public static <T extends CitizenTask & CitizenAction> void startExecuting(T this_, ServerWorld worldIn,
+			CitizenEntity entityIn, long gameTimeIn) {
+		Set<CitizenEntity> en = this_.startActionOn(worldIn, entityIn, gameTimeIn);
 		for (CitizenEntity e : en) {
-			e.react(this);
+			e.react(this_, entityIn);
 		}
 	}
 
-	public default void updateTask(ServerWorld worldIn, CitizenEntity owner, long gameTime) {
-		Set<CitizenEntity> en = updateActionOn(worldIn, owner, gameTime);
+	public static <T extends CitizenTask & CitizenAction> void updateTask(T this_, ServerWorld worldIn,
+			CitizenEntity owner, long gameTime) {
+		Set<CitizenEntity> en = this_.updateActionOn(worldIn, owner, gameTime);
 		for (CitizenEntity e : en) {
-			e.react(this);
+			e.react(this_, owner);
 		}
 	}
 

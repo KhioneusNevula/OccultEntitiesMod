@@ -185,4 +185,9 @@ public class Genetics<E extends LivingEntity> extends InformationHolder {
 						.collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
 	}
 
+	@Override
+	public long getTicksExisted() {
+		return 0;
+	}
+
 }

@@ -99,23 +99,24 @@ public class SmallerUnitTESR extends TileEntityRenderer<WorldControllerTileEntit
 						IBakedModel mdl = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes()
 								.getModel(state);
 						for (Direction dir : Direction.values())
-							if ((!tileEntityIn.containedWorld
+							if ((!tileEntityIn.getContainedWorld()
 									.getBlockState(new BlockPos(pos.getX(), pos.getY(), pos.getZ()).offset(dir))
-									.isSolidSide(tileEntityIn.containedWorld,
+									.isSolidSide(tileEntityIn.getContainedWorld(),
 											new BlockPos(pos.getX(), pos.getY(), pos.getZ()).offset(dir), dir))
 									|| (!(RenderTypeLookup
-											.getRenderType(tileEntityIn.containedWorld.getBlockState(
+											.getRenderType(tileEntityIn.getContainedWorld().getBlockState(
 													new BlockPos(pos.getX(), pos.getY(), pos.getZ()).offset(dir)))
 											.equals(RenderType.getSolid())))) {
 								if (RenderTypeLookup.getRenderType(state).equals(
-										(RenderTypeLookup.getRenderType(tileEntityIn.containedWorld.getBlockState(
+										(RenderTypeLookup.getRenderType(tileEntityIn.getContainedWorld().getBlockState(
 												new BlockPos(pos.getX(), pos.getY(), pos.getZ()).offset(dir)))))) {
-									if (!state.equals(tileEntityIn.containedWorld.getBlockState(
+									if (!state.equals(tileEntityIn.getContainedWorld().getBlockState(
 											new BlockPos(pos.getX(), pos.getY(), pos.getZ()).offset(dir)))) {
 										if (RenderTypeLookup.getRenderType(state).equals(RenderType.getTranslucent())
-												&& tileEntityIn.containedWorld.getBlockState(
-														new BlockPos(pos.getX(), pos.getY(), pos.getZ()).offset(dir))
-														.isSolidSide(tileEntityIn.containedWorld,
+												&& tileEntityIn.getContainedWorld()
+														.getBlockState(new BlockPos(pos.getX(), pos.getY(), pos.getZ())
+																.offset(dir))
+														.isSolidSide(tileEntityIn.getContainedWorld(),
 																new BlockPos(pos.getX(), pos.getY(), pos.getZ())
 																		.offset(dir),
 																dir)) {
@@ -141,8 +142,8 @@ public class SmallerUnitTESR extends TileEntityRenderer<WorldControllerTileEntit
 							int i = -1;
 							if (flag && bakedquad.hasTintIndex())
 								i = Minecraft.getInstance().getBlockColors().getColor(state,
-										tileEntityIn.containedWorld, new BlockPos(pos.getX(), pos.getY(), pos.getZ()),
-										bakedquad.getTintIndex());
+										tileEntityIn.getContainedWorld(),
+										new BlockPos(pos.getX(), pos.getY(), pos.getZ()), bakedquad.getTintIndex());
 
 							float f = (float) (i >> 16 & 255) / 255.0F;
 							float f1 = (float) (i >> 8 & 255) / 255.0F;
@@ -153,7 +154,7 @@ public class SmallerUnitTESR extends TileEntityRenderer<WorldControllerTileEntit
 //						}
 						if (tileEntityIn.isEnchanted)
 							Minecraft.getInstance().getBlockRendererDispatcher().renderModel(state,
-									new BlockPos(pos.getX(), pos.getY(), pos.getZ()), tileEntityIn.containedWorld,
+									new BlockPos(pos.getX(), pos.getY(), pos.getZ()), tileEntityIn.getContainedWorld(),
 									matrixStackIn, bufferIn.getBuffer(RenderType.getGlint()), true,
 									new Random(new BlockPos(pos.getX(), pos.getY(), pos.getZ()).toLong()),
 									net.minecraftforge.client.model.data.EmptyModelData.INSTANCE);

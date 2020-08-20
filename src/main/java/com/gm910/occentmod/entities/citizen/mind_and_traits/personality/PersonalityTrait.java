@@ -17,7 +17,7 @@ import net.minecraft.util.IStringSerializable;
  * @author borah
  *
  */
-public enum NumericPersonalityTrait implements IStringSerializable {
+public enum PersonalityTrait implements IStringSerializable {
 	/**
 	 * positive values = more likely to step in to help a citizen in danger <br>
 	 * negative values = more likely to run away
@@ -254,11 +254,11 @@ public enum NumericPersonalityTrait implements IStringSerializable {
 	float min = -1;
 	float max = 1;
 
-	private NumericPersonalityTrait(String name) {
+	private PersonalityTrait(String name) {
 		this.name = name;
 	}
 
-	private NumericPersonalityTrait(String name, float min, float max) {
+	private PersonalityTrait(String name, float min, float max) {
 		this(name);
 		this.min = min;
 		this.max = max;
@@ -272,8 +272,8 @@ public enum NumericPersonalityTrait implements IStringSerializable {
 		return min;
 	}
 
-	public static NumericPersonalityTrait fromName(String name) {
-		for (NumericPersonalityTrait trait : values()) {
+	public static PersonalityTrait fromName(String name) {
+		for (PersonalityTrait trait : values()) {
 			if (trait.getName().equals(name)) {
 				return trait;
 			}
@@ -281,23 +281,23 @@ public enum NumericPersonalityTrait implements IStringSerializable {
 		return null;
 	}
 
-	public NumericPersonalityTrait.TraitLevel getTypicalReactionType(float trait) {
-		return NumericPersonalityTrait.TraitLevel.getType(trait, min, max);
+	public PersonalityTrait.TraitLevel getTypicalReactionType(float trait) {
+		return PersonalityTrait.TraitLevel.getType(trait, min, max);
 	}
 
-	public NumericPersonalityTrait.TraitLevel getWeightedRandomReaction(float trait) {
-		NumericPersonalityTrait.TraitLevel typic = getTypicalReactionType(trait);
+	public PersonalityTrait.TraitLevel getWeightedRandomReaction(float trait) {
+		PersonalityTrait.TraitLevel typic = getTypicalReactionType(trait);
 		float rxnTypic = 0.5f + (trait / 0.5f);
-		int rangeEitherSide = NumericPersonalityTrait.TraitLevel.values().length - 1;
-		Object2FloatMap<NumericPersonalityTrait.TraitLevel> weights = Object2FloatMaps.emptyMap();
+		int rangeEitherSide = PersonalityTrait.TraitLevel.values().length - 1;
+		Object2FloatMap<PersonalityTrait.TraitLevel> weights = Object2FloatMaps.emptyMap();
 		weights.put(typic, rxnTypic);
 
 		for (int i = -rangeEitherSide; i <= rangeEitherSide; i++) {
-			if (NumericPersonalityTrait.TraitLevel.getById(i) == null)
+			if (PersonalityTrait.TraitLevel.getById(i) == null)
 				continue;
 			if (i == 0)
 				continue;
-			NumericPersonalityTrait.TraitLevel rxn = NumericPersonalityTrait.TraitLevel.getById(i);
+			PersonalityTrait.TraitLevel rxn = PersonalityTrait.TraitLevel.getById(i);
 			int stv = Math.abs(i);
 			float chancia = (float) (1 / (Math.pow(2, stv))) * (1 - rxnTypic);
 			weights.put(rxn, chancia);

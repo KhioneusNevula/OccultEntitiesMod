@@ -3,9 +3,9 @@ package com.gm910.occentmod.blocks.worldcontroller;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
+import com.gm910.occentmod.api.util.BlockInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
@@ -22,11 +23,9 @@ import it.unimi.dsi.fastutil.shorts.ShortList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.MovingPistonBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.IFluidState;
@@ -36,10 +35,8 @@ import net.minecraft.particles.IParticleData;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.tags.NetworkTagManager;
-import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -52,8 +49,6 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.ITickList;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.LightType;
-import net.minecraft.world.NextTickListEntry;
-import net.minecraft.world.TickPriority;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeContainer;
@@ -66,27 +61,23 @@ import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.dimension.Dimension;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.gen.feature.structure.StructureStart;
 import net.minecraft.world.lighting.WorldLightManager;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.MapData;
 import net.minecraft.world.storage.WorldInfo;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.fml.LogicalSide;
 
 public class FakeWorld extends World implements IWorld {
-	public HashMap<BlockPos, SmallUnit> unitHashMap = new HashMap<>();
-	public HashMap<BlockPos, SmallUnit> lastUnitsHashMap = new HashMap<>();
+	public HashMap<BlockPos, BlockInfo> unitHashMap = new HashMap<>();
+	public Set<Entity> entities = new HashSet<>();
 	public int upb; // units per block
-	public SmallerUnitsTileEntity owner;
+	public WorldControllerTileEntity owner;
 
 	@Override
 	public void setTileEntity(BlockPos pos, @Nullable TileEntity tileEntityIn) {
 		if (unitHashMap.containsKey(pos))
-			unitHashMap.get(pos).te = tileEntityIn;
+			unitHashMap.put(pos, unitHashMap.get(pos).withTile(tileEntityIn));
 	}
 
 	@Override
@@ -152,16 +143,27 @@ public class FakeWorld extends World implements IWorld {
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		for (SmallUnit unit : unitHashMap.values()) {
-			str.append(unit.toString()).append(";");
+		for (BlockPos pos : unitHashMap.keySet()) {
+			BlockInfo unit = unitHashMap.get(pos);
+			str.append(pos.toLong() + "|" + unit.toString()).append(";");
+		}
+		return str.toString();
+	}
+
+	public static String worldToString(WorldControllerTileEntity te) {
+		StringBuilder str = new StringBuilder();
+		for (BlockPos pos : te.unitHashMap.keySet()) {
+			BlockInfo unit = te.unitHashMap.get(pos);
+			str.append(pos.toLong() + "|" + unit.toString()).append(";");
 		}
 		return str.toString();
 	}
 
 	public void fromString(String s) {
 		for (String s1 : s.split(";")) {
-			SmallUnit unit = SmallUnit.fromString(s1, upb);
-			unitHashMap.put(new BlockPos(unit.x, unit.y, unit.z), unit);
+			BlockPos pos = BlockPos.fromLong(Long.parseLong(s1.split("|")[0]));
+			BlockInfo unit = BlockInfo.fromString(s1.split("|")[1]);
+			unitHashMap.put(new BlockPos(pos.getX(), pos.getY(), pos.getZ()), unit);
 		}
 	}
 
@@ -171,129 +173,7 @@ public class FakeWorld extends World implements IWorld {
 	}
 
 	public void tick(ServerWorld realWorld) {
-		try {
-//			BlockPos randomPos=new BlockPos(new Random().nextInt(16/2)*16,(new Random().nextInt(255/16/2)+2)*16,new Random().nextInt(16/2)*16);
-			time++;
-			BlockPos randomPos = new BlockPos((1 / 2) * 16, ((1 / 2) + 2) * 16, (1 / 2) * 16);
-			ServerWorld sworld = realWorld.getServer().getWorld(
-					Objects.requireNonNull(DimensionType.byName(new ResourceLocation("smallerunits", "susimulator"))));
-			sworld.getChunkProvider().getChunk(0, 0, true);
-			sworld.getChunkProvider().getChunk(0, -1, true);
-			sworld.getChunkProvider().getChunk(-1, -1, true);
-			sworld.getChunkProvider().getChunk(-1, 0, true);
-			for (BlockPos pos : lastUnitsHashMap.keySet()) {
-				SmallUnit newUnit = unitHashMap.containsKey(pos) ? unitHashMap.get(pos)
-						: SmallUnit.fromString("0", upb);
-				sworld.setBlockState(randomPos.add(pos), this.getBlockState(pos), 64);
-				BlockState oldState = lastUnitsHashMap.containsKey(pos) ? lastUnitsHashMap.get(pos).s
-						: Blocks.AIR.getDefaultState();
-				BlockState newState = this.getBlockState(pos);
-				if (!oldState.equals(newState)) {
-					boolean isMoving = newState.getBlock() instanceof MovingPistonBlock
-							|| oldState.getBlock() instanceof MovingPistonBlock;
-					this.onBlockStateChange(randomPos.add(pos), oldState, newState);
-					newState.onBlockAdded(this, pos, oldState, isMoving);
-					newState.onNeighborChange(this, pos, pos);
-					newState.neighborChanged(this, pos, oldState.getBlock(), pos, isMoving);
-					for (Direction dir : Direction.values()) {
-						this.getBlockState(pos.offset(dir)).neighborChanged(this, pos.offset(dir), newState.getBlock(),
-								pos, isMoving);
-						this.getBlockState(pos.offset(dir)).onNeighborChange(this, pos.offset(dir), pos);
-						this.getBlockState(pos.offset(dir)).observedNeighborChange(this, pos.offset(dir),
-								oldState.getBlock(), pos);
-					}
-				}
-				newUnit = unitHashMap.containsKey(pos) ? unitHashMap.get(pos) : SmallUnit.fromString("0", upb);
-				if (lastUnitsHashMap.containsKey(pos))
-					lastUnitsHashMap.replace(pos, newUnit);
-				else
-					lastUnitsHashMap.put(pos, newUnit);
-			}
-			for (BlockPos pos : unitHashMap.keySet()) {
-				BlockState oldState = lastUnitsHashMap.containsKey(pos) ? lastUnitsHashMap.get(pos).s
-						: Blocks.AIR.getDefaultState();
-				BlockState newState = this.getBlockState(pos);
-				if (!oldState.equals(newState)) {
-					sworld.setBlockState(randomPos.add(pos), this.getBlockState(pos), 64);
-					this.onBlockStateChange(randomPos.add(pos), oldState, newState);
-					newState.onBlockAdded(this, pos, oldState, false);
-					newState.onNeighborChange(this, pos, pos);
-					newState.neighborChanged(this, pos, oldState.getBlock(), pos, false);
-					for (Direction dir : Direction.values()) {
-						this.getBlockState(pos.offset(dir)).neighborChanged(this, pos.offset(dir), newState.getBlock(),
-								pos, false);
-						this.getBlockState(pos.offset(dir)).onNeighborChange(this, pos.offset(dir), pos);
-						this.getBlockState(pos.offset(dir)).observedNeighborChange(this, pos.offset(dir),
-								oldState.getBlock(), pos);
-						if (!this.tickList.ticklist.containsKey(pos.offset(dir))) {
-							this.tickList.scheduleTick(pos.offset(dir), this.getBlockState(pos.offset(dir)).getBlock(),
-									this.getBlockState(pos.offset(dir)).getBlock().tickRate(this) / 10);
-						}
-					}
-				}
-				if (lastUnitsHashMap.containsKey(pos))
-					lastUnitsHashMap.replace(pos, unitHashMap.get(pos));
-				else
-					lastUnitsHashMap.put(pos, unitHashMap.get(pos));
-			}
-			for (BlockPos pos : unitHashMap.keySet()) {
-				sworld.setBlockState(randomPos.add(pos), this.getBlockState(pos), 64);
-			}
-			MinecraftForge.EVENT_BUS
-					.post(new TickEvent.WorldTickEvent(LogicalSide.SERVER, TickEvent.Phase.START, sworld));
-//			tickList.ticklist.keySet().forEach((pos)->sworld.getPendingBlockTicks().scheduleTick(pos,tickList.blocklist.get(pos),tickList.ticklist.get(pos).intValue()));
-//			try{if(true)sworld.tick(()->true);if(true)sworld.getPendingBlockTicks().tick();}catch(Throwable ignored){}
-			try {
-				for (int x = 0; x < upb; x++) {
-					for (int y = 0; y < upb; y++) {
-						for (int z = 0; z < upb; z++) {
-							if (!(sworld.getBlockState(randomPos.add(x, y, z)).getBlock() instanceof SmallerUnitBlock))
-								if (tickList.isTickPending(new BlockPos(x, y, z),
-										sworld.getBlockState(randomPos.add(x, y, z)).getBlock())) {
-									sworld.getBlockState(randomPos.add(x, y, z)).tick(sworld, randomPos.add(x, y, z),
-											rand);
-									tickList.unscheduleTick(new BlockPos(x, y, z));
-								}
-							TileEntity te = this.getTileEntity(new BlockPos(x, y, z));
-							if (te == null)
-								te = sworld.getTileEntity(randomPos.add(new BlockPos(x, y, z)));
-							this.setBlockState(new BlockPos(x, y, z),
-									sworld.getBlockState(randomPos.add(new BlockPos(x, y, z))));
-							if (te != null) {
-								te.setWorldAndPos(this, new BlockPos(x, y, z));
-								if (te instanceof ITickableTileEntity)
-									((ITickableTileEntity) te).tick();
-							}
-							this.setTileEntity(new BlockPos(x, y, z), te);
-							if (te != null)
-								te.setWorldAndPos(sworld, new BlockPos(x, y, z));
-							sworld.setBlockState(randomPos.add(x, y, z), this.getBlockState(new BlockPos(x, y, z)), 64);
-							for (Direction dir : Direction.values())
-								sworld.setBlockState(randomPos.add(x, y, z).offset(dir),
-										this.getBlockState(new BlockPos(x, y, z).offset(dir)), 64);
-						}
-					}
-				}
-			} catch (Throwable err) {
-				StringBuilder stack = new StringBuilder("\n" + err.toString() + "(" + err.getMessage() + ")");
-				for (StackTraceElement element : err.getStackTrace())
-					stack.append(element.toString()).append("\n");
-				System.out.println(stack.toString());
-			}
-			MinecraftForge.EVENT_BUS
-					.post(new TickEvent.WorldTickEvent(LogicalSide.SERVER, TickEvent.Phase.END, sworld));
-			for (BlockPos pos : lastUnitsHashMap.keySet()) {
-				if (sworld.getBlockState(pos) != Blocks.AIR.getDefaultState())
-					this.setBlockState(pos, sworld.getBlockState(randomPos.add(pos)));
-				sworld.setBlockState(randomPos.add(pos), Blocks.AIR.getDefaultState(), 64);
-				sworld.getEntitiesWithinAABB(ItemEntity.class,
-						new AxisAlignedBB(randomPos.getX() + pos.getX(), randomPos.getY() + pos.getY(),
-								randomPos.getZ() + pos.getZ(), randomPos.getX() + pos.getX() + 1,
-								randomPos.getY() + pos.getY() + 1, randomPos.getZ() + pos.getZ() + 1))
-						.forEach((e) -> e.remove());
-			}
-		} catch (Throwable ignored) {
-		}
+
 	}
 
 	@Override
@@ -377,91 +257,29 @@ public class FakeWorld extends World implements IWorld {
 
 	@Override
 	public boolean addTileEntity(TileEntity tile) {
-		unitHashMap.get(tile.getPos()).te = tile;
+		unitHashMap.put(tile.getPos(), unitHashMap.get(tile.getPos()).withTile(tile));
 		return true;
 	}
 
 	@Override
 	public void addTileEntities(Collection<TileEntity> tileEntityCollection) {
-		tileEntityCollection.forEach((tile) -> unitHashMap.get(tile.getPos()).te = tile);
+		tileEntityCollection
+				.forEach((tile) -> unitHashMap.put(tile.getPos(), unitHashMap.get(tile.getPos()).withTile(tile)));
 	}
 
 	@Override
 	public void removeTileEntity(BlockPos pos) {
-		unitHashMap.get(pos).te = null;
+		unitHashMap.put(pos, unitHashMap.get(pos).withTile(null));
 	}
 
 	public int time = 0;
 
-	public static class FakeTickList implements ITickList<Block> {
-		public HashMap<BlockPos, Long> ticklist = new HashMap<>();
-		public ArrayList<BlockPos> updatorlist = new ArrayList<>();
-		public HashMap<BlockPos, Block> blocklist = new HashMap<>();
-		FakeWorld world;
+	/*FakeTickList tickList = new FakeTickList(this);
+	FakeTickList blockUpdateList = new FakeTickList(this);*/
 
-		public FakeTickList(FakeWorld world) {
-			this.world = world;
-		}
-
-		@Override
-		public boolean isTickScheduled(BlockPos pos, Block itemIn) {
-			if (blocklist.containsKey(pos) && blocklist.get(pos).equals(itemIn))
-				return ticklist.containsKey(pos);
-			return false;
-		}
-
-		@Override
-		public void scheduleTick(BlockPos pos, Block itemIn, int scheduledTime, TickPriority priority) {
-			if (!itemIn.getDefaultState().isAir()) {
-//				System.out.println(scheduledTime);
-//				System.out.println(itemIn);
-//				System.out.println(world.time+scheduledTime);
-				ticklist.put(pos, world.time + (long) scheduledTime);
-				blocklist.put(pos, itemIn);
-			}
-		}
-
-		public void unscheduleTick(BlockPos pos) {
-			try {
-				while (ticklist.containsKey(pos))
-					ticklist.remove(pos);
-				while (blocklist.containsKey(pos))
-					blocklist.remove(pos);
-			} catch (Exception err) {
-			}
-		}
-
-		public void addBlockUpdate(BlockPos pos, BlockPos source) {
-			this.scheduleTick(pos, Blocks.DIRT, 0);
-			this.updatorlist.add(source);
-		}
-
-		@Override
-		public void scheduleTick(BlockPos pos, Block itemIn, int scheduledTime) {
-			this.scheduleTick(pos, itemIn, scheduledTime, TickPriority.NORMAL);
-		}
-
-		@Override
-		public boolean isTickPending(BlockPos pos, Block obj) {
-//			System.out.println(ticklist.containsKey(pos)&&ticklist.get(pos).intValue()<=world.time);
-			return ticklist.containsKey(pos) && ticklist.get(pos).intValue() <= world.time;
-		}
-
-		@Override
-		public void addAll(Stream<NextTickListEntry<Block>> p_219497_1_) {
-			p_219497_1_.forEach((nextTickListEntry) -> {
-				ticklist.put(nextTickListEntry.position, nextTickListEntry.scheduledTime);
-				blocklist.put(nextTickListEntry.position, nextTickListEntry.getTarget());
-			});
-		}
-	}
-
-	FakeTickList tickList = new FakeTickList(this);
-	FakeTickList blockUpdateList = new FakeTickList(this);
-
-	public FakeWorld(int upb, SmallerUnitsTileEntity owner) {
+	public FakeWorld(int upb, WorldControllerTileEntity owner) {
 		super(new WorldInfo() {
-		}, DimensionType.OVERWORLD, (world, dimension) -> null, new IProfiler() {
+		}, owner.getContainedDimType(), (world, dimension) -> null, new IProfiler() {
 			@Override
 			public void startTick() {
 
@@ -518,7 +336,7 @@ public class FakeWorld extends World implements IWorld {
 
 	@Override
 	public ITickList<Block> getPendingBlockTicks() {
-		return tickList;
+		return null;// tickList;
 	}
 
 	@Override
@@ -599,7 +417,7 @@ public class FakeWorld extends World implements IWorld {
 	@Override
 	public TileEntity getTileEntity(BlockPos pos) {
 		if (unitHashMap.containsKey(pos))
-			return unitHashMap.get(pos).te;
+			return unitHashMap.get(pos).getTile();
 		else
 			return null;
 	}
@@ -607,7 +425,7 @@ public class FakeWorld extends World implements IWorld {
 	@Override
 	public BlockState getBlockState(BlockPos pos) {
 		if (unitHashMap.containsKey(pos)) {
-			return unitHashMap.get(pos).s;
+			return unitHashMap.get(pos).getState();
 		}
 		return Blocks.AIR.getDefaultState();
 	}
@@ -638,7 +456,7 @@ public class FakeWorld extends World implements IWorld {
 	@Override
 	public IFluidState getFluidState(BlockPos pos) {
 		if (unitHashMap.containsKey(pos))
-			return unitHashMap.get(pos).s.getFluidState();
+			return unitHashMap.get(pos).getState().getFluidState();
 		else
 			return Blocks.WATER.getDefaultState().getFluidState();
 	}
@@ -678,10 +496,10 @@ public class FakeWorld extends World implements IWorld {
 			@Nullable
 			@Override
 			public BlockState setBlockState(BlockPos pos, BlockState state, boolean isMoving) {
-				SmallUnit unit = new SmallUnit(pos.getX(), pos.getY(), pos.getZ(), upb, state);
+				BlockInfo unit = new BlockInfo(state);
 				try {
 					if (world.getTileEntity(pos) != null)
-						unit.te = world.getTileEntity(pos);
+						unit = unit.withTile(world.getTileEntity(pos));
 					try {
 						this.getBlockState(pos).onReplaced(world, pos, state, false);
 					} catch (Throwable ignored) {
@@ -709,8 +527,9 @@ public class FakeWorld extends World implements IWorld {
 			}
 
 			@Override
-			public void addTileEntity(BlockPos pos, TileEntity tileEntityIn) {
-				unitHashMap.get(pos).te = tileEntityIn;
+			public void addTileEntity(BlockPos pos, TileEntity tile) {
+
+				unitHashMap.put(pos, unitHashMap.get(pos).withTile(tile));
 			}
 
 			@Override
@@ -720,9 +539,10 @@ public class FakeWorld extends World implements IWorld {
 			@Override
 			public Set<BlockPos> getTileEntitiesPos() {
 				ArrayList<BlockPos> poses = new ArrayList<>();
-				for (SmallUnit unit : unitHashMap.values()) {
-					if (unit.te != null) {
-						poses.add(new BlockPos(unit.x, unit.y, unit.z));
+				for (BlockPos pos : unitHashMap.keySet()) {
+					BlockInfo unit = unitHashMap.get(pos);
+					if (unit.getTile() != null) {
+						poses.add(pos);
 					}
 				}
 				return ImmutableSet.copyOf(poses);
@@ -792,7 +612,8 @@ public class FakeWorld extends World implements IWorld {
 
 			@Override
 			public void removeTileEntity(BlockPos pos) {
-				unitHashMap.get(pos).te = null;
+
+				unitHashMap.put(pos, unitHashMap.get(pos).withTile(null));
 			}
 
 			@Override
@@ -803,13 +624,13 @@ public class FakeWorld extends World implements IWorld {
 			@Nullable
 			@Override
 			public CompoundNBT getDeferredTileEntity(BlockPos pos) {
-				return unitHashMap.get(pos).te.serializeNBT();
+				return unitHashMap.get(pos).getTile().serializeNBT();
 			}
 
 			@Nullable
 			@Override
 			public CompoundNBT getTileEntityNBT(BlockPos pos) {
-				return unitHashMap.get(pos).te.serializeNBT();
+				return unitHashMap.get(pos).getTile().serializeNBT();
 			}
 
 			@Override
@@ -853,19 +674,19 @@ public class FakeWorld extends World implements IWorld {
 			@Nullable
 			@Override
 			public TileEntity getTileEntity(BlockPos pos) {
-				return unitHashMap.get(pos).te;
+				return unitHashMap.get(pos).getTile();
 			}
 
 			@Override
 			public BlockState getBlockState(BlockPos pos) {
 				if (unitHashMap.containsKey(pos))
-					return unitHashMap.get(pos).s;
+					return unitHashMap.get(pos).getState();
 				return Blocks.AIR.getDefaultState();
 			}
 
 			@Override
 			public IFluidState getFluidState(BlockPos pos) {
-				return unitHashMap.get(pos).s.getFluidState();
+				return unitHashMap.get(pos).getState().getFluidState();
 			}
 
 			@Nullable

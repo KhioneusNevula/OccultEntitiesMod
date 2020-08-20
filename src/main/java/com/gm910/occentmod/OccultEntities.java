@@ -22,8 +22,6 @@ import com.gm910.occentmod.keys.ModKeys;
 import com.gm910.occentmod.world.DimensionData;
 import com.gm910.occentmod.world.VaettrData;
 
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.RegisterDimensionsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -122,7 +120,6 @@ public class OccultEntities {
 				TaskMessage::fromBuffer, TaskMessage::handle);
 
 		ClientRegistry.bindTileEntityRenderer(TileInit.WORLD_CONTROLLER.get(), SmallerUnitTESR::new);
-		RenderTypeLookup.setRenderLayer(BlockInit.WORLD_CONTROLLER.get(), RenderType.getTranslucent());
 	}
 
 	private void enqueueIMC(final InterModEnqueueEvent event) {

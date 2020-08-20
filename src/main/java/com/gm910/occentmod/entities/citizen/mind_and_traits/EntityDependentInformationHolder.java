@@ -17,4 +17,10 @@ public abstract class EntityDependentInformationHolder<E extends LivingEntity> e
 	public void setEntityIn(E entityIn) {
 		this.entityIn = entityIn;
 	}
+
+	@Override
+	public long getTicksExisted() {
+		// TODO Auto-generated method stub
+		return entityIn.ticksExisted;
+	}
 }

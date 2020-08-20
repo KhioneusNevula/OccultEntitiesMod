@@ -63,13 +63,13 @@ public class TraitTypeDeterminer<E> {
 		return new TraitTypeDeterminer<>(exceptionalLow, low, lowAverage, highAverage, high, exceptionalHigh);
 	}
 
-	public TraitTypeDeterminer<E> with(NumericPersonalityTrait.TraitLevel key, E val) {
-		E exceptionalLow = key == NumericPersonalityTrait.TraitLevel.EXCEPTIONAL_LOW ? val : this.exceptionalLow;
-		E exceptional = key == NumericPersonalityTrait.TraitLevel.EXCEPTIONAL_HIGH ? val : this.exceptionalHigh;
-		E low = key == NumericPersonalityTrait.TraitLevel.LOW ? val : this.low;
-		E average = key == NumericPersonalityTrait.TraitLevel.LOW_AVERAGE ? val : this.lowAverage;
-		E highAverage = key == NumericPersonalityTrait.TraitLevel.HIGH_AVERAGE ? val : this.highAverage;
-		E high = key == NumericPersonalityTrait.TraitLevel.HIGH ? val : this.high;
+	public TraitTypeDeterminer<E> with(PersonalityTrait.TraitLevel key, E val) {
+		E exceptionalLow = key == PersonalityTrait.TraitLevel.EXCEPTIONAL_LOW ? val : this.exceptionalLow;
+		E exceptional = key == PersonalityTrait.TraitLevel.EXCEPTIONAL_HIGH ? val : this.exceptionalHigh;
+		E low = key == PersonalityTrait.TraitLevel.LOW ? val : this.low;
+		E average = key == PersonalityTrait.TraitLevel.LOW_AVERAGE ? val : this.lowAverage;
+		E highAverage = key == PersonalityTrait.TraitLevel.HIGH_AVERAGE ? val : this.highAverage;
+		E high = key == PersonalityTrait.TraitLevel.HIGH ? val : this.high;
 
 		return new TraitTypeDeterminer<>(exceptionalLow, low, average, highAverage, high, exceptional);
 	}
@@ -98,7 +98,7 @@ public class TraitTypeDeterminer<E> {
 		return high;
 	}
 
-	public E get(NumericPersonalityTrait.TraitLevel type) {
+	public E get(PersonalityTrait.TraitLevel type) {
 		switch (type) {
 		case EXCEPTIONAL_LOW: {
 			return exceptionalLow;

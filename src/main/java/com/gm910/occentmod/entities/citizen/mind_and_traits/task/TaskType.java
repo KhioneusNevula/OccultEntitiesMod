@@ -23,6 +23,7 @@ public class TaskType<I extends CitizenTask> {
 
 	private static final Map<ResourceLocation, TaskType<?>> TYPES = new HashMap<>();
 
+	@SuppressWarnings("unchecked")
 	public static final TaskType<DummyHobbyTask> DUMMY_HOBBY = new TaskType<>(
 			GMFiles.rl("dummy_hobby"), (
 					e) -> new DummyHobbyTask(

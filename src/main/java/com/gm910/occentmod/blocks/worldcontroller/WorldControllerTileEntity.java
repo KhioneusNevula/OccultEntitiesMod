@@ -30,10 +30,14 @@ public class WorldControllerTileEntity extends TileEntity implements ITickableTi
 	private int minYLevel = 100;
 	Map<BlockPos, BlockInfo> unitHashMap = new HashMap<>();
 	public int upb = 4;
+	private FakeWorld clientUnitWorld;
 
 	public WorldControllerTileEntity() {
 		super(TileInit.WORLD_CONTROLLER.get()); // tetype
-
+		if (world.isRemote) {
+			clientUnitWorld = new FakeWorld(this.upb, this);
+		} else {
+		}
 	}
 
 	boolean isEnchanted = false;
@@ -45,7 +49,7 @@ public class WorldControllerTileEntity extends TileEntity implements ITickableTi
 
 	public World getContainedWorld() {
 		if (this.world.isRemote) {
-			return this.world;
+			return this.clientUnitWorld;
 		} else {
 			return this.world.getServer().getWorld(containedDimType);
 		}
@@ -68,6 +72,8 @@ public class WorldControllerTileEntity extends TileEntity implements ITickableTi
 			return Pair.of(ServerPos.bpFromNBT(((CompoundNBT) el).getCompound("Pos")),
 					new BlockInfo(((CompoundNBT) el).getCompound("State")));
 		});
+		if (world.isRemote)
+			this.clientUnitWorld.fromString(compound.getString("World"));
 	}
 
 	@Override
@@ -86,6 +92,9 @@ public class WorldControllerTileEntity extends TileEntity implements ITickableTi
 			nbt.put("State", entry.getValue().serializeNBT());
 			return nbt;
 		}));
+		if (!world.isRemote) {
+			compound.putString("World", FakeWorld.worldToString(this));
+		}
 		return compound;
 	}
 
@@ -149,8 +158,9 @@ public class WorldControllerTileEntity extends TileEntity implements ITickableTi
 
 	@Override
 	public void tick() {
-		if (world.isRemote)
+		if (world.isRemote) {
 			return;
+		}
 		for (int x = 0; x < 16; x++) {
 			for (int y = 0; y < 256; y++) {
 				for (int z = 0; z < 16; z++) {
@@ -159,5 +169,6 @@ public class WorldControllerTileEntity extends TileEntity implements ITickableTi
 				}
 			}
 		}
+		System.out.println(unitHashMap);
 	}
 }

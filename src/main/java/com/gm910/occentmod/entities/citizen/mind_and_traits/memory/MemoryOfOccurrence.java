@@ -36,4 +36,8 @@ public class MemoryOfOccurrence extends CitizenMemory {
 		event.affectCitizen(en.getInfo());
 	}
 
+	public boolean couldEventBeCauseOf(MemoryOfOccurrence other) {
+		return this.event.couldBeCauseOf(other.event, this.getMemoryCreationTime(), other.getMemoryCreationTime());
+	}
+
 }

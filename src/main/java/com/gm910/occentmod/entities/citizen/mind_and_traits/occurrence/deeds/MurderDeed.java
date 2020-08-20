@@ -1,11 +1,14 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenInformation;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect.Connotation;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceType;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relationships;
+import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
@@ -25,6 +28,10 @@ public class MurderDeed extends CitizenDeed {
 		super(OccurrenceType.MURDER, citizen);
 	}
 
+	public MurderDeed() {
+		super(OccurrenceType.MURDER);
+	}
+
 	public MurderDeed(CitizenIdentity murderer, CitizenIdentity victim) {
 		this(murderer);
 		killed = victim;
@@ -36,6 +43,10 @@ public class MurderDeed extends CitizenDeed {
 
 	public CitizenIdentity getVictim() {
 		return killed;
+	}
+
+	public void setVictim(CitizenIdentity killed) {
+		this.killed = killed;
 	}
 
 	@Override
@@ -56,15 +67,9 @@ public class MurderDeed extends CitizenDeed {
 	}
 
 	@Override
-	public void affectCitizen(CitizenInformation<CitizenEntity> e) {
-		super.affectCitizen(e);
-		// TODO happiness and all that
-	}
-
-	@Override
-	public int getRelationshipChange(CitizenEntity en) {
+	public float getRelationshipChange(CitizenEntity en) {
 		Relationships ships = en.getRelationships();
-		float sadism = en.getPersonality().getTrait(NumericPersonalityTrait.SADISM);
+		float sadism = en.getPersonality().getTrait(PersonalityTrait.SADISM);
 		int change = (int) ships.getLikeValue(killed);
 
 		return (int) (-sadism * (change));
@@ -74,6 +79,19 @@ public class MurderDeed extends CitizenDeed {
 	public void tick(WorldTickEvent event, long gameTime, long dayTime) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public OccurrenceEffect getEffect() {
+
+		return new OccurrenceEffect(ImmutableMap.of(this.killed, Connotation.FATAL));
+	}
+
+	@Override
+	public boolean isSimilarTo(Occurrence other) {
+		if (!(other instanceof MurderDeed))
+			return false;
+		return other.getType() == this.type && this.getMurderer().equals(((MurderDeed) other).getMurderer());
 	}
 
 }

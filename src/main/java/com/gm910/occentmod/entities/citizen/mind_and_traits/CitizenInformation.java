@@ -15,6 +15,7 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personal
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity.DynamicCitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relationships;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.skills.Skills;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.Autonomy;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.background.CitizenPickupItemsTask;
 import com.google.common.collect.ImmutableMap;
@@ -43,6 +44,7 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 	private Autonomy autonomy;
 	private Needs needs;
 	private Emotions emotions;
+	private Skills skills;
 
 	public CitizenInformation(E en) {
 		this.citizen = en;
@@ -82,6 +84,10 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 			this.emotions = new Emotions(en, dyn.get("needs").get().get());
 		else
 			this.emotions = new Emotions(en);
+		if (dyn.get("skills").get().isPresent())
+			this.skills = new Skills(dyn.get("skills").get().get());
+		else
+			this.skills = new Skills();
 	}
 
 	public void initialize() {
@@ -95,6 +101,7 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 		this.autonomy = new Autonomy(this.citizen);
 		this.needs = new Needs(this.citizen);
 		this.emotions = new Emotions(this.citizen);
+		this.skills = new Skills();
 		this.autonomy.registerBackgroundTasks(getDefaultBackgroundTasks());
 	}
 
@@ -129,28 +136,29 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 		mapa.put(ops.createString("autonomy"), autonomy.serialize(ops));
 		mapa.put(ops.createString("needs"), needs.serialize(ops));
 		mapa.put(ops.createString("emotions"), emotions.serialize(ops));
+		mapa.put(ops.createString("skills"), skills.serialize(ops));
 		return ops.createMap(ImmutableMap.copyOf(mapa));
 	}
 
 	public void update(ServerWorld world) {
 
 		world.getProfiler().startSection("knowledge");
-		this.getKnowledge().tick();
+		this.getKnowledge().update();
 		world.getProfiler().endSection();
 		world.getProfiler().startSection("personality");
-		this.getPersonality().tick();
+		this.getPersonality().update();
 		world.getProfiler().endSection();
 		world.getProfiler().startSection("relationships");
-		this.getRelationships().tick();
+		this.getRelationships().update();
 		world.getProfiler().endSection();
 		world.getProfiler().startSection("autonomy");
-		this.getAutonomy().tick();
+		this.getAutonomy().update();
 		world.getProfiler().endSection();
 		world.getProfiler().startSection("needs");
-		this.getNeeds().tick();
+		this.getNeeds().update();
 		world.getProfiler().endSection();
 		world.getProfiler().startSection("emotions");
-		this.getEmotions().tick();
+		this.getEmotions().update();
 		world.getProfiler().endSection();
 	}
 
@@ -164,6 +172,10 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 
 	public Genetics<E> getGenetics() {
 		return genetics;
+	}
+
+	public Skills getSkills() {
+		return skills;
 	}
 
 	public Needs getNeeds() {
@@ -228,6 +240,10 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 
 	public void setAutonomy(Autonomy autonomy) {
 		this.autonomy = autonomy;
+	}
+
+	public void setSkills(Skills skills) {
+		this.skills = skills;
 	}
 
 }

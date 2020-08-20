@@ -18,18 +18,23 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenMemoryAndSens
 import com.gm910.occentmod.entities.citizen.mind_and_traits.emotions.Emotions;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Genetics;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.CauseEffectTheory;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.CauseEffectTheory.Certainty;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryHolder;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryOfDeed;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryOfOccurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceData;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait.TraitLevel;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait.TraitLevel;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity.DynamicCitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Genealogy;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relationships;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.skills.Skills;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.Autonomy;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenAction;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
@@ -200,6 +205,14 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		return this.info.getAutonomy();
 	}
 
+	public Skills getSkills() {
+		return this.info.getSkills();
+	}
+
+	public void setSkills(Skills skills) {
+		this.info.setSkills(skills);
+	}
+
 	public Inventory getInventory() {
 		return this.inventory;
 	}
@@ -269,28 +282,68 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		return brain;
 	}
 
-	public void react(CitizenAction action) {
+	/**
+	 * Reacts to an action done by the second parameter citizen entity; this action
+	 * is assumed to be a CitizenTask
+	 * 
+	 * @param action
+	 * @param doer
+	 */
+	public void react(CitizenAction action, CitizenEntity doer) {
 		Set<CitizenTask> mapa = action.getPotentialReactions();
-		Map<NumericPersonalityTrait, TraitLevel> trets = this.getPersonality().generateTraitReactionMap();
-		for (CitizenTask tasque : mapa) {
-			if (tasque.canExecuteWithPersonality(trets)) {
-				this.getAutonomy().addTask(tasque.isUrgent(this) ? 0 : getAutonomy().getImmediateTasks().size(), tasque,
-						tasque.isUrgent(this));
-			}
-		}
-		/// TODO
+		CitizenDeed deed = ((CitizenTask) action).getDeed(doer.getIdentity());
+		this.reaction(deed, mapa);
+		this.getKnowledge().receiveKnowledge(new MemoryOfDeed(this, deed));
 
 	}
 
-	public void reactToEvent(Occurrence event) {
-		Set<CitizenTask> tasques = event.getPotentialWitnessReactions();
-		Map<NumericPersonalityTrait, TraitLevel> trets = this.getPersonality().generateTraitReactionMap();
-		for (CitizenTask tasque : tasques) {
-			if (tasque.canExecuteWithPersonality(trets)) {
-				this.getAutonomy().addTask(tasque.isUrgent(this) ? 0 : getAutonomy().getImmediateTasks().size(), tasque,
-						tasque.isUrgent(this));
+	/**
+	 * Performs a generic reaction by adding all tasks in the set to the execution
+	 * list of the autonomy controller
+	 * 
+	 * @param event
+	 */
+	public void reaction(Occurrence occur, Set<CitizenTask> event) {
+		Map<PersonalityTrait, TraitLevel> trets = this.getPersonality().generateTraitReactionMap();
+		for (CitizenTask tasque : event) {
+			if (tasque.canExecute(this)) {
+
+				this.getAutonomy().considerTask(tasque.isUrgent(this) ? 0 : getAutonomy().getImmediateTasks().size(),
+						tasque, tasque.isUrgent(this));
 			}
 		}
+	}
+
+	/**
+	 * Reacts to a generic event occurring in the world
+	 * 
+	 * @param event
+	 */
+	public void reactToEvent(Occurrence event) {
+		Set<CitizenTask> tasques = event.getPotentialWitnessReactions();
+		this.reaction(event, tasques);
+		MemoryOfOccurrence meme = new MemoryOfOccurrence(this, event);
+		for (MemoryOfOccurrence occ : this.getKnowledge()
+				.<MemoryOfOccurrence>getByPredicate((e) -> e instanceof MemoryOfOccurrence)) {
+
+			if (occ.couldEventBeCauseOf(meme)) {
+				CauseEffectTheory theo = new CauseEffectTheory(this, occ.getEvent(), event, null);
+				Set<CauseEffectTheory> theors = this.getKnowledge().getByPredicate((e) -> e instanceof CauseEffectTheory
+						&& ((CauseEffectTheory) e).fitsObservation(theo.getCause(), theo.getEffect()));
+				if (!theors.isEmpty()) {
+					for (CauseEffectTheory t : theors) {
+						if (t.getCertainty() != Certainty.TRUE) {
+							t.incrementObservation(1);
+							t.getEffect().getEffect().getEffects().putAll(event.getEffect().getEffects());
+						}
+					}
+				} else {
+					this.getKnowledge().addKnowledge(theo);
+				}
+			}
+		}
+		this.getKnowledge().receiveKnowledge(meme);
+
 	}
 
 	@Override
@@ -325,7 +378,7 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 
 				for (CitizenEntity citizen : vis.get()) {
 					Set<CitizenTask> tasks = citizen.getAutonomy().getRunningTasks().stream()
-							.filter((e) -> e instanceof CitizenTask && ((CitizenTask) e).isVisible())
+							.filter((e) -> e instanceof CitizenTask && ((CitizenTask) e).isVisible(citizen, this))
 							.map((a) -> (CitizenTask) a).collect(Collectors.toSet());
 					for (CitizenTask task : tasks) {
 						CitizenDeed deed = task.getDeed(citizen.getIdentity());
@@ -467,7 +520,9 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		this.getBrain().tick((ServerWorld) this.world, this);
 		this.world.getProfiler().endSection();
 		this.info.update((ServerWorld) world);
+		if (getLastDamageSource() != null) {
 
+		}
 	}
 
 	public static UUID getModifiedUniqueIdentity(LivingEntity entity) {

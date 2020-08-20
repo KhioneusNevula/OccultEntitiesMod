@@ -9,14 +9,19 @@ import com.gm910.occentmod.api.util.ModReflect;
 import com.gm910.occentmod.api.util.NonNullMap;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait.TraitLevel;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait.TraitLevel;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.skills.SkillType;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.skills.SkillType.Applicability;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.skills.Skills;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.types.DynamicOps;
 import com.mojang.datafixers.util.Pair;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.task.Task;
@@ -29,7 +34,9 @@ public abstract class CitizenTask extends Task<CitizenEntity> implements IDynami
 
 	private Map<MemoryModuleType<?>, MemoryModuleStatus> delegateMemoryMap = new HashMap<>();
 
-	private Map<NumericPersonalityTrait, Set<TraitLevel>> willPerform = new NonNullMap<>(() -> Sets.newHashSet());
+	private Object2IntMap<SkillType> skill = new Object2IntOpenHashMap<>();
+
+	private Map<PersonalityTrait, Set<TraitLevel>> willPerform = new NonNullMap<>(() -> Sets.newHashSet());
 
 	public CitizenTask(Map<MemoryModuleType<?>, MemoryModuleStatus> requiredMemoryStateIn, int durationMinIn,
 			int durationMaxIn) {
@@ -56,14 +63,14 @@ public abstract class CitizenTask extends Task<CitizenEntity> implements IDynami
 	 * @return
 	 */
 	public CitizenTask setPersonalityConditions(boolean willPerform,
-			Pair<NumericPersonalityTrait, Collection<TraitLevel>>... pairs) {
+			Pair<PersonalityTrait, Collection<TraitLevel>>... pairs) {
 		if (willPerform) {
-			for (Pair<NumericPersonalityTrait, Collection<TraitLevel>> pair : pairs) {
+			for (Pair<PersonalityTrait, Collection<TraitLevel>> pair : pairs) {
 				this.willPerform.get(pair.getFirst()).addAll(pair.getSecond());
 			}
 		} else {
-			Set<Pair<NumericPersonalityTrait, Collection<TraitLevel>>> pairsSet = Sets.newHashSet(pairs);
-			for (NumericPersonalityTrait trait : NumericPersonalityTrait.values()) {
+			Set<Pair<PersonalityTrait, Collection<TraitLevel>>> pairsSet = Sets.newHashSet(pairs);
+			for (PersonalityTrait trait : PersonalityTrait.values()) {
 				for (TraitLevel level : TraitLevel.values()) {
 					if (!pairsSet.stream().anyMatch((p) -> p.getFirst() == trait && p.getSecond().contains(level))) {
 						this.willPerform.get(trait).add(level);
@@ -74,18 +81,52 @@ public abstract class CitizenTask extends Task<CitizenEntity> implements IDynami
 		return this;
 	}
 
-	public Map<NumericPersonalityTrait, Set<TraitLevel>> getWillPerform() {
+	public CitizenTask setSkillLevels(Pair<SkillType, Integer>... pairs) {
+		for (Pair<SkillType, Integer> pair : pairs) {
+			this.skill.put(pair.getFirst(), pair.getSecond() == null ? 0 : pair.getSecond());
+		}
+
+		return this;
+	}
+
+	public boolean isTimedOut(long gameTime) {
+		return super.isTimedOut(gameTime) && !isIndefinite();
+	}
+
+	/**
+	 * Whether this task continues running indefinitely even after it has "timed
+	 * out" by regular game logic
+	 */
+	public boolean isIndefinite() {
+		return false;
+	}
+
+	public Map<PersonalityTrait, Set<TraitLevel>> getWillPerform() {
 		return willPerform;
 	}
 
 	@Override
-	protected boolean shouldExecute(ServerWorld worldIn, CitizenEntity owner) {
-		return this.canExecuteWithPersonality(owner.getPersonality().generateTraitReactionMap());
+	public boolean shouldExecute(ServerWorld worldIn, CitizenEntity owner) {
+		return true;
 	}
 
-	public boolean canExecuteWithPersonality(Map<NumericPersonalityTrait, TraitLevel> e) {
+	public boolean hasNecessarySkills(Skills skills) {
+		for (SkillType skill : SkillType.getByApplicability(Applicability.BOTH, Applicability.CITIZEN_ONLY)) {
+			if (this.skill.getInt(skill) > skills.getSkill(skill)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean canExecute(CitizenEntity owner) {
+		return this.canExecuteWithPersonality(owner.getPersonality().generateTraitReactionMap())
+				&& hasNecessarySkills(owner.getSkills());
+	}
+
+	public boolean canExecuteWithPersonality(Map<PersonalityTrait, TraitLevel> e) {
 		boolean cond = true;
-		for (NumericPersonalityTrait trait : e.keySet()) {
+		for (PersonalityTrait trait : e.keySet()) {
 			cond = cond && this.willPerform.get(trait).contains(e.get(trait));
 			if (!cond)
 				break;
@@ -110,22 +151,41 @@ public abstract class CitizenTask extends Task<CitizenEntity> implements IDynami
 		super(requiredMemoryStateIn, 60);
 	}
 
-	/*
+	/**
 	 * Return null if it's nothing worth talking about
 	 */
-	public CitizenDeed getDeed(CitizenIdentity identity) {
+	public CitizenDeed getDeed(CitizenIdentity doer) {
 		return null;
 	}
 
-	public boolean cannotBeOverriden() {
+	/**
+	 * Whether this task MUST occur
+	 * 
+	 * @param en
+	 * @return
+	 */
+	public boolean cannotBeOverriden(CitizenEntity en) {
 		return false;
 	}
 
+	/**
+	 * Whether this task is required to happen immediately
+	 * 
+	 * @param en
+	 * @return
+	 */
 	public boolean isUrgent(CitizenEntity en) {
 		return false;
 	}
 
-	public boolean isVisible() {
+	/**
+	 * Return whether the task is visible to seer when done by doer
+	 * 
+	 * @param doer
+	 * @param seer
+	 * @return
+	 */
+	public boolean isVisible(CitizenEntity doer, CitizenEntity seer) {
 		return true;
 	}
 

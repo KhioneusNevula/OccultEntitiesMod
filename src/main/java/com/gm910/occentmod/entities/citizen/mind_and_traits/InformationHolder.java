@@ -4,7 +4,13 @@ import net.minecraft.util.IDynamicSerializable;
 
 public abstract class InformationHolder implements IDynamicSerializable {
 
-	public void tick() {
+	protected void tick() {
 
 	}
+
+	public void update() {
+		tick();
+	}
+
+	public abstract long getTicksExisted();
 }

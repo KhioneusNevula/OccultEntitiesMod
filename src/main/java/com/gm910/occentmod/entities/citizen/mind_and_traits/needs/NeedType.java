@@ -77,8 +77,12 @@ public class NeedType<T> {
 		TYPES.put(rl, this);
 	}
 
-	public NeedChecker<T> getNeedsChecker(CitizenEntity en) {
+	public NeedChecker<T> makeNeedsChecker(CitizenEntity en) {
 		return checker.apply(this, en);
+	}
+
+	public int getCheckInterval(CitizenEntity en) {
+		return en.getRNG().nextInt(100);
 	}
 
 	public Set<CitizenTask> getNeedFulfillmentTask(Need<T> need, CitizenEntity owner) {

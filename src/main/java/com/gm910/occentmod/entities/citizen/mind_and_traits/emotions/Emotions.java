@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.EntityDependentInformationHolder;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.NumericPersonalityTrait;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
@@ -78,13 +78,13 @@ public class Emotions extends EntityDependentInformationHolder<CitizenEntity> {
 		}
 		case COMFORT: {
 			return Math.max(0,
-					getEntityIn().getPersonality().getTrait(NumericPersonalityTrait.PARANOIA) * getMax(type));
+					getEntityIn().getPersonality().getTrait(PersonalityTrait.PARANOIA) * getMax(type));
 		}
 		case FUN: {
-			return getEntityIn().getPersonality().getTrait(NumericPersonalityTrait.RESTLESSNESS) * getMax(type);
+			return getEntityIn().getPersonality().getTrait(PersonalityTrait.RESTLESSNESS) * getMax(type);
 		}
 		case SOCIAL: {
-			return getEntityIn().getPersonality().getTrait(NumericPersonalityTrait.EXTROVERSION) * getMax(type);
+			return getEntityIn().getPersonality().getTrait(PersonalityTrait.EXTROVERSION) * getMax(type);
 		}
 		default: {
 			return 0;
