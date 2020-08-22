@@ -8,6 +8,7 @@ import com.gm910.occentmod.api.util.ServerPos;
 import com.gm910.occentmod.api.util.Translate;
 import com.gm910.occentmod.empires.Empire;
 import com.gm910.occentmod.empires.EmpireData;
+import com.gm910.occentmod.entities.citizen.NamePhonemicHelper.PhonemeWord;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.BodyForm;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race;
 import com.google.common.collect.ImmutableMap;
@@ -23,7 +24,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 
 	private BodyForm citizen;
 
-	private String name;
+	private PhonemeWord name;
 
 	private Genealogy genealogy;
 
@@ -47,7 +48,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 		this(other.citizen, other.trueId, other.name, other.genealogy, other.race, other.empire);
 	}
 
-	public CitizenIdentity(BodyForm cit, UUID trueId, String name, Genealogy gen, Race race, UUID empire) {
+	public CitizenIdentity(BodyForm cit, UUID trueId, PhonemeWord name, Genealogy gen, Race race, UUID empire) {
 		this.citizen = cit;
 		this.name = name;
 		this.genealogy = gen;
@@ -66,7 +67,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 		return this;
 	}
 
-	private CitizenIdentity setNameM(String name) {
+	private CitizenIdentity setNameM(PhonemeWord name) {
 		this.name = name;
 		return this;
 	}
@@ -90,7 +91,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 		return ServerPos.getEntityFromUUID(this.trueId, world2.getServer());
 	}
 
-	public CitizenIdentity withName(String name) {
+	public CitizenIdentity withName(PhonemeWord name) {
 		return new CitizenIdentity(this).setNameM(name);
 	}
 
@@ -122,7 +123,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 		return genealogy;
 	}
 
-	public String getName() {
+	public PhonemeWord getName() {
 		return name;
 	}
 
@@ -141,12 +142,11 @@ public class CitizenIdentity implements IDynamicSerializable {
 	public <T> CitizenIdentity(Dynamic<T> dyn) {
 
 		this.citizen = new BodyForm(UUID.fromString(dyn.get("id").asString("")));
-		this.name = dyn.get("name").asString("");
+		if (dyn.get("name").get().isPresent()) {
+			this.name = new PhonemeWord(dyn.get("name").get().get());
+		}
 		this.trueId = UUID.fromString(dyn.get("truid").asString(""));
 
-		if (name.isEmpty()) {
-			name = null;
-		}
 		OptionalDynamic<?> dyn1 = dyn.get("genealogy");
 		if (dyn1.get().isPresent()) {
 			genealogy = new Genealogy(dyn1.get().get());
@@ -170,9 +170,8 @@ public class CitizenIdentity implements IDynamicSerializable {
 	public <T> T serialize(DynamicOps<T> op) {
 		T id = op.createString(this.citizen.getFormId().toString());
 		T tru = op.createString(this.trueId.toString());
-		T name = op.createString(this.name == null ? "" : this.name);
-		Map<T, T> mapi = new HashMap<>(ImmutableMap.of(op.createString("id"), id, op.createString("name"), name,
-				op.createString("truid"), tru));
+
+		Map<T, T> mapi = new HashMap<>(ImmutableMap.of(op.createString("id"), id, op.createString("truid"), tru));
 		if (genealogy != null) {
 			T gen = genealogy.serialize(op);
 			mapi.put(op.createString("genealogy"), gen);
@@ -185,13 +184,17 @@ public class CitizenIdentity implements IDynamicSerializable {
 			T rac = op.createInt(this.race.id);
 			mapi.put(op.createString("race"), rac);
 		}
+		if (name != null) {
+			T nam = name.serialize(op);
+			mapi.put(op.createString("name"), nam);
+		}
 		return op.createMap(mapi);
 
 	}
 
 	@Override
 	public String toString() {
-		return name;
+		return "Citizen of name " + (name == null ? "Nameless Citizen" : name);
 	}
 
 	public String getString(ServerWorld world) {
@@ -216,7 +219,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 			super(other.citizen, other.trueId, other.name, other.genealogy, other.race, other.empire);
 		}
 
-		public DynamicCitizenIdentity(BodyForm cit, UUID tru, String name, Genealogy gen, Race race, UUID empire) {
+		public DynamicCitizenIdentity(BodyForm cit, UUID tru, PhonemeWord name, Genealogy gen, Race race, UUID empire) {
 			super(cit, tru, name, gen, race, empire);
 		}
 
@@ -236,7 +239,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 			super.setCitizenM(cit);
 		}
 
-		public void setName(String name) {
+		public void setName(PhonemeWord name) {
 			super.setNameM(name);
 		}
 

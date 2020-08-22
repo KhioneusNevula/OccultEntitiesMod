@@ -38,6 +38,14 @@ public class MemoryOfBlockstate extends CitizenMemory {
 				ops.createString("pos"), storedPos.serialize(ops)));
 	}
 
+	public BlockState getStoredState() {
+		return storedState;
+	}
+
+	public ServerPos getStoredPos() {
+		return storedPos;
+	}
+
 	@Override
 	public void affectCitizen(CitizenEntity en) {
 

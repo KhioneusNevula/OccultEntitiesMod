@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import com.gm910.occentmod.api.util.Translate;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect;
@@ -13,6 +14,8 @@ import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.server.ServerWorld;
 
 public class CauseEffectTheory extends CitizenMemory {
 
@@ -31,8 +34,10 @@ public class CauseEffectTheory extends CitizenMemory {
 	}
 
 	public CauseEffectTheory(CitizenEntity owner, Dynamic<?> dyn) {
-		this(owner, OccurrenceType.deserialize(dyn.get("cause").get().get()),
-				dyn.get("effect").get().isPresent() ? OccurrenceType.deserialize(dyn.get("effect").get().get()) : null,
+		this(owner, OccurrenceType.deserialize(((ServerWorld) owner.world), dyn.get("cause").get().get()),
+				dyn.get("effect").get().isPresent()
+						? OccurrenceType.deserialize(((ServerWorld) owner.world), dyn.get("effect").get().get())
+						: null,
 				new OccurrenceEffect(dyn.get("connotation").get().get()));
 		this.observationCount = dyn.get("obcount").asInt(0);
 	}
@@ -92,7 +97,21 @@ public class CauseEffectTheory extends CitizenMemory {
 	}
 
 	public static enum Certainty {
-		FALSE, TENTATIVE, MAYBE, ALMOST_CERTAIN, TRUE
+		FALSE("false"), TENTATIVE("tentative"), MAYBE("maybe"), ALMOST_CERTAIN("almost_certain"), TRUE("true");
+
+		private String displayKey;
+
+		private Certainty(String display) {
+			this.displayKey = display;
+		}
+
+		public String getDisplayKey() {
+			return displayKey;
+		}
+
+		public ITextComponent getDisplay() {
+			return Translate.make("certainty." + displayKey);
+		}
 	}
 
 }

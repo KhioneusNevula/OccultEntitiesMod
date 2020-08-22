@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
+import net.minecraft.world.server.ServerWorld;
+
 public class MemoryOfOccurrence extends CitizenMemory {
 
 	private Occurrence event;
@@ -17,7 +19,7 @@ public class MemoryOfOccurrence extends CitizenMemory {
 	}
 
 	public MemoryOfOccurrence(CitizenEntity owner, Dynamic<?> dyn) {
-		this(owner, OccurrenceType.deserialize(dyn.get("event").get().get()));
+		this(owner, OccurrenceType.deserialize(((ServerWorld) owner.world), dyn.get("event").get().get()));
 	}
 
 	@Override

@@ -30,7 +30,7 @@ public abstract class CitizenMemory implements IDynamicSerializable {
 	 */
 	private boolean isDead;
 
-	private long memoryCreationTime;
+	protected long memoryCreationTime;
 
 	public CitizenMemory(CitizenEntity owner, CitizenMemoryType<?> type) {
 		this.owner = owner;
@@ -78,8 +78,11 @@ public abstract class CitizenMemory implements IDynamicSerializable {
 				&& this.writeData(NBTDynamicOps.INSTANCE).equals(((CitizenMemory) o).writeData(NBTDynamicOps.INSTANCE));
 	}
 
-	public static <T extends CitizenMemory> T copy(T of) {
-		return (T) of.getType().deserializer.apply(of.owner, GMNBT.makeDynamic(of.serialize(NBTDynamicOps.INSTANCE)));
+	public static <T extends CitizenMemory> T copy(CitizenEntity owner, T of) {
+		T e = (T) of.getType().deserializer.apply(owner, GMNBT.makeDynamic(of.serialize(NBTDynamicOps.INSTANCE)));
+		e.owner = owner;
+		e.memoryCreationTime = owner.ticksExisted;
+		return e;
 	}
 
 }

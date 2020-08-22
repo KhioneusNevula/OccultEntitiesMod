@@ -4,8 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.EntityDependentInformationHolder;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.InformationHolder;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
@@ -17,7 +17,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 
-public class Emotions extends EntityDependentInformationHolder<CitizenEntity> {
+public class Emotions extends InformationHolder {
 
 	/**
 	 * Positive: entertained<br>
@@ -53,8 +53,8 @@ public class Emotions extends EntityDependentInformationHolder<CitizenEntity> {
 
 	private Object2IntMap<Mood> moods = new Object2IntOpenHashMap<>();
 
-	public Emotions(CitizenEntity en) {
-		super(en);
+	public Emotions() {
+		super();
 	}
 
 	public void addMood(Mood mood, int time) {
@@ -71,20 +71,19 @@ public class Emotions extends EntityDependentInformationHolder<CitizenEntity> {
 		}
 	}
 
-	public float getThreshholdOfSatisfaction(EmotionType type) {
+	public float getThreshholdOfSatisfaction(Personality persona, EmotionType type) {
 		switch (type) {
 		case HAPPINESS: {
 			return this.getMax(type) * 3 / 4;
 		}
 		case COMFORT: {
-			return Math.max(0,
-					getEntityIn().getPersonality().getTrait(PersonalityTrait.PARANOIA) * getMax(type));
+			return Math.max(0, persona.getTrait(PersonalityTrait.PARANOIA) * getMax(type));
 		}
 		case FUN: {
-			return getEntityIn().getPersonality().getTrait(PersonalityTrait.RESTLESSNESS) * getMax(type);
+			return persona.getTrait(PersonalityTrait.RESTLESSNESS) * getMax(type);
 		}
 		case SOCIAL: {
-			return getEntityIn().getPersonality().getTrait(PersonalityTrait.EXTROVERSION) * getMax(type);
+			return persona.getTrait(PersonalityTrait.EXTROVERSION) * getMax(type);
 		}
 		default: {
 			return 0;
@@ -201,8 +200,8 @@ public class Emotions extends EntityDependentInformationHolder<CitizenEntity> {
 		}
 	}
 
-	public <T> Emotions(CitizenEntity en, Dynamic<T> dyn) {
-		super(en);
+	public <T> Emotions(Dynamic<T> dyn) {
+		super();
 		this.happinessLevel = dyn.get("happiness").asFloat(0);
 		this.socialLevel = dyn.get("social").asFloat(0);
 		this.funLevel = dyn.get("fun").asFloat(0);
@@ -222,6 +221,11 @@ public class Emotions extends EntityDependentInformationHolder<CitizenEntity> {
 				.collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));
 		return ops.createMap(ImmutableMap.of(ops.createString("happiness"), h, ops.createString("social"), s,
 				ops.createString("fun"), f, ops.createString("comfort"), c, ops.createString("moods"), m));
+	}
+
+	@Override
+	public long getTicksExisted() {
+		return 0;
 	}
 
 	public static enum EmotionType {

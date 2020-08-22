@@ -81,9 +81,9 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 		else
 			this.needs = new Needs(en);
 		if (dyn.get("emotions").get().isPresent())
-			this.emotions = new Emotions(en, dyn.get("needs").get().get());
+			this.emotions = new Emotions(dyn.get("emotions").get().get());
 		else
-			this.emotions = new Emotions(en);
+			this.emotions = new Emotions();
 		if (dyn.get("skills").get().isPresent())
 			this.skills = new Skills(dyn.get("skills").get().get());
 		else
@@ -93,6 +93,7 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 	public void initialize() {
 
 		this.personality = new Personality();
+		personality.initializeRandomTraits(this.getCitizen().getRNG());
 		this.knowledge = new MemoryHolder(this.citizen);
 		this.relationships = new Relationships(this.citizen);
 		this.identity = new DynamicCitizenIdentity(Formshift.get(this.citizen).getTrueForm(),
@@ -100,7 +101,7 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 		this.genetics = new Genetics<>();
 		this.autonomy = new Autonomy(this.citizen);
 		this.needs = new Needs(this.citizen);
-		this.emotions = new Emotions(this.citizen);
+		this.emotions = new Emotions();
 		this.skills = new Skills();
 		this.autonomy.registerBackgroundTasks(getDefaultBackgroundTasks());
 	}

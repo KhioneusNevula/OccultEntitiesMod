@@ -5,6 +5,8 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrenc
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
 import com.mojang.datafixers.Dynamic;
 
+import net.minecraft.world.server.ServerWorld;
+
 public class MemoryOfDeed extends MemoryOfOccurrence {
 
 	public MemoryOfDeed(CitizenEntity owner, CitizenDeed deed) {
@@ -13,7 +15,8 @@ public class MemoryOfDeed extends MemoryOfOccurrence {
 	}
 
 	public MemoryOfDeed(CitizenEntity owner, Dynamic<?> dyn) {
-		this(owner, (CitizenDeed) OccurrenceType.deserialize(dyn.get("event").get().get()));
+		this(owner,
+				(CitizenDeed) OccurrenceType.deserialize(((ServerWorld) owner.world), dyn.get("event").get().get()));
 	}
 
 	public CitizenDeed getDeed() {

@@ -3,9 +3,11 @@ package com.gm910.occentmod.api.util;
 import java.util.List;
 import java.util.Spliterator.OfInt;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.Lists;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
@@ -335,6 +337,17 @@ public class ServerPos extends BlockPos implements IDynamicSerializable {
 		}
 
 		return new ServerPos(aint[0], aint[1], aint[2], aint[3]);
+	}
+
+	public static <T> T serializeVec3d(Vec3d vec, DynamicOps<T> ops) {
+
+		return ops.createList(
+				Lists.newArrayList(ops.createDouble(vec.x), ops.createDouble(vec.y), ops.createDouble(vec.z)).stream());
+	}
+
+	public static <T> Vec3d deserializeVec3d(Dynamic<T> dyn) {
+		List<Double> ls = dyn.asStream().map((d) -> d.asDouble(0)).collect(Collectors.toList());
+		return new Vec3d(ls.get(0), ls.get(1), ls.get(2));
 	}
 
 }

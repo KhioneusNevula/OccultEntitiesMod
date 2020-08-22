@@ -16,7 +16,7 @@ import com.google.common.collect.Sets;
  */
 public class EmpireName {
 
-	public static EmpireName EMPTY = new EmpireName("", "", "", "");
+	public static final EmpireName EMPTY = new EmpireName("", "", "", "");
 
 	private final String[] names;
 	private final String[] demonyms;
@@ -155,8 +155,8 @@ public class EmpireName {
 						.toArray(new String[0]))
 				.withDemonym(Sets.newHashSet(this.demonyms).stream().map(func).collect(Collectors.toSet())
 						.toArray(new String[0]))
-				.withDemonymPlural(Sets.newHashSet(this.demonymPlurals).stream().map(func)
-						.collect(Collectors.toSet()).toArray(new String[0]));
+				.withDemonymPlural(Sets.newHashSet(this.demonymPlurals).stream().map(func).collect(Collectors.toSet())
+						.toArray(new String[0]));
 	}
 
 	@Override

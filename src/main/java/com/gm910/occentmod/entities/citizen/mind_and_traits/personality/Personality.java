@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.InformationHolder;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.CitizenMemoryType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait.TraitLevel;
@@ -39,8 +38,8 @@ public class Personality extends InformationHolder {
 	}
 
 	public Personality(Dynamic<?> dyn) {
-		Map<PersonalityTrait, Float> map = dyn.get("traits")
-				.asMap((d) -> PersonalityTrait.fromName(d.asString("")), (d) -> d.asFloat(0));
+		Map<PersonalityTrait, Float> map = dyn.get("traits").asMap((d) -> PersonalityTrait.fromName(d.asString("")),
+				(d) -> d.asFloat(0));
 		traits.putAll(map);
 		List<CitizenMemoryType<?>> gos = dyn.get("gossipPriority")
 				.asList((ee) -> CitizenMemoryType.get(new ResourceLocation(ee.asString(""))));
@@ -60,12 +59,11 @@ public class Personality extends InformationHolder {
 		return rand.nextGaussian() * standev + mean;
 	}
 
-	public Personality initializeRandomTraits(CitizenEntity e) {
+	public Personality initializeRandomTraits(Random e) {
 		for (PersonalityTrait trait : PersonalityTrait.values()) {
 
-			traits.put(trait,
-					clamp((float) (gaussian(e.getRNG(), ((trait.max + trait.min) / 2), ((trait.max - trait.min) / 4))),
-							trait.min, trait.max));
+			traits.put(trait, clamp((float) (gaussian(e, ((trait.max + trait.min) / 2), ((trait.max - trait.min) / 4))),
+					trait.min, trait.max));
 		}
 		return this;
 	}

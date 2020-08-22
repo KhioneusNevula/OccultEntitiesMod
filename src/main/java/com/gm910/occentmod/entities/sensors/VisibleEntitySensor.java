@@ -18,7 +18,7 @@ import net.minecraft.entity.ai.brain.sensor.Sensor;
 import net.minecraft.world.server.ServerWorld;
 
 public class VisibleEntitySensor<T extends LivingEntity> extends Sensor<LivingEntity> {
-	private final EntityPredicate field_220982_b;
+	private final EntityPredicate predicate;
 
 	private MemoryModuleType<Collection<T>> usedMemory;
 	private Predicate<T> tester;
@@ -28,7 +28,7 @@ public class VisibleEntitySensor<T extends LivingEntity> extends Sensor<LivingEn
 		this.usedMemory = usedMemory;
 		this.tester = tester;
 		this.distance = distance;
-		this.field_220982_b = (new EntityPredicate()).setDistance(distance).allowFriendlyFire().setSkipAttackChecks()
+		this.predicate = (new EntityPredicate()).setDistance(distance).allowFriendlyFire().setSkipAttackChecks()
 				.setLineOfSiteRequired();
 	}
 
@@ -46,7 +46,7 @@ public class VisibleEntitySensor<T extends LivingEntity> extends Sensor<LivingEn
 		Brain<?> brain = entityIn.getBrain();
 		brain.setMemory(MemoryModuleType.MOBS, list);
 		brain.setMemory(MemoryModuleType.VISIBLE_MOBS, list.stream().filter((p_220981_1_) -> {
-			return field_220982_b.canTarget(entityIn, p_220981_1_);
+			return predicate.canTarget(entityIn, p_220981_1_);
 		}).filter(entityIn::canEntityBeSeen).map((e) -> (T) e).filter(tester).collect(Collectors.toList()));
 	}
 

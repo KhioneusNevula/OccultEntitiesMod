@@ -24,14 +24,14 @@ public class EmotionChecker extends NeedChecker<Float> {
 	public boolean fulfillNeeds() {
 
 		float curval = this.entity.getEmotions().getLevel(emotionType);
-		float desval = this.entity.getEmotions().getThreshholdOfSatisfaction(emotionType);
+		float desval = this.entity.getEmotions().getThreshholdOfSatisfaction(entity.getPersonality(), emotionType);
 		return curval >= desval;
 	}
 
 	@Override
 	public Need<Float> findNeeds() {
 		float curval = this.entity.getEmotions().getLevel(emotionType);
-		float desval = this.entity.getEmotions().getThreshholdOfSatisfaction(emotionType);
+		float desval = this.entity.getEmotions().getThreshholdOfSatisfaction(entity.getPersonality(), emotionType);
 
 		CitizenEntity e = this.entity;
 		if (curval <= desval) {

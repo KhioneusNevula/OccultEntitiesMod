@@ -30,5 +30,6 @@ Tobolo/Tobola/Tobole,Tobolan,Tobolan/Tobola/Tobola person,Tobolans/Tobola/Tobola
 Hecatina/Hecatine,Hecatine/Hecatinian,Hecatine/Hecatinian/Hecatine person,Hecatine/Hecatines/Hecatinians/Hecatine people
 Pandoros/Pandor,Pandorian,Pandorian,Pandorians
 Jivuna/Jivon/Jivona,Jivonish/Jivunese/Jivoni,Jivon/Jevunese/Jevunese person/Jivonite,Jivons/Jivonish/Jevunese/Jevunese people/Jivonites
-Zul Havan,Zulian/Havanian/Zul Havan,Zulian/Havanian/Zul/Havan/Zul Havan/Zul Havanian,Zulians/Havanians/Zuls/Havans/Zul Havan/Zul Havanians
-Grandoi State,Grandoi Statian/Grandoian/Grandoi State,Grandoi Statian/Grandoian/Grandoi Stater,Grandoi Statians/Grandoi Staters/Grandoians/Grandoi
+Zul/Zulia,Zulian,Zulian/Zul,ZuliansZuls
+State,Statian/State,Statian/Stater,Statians/Staters
+Grandoi,Grandoian,Grandoian,Grandoians

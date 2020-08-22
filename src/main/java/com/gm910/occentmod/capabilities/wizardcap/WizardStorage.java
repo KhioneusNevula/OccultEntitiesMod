@@ -6,16 +6,16 @@ import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 
-public class WizardStorage implements IStorage<IWizard> {
+public class WizardStorage implements IStorage<MagicData> {
 
 	@Override
-	public INBT writeNBT(Capability<IWizard> capability, IWizard instance, Direction side) {
-		
+	public INBT writeNBT(Capability<MagicData> capability, MagicData instance, Direction side) {
+
 		return instance.serializeNBT();
 	}
 
 	@Override
-	public void readNBT(Capability<IWizard> capability, IWizard instance, Direction side, INBT nbt) {
+	public void readNBT(Capability<MagicData> capability, MagicData instance, Direction side, INBT nbt) {
 		instance.deserializeNBT((CompoundNBT) nbt);
 	}
 

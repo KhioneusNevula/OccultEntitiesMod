@@ -13,6 +13,10 @@ import java.util.stream.Collectors;
 import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.NonNullMap;
+import com.gm910.occentmod.empires.gods.Deity;
+import com.gm910.occentmod.empires.gods.Pantheon;
+import com.gm910.occentmod.entities.citizen.NamePhonemicHelper;
+import com.gm910.occentmod.entities.citizen.NamePhonemicHelper.PhonemeWord;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.BodyForm;
 import com.gm910.occentmod.util.GMFiles;
 import com.google.common.collect.Lists;
@@ -23,6 +27,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.nbt.StringNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
@@ -44,7 +49,7 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 	private Set<EmpireName> availableNames = new HashSet<>();
 	private Set<EmpireName> usedNames = new HashSet<>();
 
-	private Set<String> usedCitizenNames = new HashSet<>();
+	private Set<PhonemeWord> usedCitizenNames = new HashSet<>();
 
 	private Map<BodyForm, Set<UUID>> formEntityCorrespondences = new NonNullMap<>(() -> Sets.newHashSet());
 
@@ -53,15 +58,12 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 	private int namesIndex = 0;
 
 	public static final ResourceLocation names = GMFiles.rl("empirenames/names.txt");
-	public static final ResourceLocation cit_names = GMFiles.rl("citizennames/names.txt");
 
 	public static final ResourceLocation structureTypeName = GMFiles.rl("empire_center");
 
 	private MinecraftServer server;
 
 	private List<Empire> empires;
-
-	private HashSet<String> availableCitizenNames;
 
 	public EmpireData(String name) {
 		super(name);
@@ -72,7 +74,7 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 	public EmpireData() {
 		this(NAME);
 		loadNames();
-		loadCitizenNames();
+		// loadCitizenNames();
 	}
 
 	public MinecraftServer getServer() {
@@ -115,6 +117,20 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 			}
 		}
 		return null;
+	}
+
+	public Set<Pantheon> getPantheons() {
+		Set<Pantheon> pantheons = new HashSet<>();
+		for (Empire e : this.empires) {
+			pantheons.add(e.getPantheon());
+		}
+		return pantheons;
+	}
+
+	public Set<Deity> getAllDeities() {
+		Set<Deity> deities = this.getPantheons().stream().flatMap((pan) -> pan.getDeities().stream())
+				.collect(Collectors.toSet());
+		return deities;
 	}
 
 	public Set<Empire> getInRadius(DimensionType type, BlockPos anyPos, double maxRadius) {
@@ -199,10 +215,8 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 			return EmpireName.of(((StringNBT) inbt).getString());
 		}));
 
-		this.usedCitizenNames = new HashSet<>(
-				GMNBT.<INBT, String>createList((ListNBT) nbt.get("UsedCNames"), (n) -> ((StringNBT) n).getString()));
-		this.availableCitizenNames = new HashSet<>(
-				GMNBT.<INBT, String>createList((ListNBT) nbt.get("AvCNames"), (n) -> ((StringNBT) n).getString()));
+		this.usedCitizenNames = new HashSet<>(GMNBT.<INBT, PhonemeWord>createList((ListNBT) nbt.get("UsedCNames"),
+				(n) -> new PhonemeWord(GMNBT.makeDynamic(n))));
 		this.availableNames = new HashSet<>(GMNBT.createList(nbt.getList("AvailableNames", NBT.TAG_STRING), (inbt) -> {
 
 			return EmpireName.of(((StringNBT) inbt).getString());
@@ -243,8 +257,7 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 			get.putUniqueId("Form", entry.getValue().getFormId());
 			return get;
 		}));
-		nbt.put("UsedCNames", GMNBT.makeList(this.usedCitizenNames, (in) -> StringNBT.valueOf(in)));
-		nbt.put("AvCNames", GMNBT.makeList(this.availableCitizenNames, (in) -> StringNBT.valueOf(in)));
+		nbt.put("UsedCNames", GMNBT.makeList(this.usedCitizenNames, (in) -> in.serialize(NBTDynamicOps.INSTANCE)));
 		return nbt;
 	}
 
@@ -304,42 +317,53 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 		this.usedNames = Sets.newHashSet();
 	}
 
-	public void loadCitizenNames() {
-		String[] resourceraw = GMFiles.getLines(cit_names, (str) -> {
-			return !str.trim().startsWith("#") && !str.trim().startsWith("//") && !str.trim().isEmpty();
-		});
-
-		this.availableCitizenNames = Sets.newHashSet(resourceraw);
-		this.usedCitizenNames = Sets.newHashSet();
-	}
-
 	public EmpireName giveRandomEmpireName() {
 		if (this.availableNames.isEmpty()) {
-			this.availableNames.addAll(this.usedNames.stream().map((name) -> {
-				return name.addJunk(++namesIndex);
-			}).collect(Collectors.toSet()));
+			Set<EmpireName> newNames = new HashSet<>();
+			for (EmpireName nom : usedNames) {
+				for (EmpireName noma : usedNames) {
+
+					String name = nom.getName();
+					newNames.add(new EmpireName(
+							Lists.newArrayList(noma.getNames()).stream().map((e) -> name + "-" + e)
+									.toArray((i) -> new String[i]),
+							Lists.newArrayList(noma.getAdjectives()).stream().map((e) -> name + "-" + e)
+									.toArray((i) -> new String[i]),
+							Lists.newArrayList(noma.getDemonyms()).stream().map((e) -> name + "-" + e)
+									.toArray((i) -> new String[i]),
+							Lists.newArrayList(noma.getDemonymPlurals()).stream().map((e) -> name + "-" + e)
+									.toArray((i) -> new String[i])));
+				}
+			}
+			this.availableNames.addAll(newNames);
 		}
 		EmpireName n = availableNames.stream().findAny().orElse(EmpireName.EMPTY);
 		this.usedNames.add(n);
 		return n;
 	}
 
-	public String giveRandomCitizenName() {
+	public PhonemeWord giveRandomCitizenName() {
 
-		if (this.availableCitizenNames.isEmpty()) {
-			List<String> namese = new ArrayList<>(usedCitizenNames);
-			List<String> names = new ArrayList<>(usedCitizenNames.stream()
-					.flatMap((s) -> Lists.newArrayList(s.split("-")).stream()).collect(Collectors.toSet()));
-			for (int i = 0; i < namese.size(); i++) {
-				for (int u = 0; u < names.size(); u++) {
-					availableCitizenNames.add(namese.get(i) + "-" + names.get(u));
-				}
+		Set<PhonemeWord> names = new HashSet<>(this.usedCitizenNames);
+		PhonemeWord nomb = null;
+		boolean hasName = false;
+		for (int tolerance = 0; tolerance < 50 && !hasName; tolerance++) {
+			nomb = NamePhonemicHelper.generateName(this.getServer().getWorld(DimensionType.OVERWORLD).rand);
+			if (!names.contains(nomb)) {
+				hasName = true;
 			}
 		}
-
-		String n = availableCitizenNames.stream().findAny().orElse("");
-		this.usedCitizenNames.add(n);
-		return n;
+		Set<PhonemeWord> newNames = new HashSet<>();
+		if (!hasName) {
+			for (PhonemeWord word : this.usedCitizenNames) {
+				for (PhonemeWord word2 : this.usedCitizenNames) {
+					newNames.add(word.add(NamePhonemicHelper.getFrom("-")).concat(word2));
+				}
+			}
+			nomb = newNames.stream().findAny().get();
+		}
+		this.usedCitizenNames.add(nomb);
+		return nomb;
 	}
 
 	public BodyForm birthBodyForm(UUID entity) {

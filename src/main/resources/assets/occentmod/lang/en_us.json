@@ -12,6 +12,44 @@
 	"message.magicdeath.fromnone" : "%1$s was killed by the power of magic!",
 	"message.magicdeath.fromwiz" : "%1$s was killed by %2$s using the power of magic!",
 	
-	"_title4": "Grammar",
-	"speech.of" : "%1$s of %2$s"
+	"_title4" : "Mind",
+	"certainty.false" : "false",
+	"certainty.tentative" : "potentially possible",
+	"certainty.maybe" : "definitely possible",
+	"certainty.almost_certain" : "very likely",
+	"certainty.true" : "factually correct"
+	
+	"memory.blockstate" : "The block at the position (%2$s, %3$s, %4$s) in the dimension %5$s should be %1$s.",
+	"memory.block_region" : "A certain region of blocks in dimension %1$s should have the format %2$s.",
+	"memory.cause_effect" : "It is %3$s that \"%1$s\" causes \"%2$s\" to happen.",
+	
+	"mood.occentmod.deity_apocalyptic" : "Apocalyptic",
+	"mood.occentmod.deity_prosperous" : "Prosperous",
+	"mood.occentmod.deity_protective" : "Protective",
+	
+	"_title5": "Grammar",
+	"speech.of" : "%1$s of %2$s",
+	
+	"_title6": "Deity Element",
+	"deity.element.occentmod.death" : "Death",
+	"deity.element.occentmod.fire" : "Fire",
+	"deity.element.occentmod.water" : "Water",
+	"deity.element.occentmod.sky" : "The Sky",
+	"deity.element.occentmod.nature" : "Nature",
+	"deity.element.occentmod.earth" : "The Earth",
+	"deity.element.occentmod.lava" : "Lava",
+	"deity.element.occentmod.planes" : "The Planes",
+	"deity.element.occentmod.creatures" : "Creatures",
+	"deity.element.occentmod.war" : "War",
+	"deity.element.occentmod.sun" : "The Sun",
+	"deity.element.occentmod.elixir" : "Elixir",
+	"deity.element.occentmod.enchantment" : "Enchantment",
+	"deity.element.occentmod.love" : "Love",
+	"deity.element.occentmod.alchemy" : "Alchemy",
+	
+	"_title7" : "Worldgen",
+	"biome.mind" : "Mind",
+	
+	"_title8" : "Occurrences",
+	"event.occentmod.murder" : "The murder of %2$s by %1$s"
 }

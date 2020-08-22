@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.IWorldTickable;
+import com.gm910.occentmod.api.util.Translate;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenInformation;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
@@ -24,6 +25,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 
 public abstract class Occurrence implements IDynamicSerializable, IWorldTickable {
@@ -134,11 +137,16 @@ public abstract class Occurrence implements IDynamicSerializable, IWorldTickable
 
 	public boolean canOccurrenceBeSeen(LivingEntity e) {
 
-		Vec3d vec3d = new Vec3d(e.getPosX(), e.getPosYEye(), e.getPosZ());
-		Vec3d vec3d1 = new Vec3d(position.x, position.y, position.z);
-
-		return e.world.rayTraceBlocks(new RayTraceContext(vec3d, vec3d1, RayTraceContext.BlockMode.COLLIDER,
-				RayTraceContext.FluidMode.NONE, e)).getType() == RayTraceResult.Type.MISS;
+		Vec3d vec3d = e.getLook(1.0F).normalize();
+		Vec3d vec3d1 = new Vec3d(this.position.getX() - e.getPosX(), this.position.getY() - e.getPosYEye(),
+				this.position.getZ() - e.getPosZ());
+		double d0 = vec3d1.length();
+		vec3d1 = vec3d1.normalize();
+		double d1 = vec3d.dotProduct(vec3d1);
+		return d1 > 1.0D - 0.025D / d0
+				? e.world.rayTraceBlocks(new RayTraceContext(vec3d, vec3d1, RayTraceContext.BlockMode.COLLIDER,
+						RayTraceContext.FluidMode.NONE, e)).getType() == RayTraceResult.Type.MISS
+				: false;
 
 	}
 
@@ -158,6 +166,11 @@ public abstract class Occurrence implements IDynamicSerializable, IWorldTickable
 		return this.getClass().getSimpleName() + " of type " + this.getType();
 	}
 
+	public ITextComponent getDisplay(CitizenEntity en) {
+		return Translate.make("event." + this.type.getName().getNamespace() + "." + this.type.getName().getPath(),
+				this.getDataForDisplay(en));
+	}
+
 	public boolean equalsWithPos(Object o) {
 		if (!(o instanceof Occurrence))
 			return false;
@@ -171,8 +184,8 @@ public abstract class Occurrence implements IDynamicSerializable, IWorldTickable
 		return ((Occurrence) oth).writeData(NBTDynamicOps.INSTANCE).equals(this.writeData(NBTDynamicOps.INSTANCE));
 	}
 
-	public static <T extends Occurrence> T copy(T one) {
-		T b = (T) one.getType().deserializeDat(GMNBT.makeDynamic(one.serialize(NBTDynamicOps.INSTANCE)));
+	public static <T extends Occurrence> T copy(ServerWorld world, T one) {
+		T b = (T) one.getType().deserializeDat(world, GMNBT.makeDynamic(one.serialize(NBTDynamicOps.INSTANCE)));
 		return b;
 	}
 

@@ -24,8 +24,7 @@ public class CitizenMemoryType<T extends CitizenMemory> {
 		@Override
 		public ITextComponent display(CitizenMemory obj) {
 			MemoryOfDeed gos = (MemoryOfDeed) obj;
-			return Translate.make("deed." + gos.getDeed().getType().getName().getNamespace() + "."
-					+ gos.getDeed().getType().getName().getPath(), gos.getDeed().getDataForDisplay(obj.owner));
+			return gos.getEvent().getDisplay(obj.owner);
 		}
 	};
 
@@ -34,21 +33,50 @@ public class CitizenMemoryType<T extends CitizenMemory> {
 		@Override
 		public ITextComponent display(CitizenMemory obj) {
 			MemoryOfOccurrence gos = (MemoryOfOccurrence) obj;
-			return Translate.make(
-					"citizen.event." + gos.getEvent().getType().getName().getNamespace() + "."
-							+ gos.getEvent().getType().getName().getPath(),
-					gos.getEvent().getDataForDisplay(obj.owner));
+			return gos.getEvent().getDisplay(obj.owner);
 		}
 	};
 
-	public static final CitizenMemoryType<MemoryOfBlockstate> BLOCKSTATE = new CitizenMemoryType<>(GMFiles.rl("event"),
-			(t, u) -> {
+	public static final CitizenMemoryType<MemoryOfBlockstate> BLOCKSTATE = new CitizenMemoryType<MemoryOfBlockstate>(
+			GMFiles.rl("event"), (t, u) -> {
 				try {
 					return new MemoryOfBlockstate(t, u);
 				} catch (CommandSyntaxException e) {
 					return null;
 				}
-			});
+			}) {
+		public ITextComponent display(CitizenMemory obj) {
+
+			MemoryOfBlockstate mem = ((MemoryOfBlockstate) obj);
+
+			return Translate.make("memory.blockstate", mem.getStoredState().getBlock().getNameTextComponent(),
+					mem.getStoredPos().getX(), mem.getStoredPos().getY(), mem.getStoredPos().getZ(),
+					mem.getStoredPos().getDimension().getRegistryName());
+		}
+	};
+
+	public static final CitizenMemoryType<MemoryOfBlockRegion> BLOCK_REGION = new CitizenMemoryType<MemoryOfBlockRegion>(
+			GMFiles.rl("block_region"), (t, u) -> {
+				return new MemoryOfBlockRegion(t, u);
+			}) {
+		public ITextComponent display(CitizenMemory obj) {
+
+			MemoryOfBlockRegion mem = ((MemoryOfBlockRegion) obj);
+
+			return Translate.make("memory.block_region", mem.getDim().getRegistryName(), mem.getBlocks());
+		}
+	};
+
+	public static final CitizenMemoryType<CauseEffectTheory> CAUSE_EFFECT = new CitizenMemoryType<CauseEffectTheory>(
+			GMFiles.rl("cause_effect"), CauseEffectTheory::new) {
+		@Override
+		public ITextComponent display(CitizenMemory obj) {
+			CauseEffectTheory theo = (CauseEffectTheory) obj;
+
+			return Translate.make("memory.cause_effect", theo.getCause(), theo.getEffect(),
+					theo.getCertainty().getDisplay());
+		}
+	};
 
 	public final ResourceLocation regName;
 
@@ -57,7 +85,7 @@ public class CitizenMemoryType<T extends CitizenMemory> {
 	public final Function<T, Object[]> displayer;
 
 	public CitizenMemoryType(ResourceLocation regName, BiFunction<CitizenEntity, Dynamic<?>, T> deserializer) {
-		this(regName, deserializer, (e) -> new Object[] { e.getDisplayText() });
+		this(regName, deserializer, (e) -> new Object[] {});
 	}
 
 	public CitizenMemoryType(ResourceLocation regName, BiFunction<CitizenEntity, Dynamic<?>, T> deserializer,

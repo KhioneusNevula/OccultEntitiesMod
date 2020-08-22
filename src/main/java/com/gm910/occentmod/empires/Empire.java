@@ -17,6 +17,7 @@ import com.gm910.occentmod.api.util.NonNullMap;
 import com.gm910.occentmod.api.util.ParallelSet;
 import com.gm910.occentmod.api.util.ServerPos;
 import com.gm910.occentmod.empires.EmpireDispute.DisputeType;
+import com.gm910.occentmod.empires.gods.Pantheon;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race;
 import com.gm910.occentmod.init.DataInit;
 import com.mojang.datafixers.util.Pair;
@@ -29,6 +30,7 @@ import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -66,6 +68,8 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 
 	private EmpireName name = EmpireName.EMPTY;
 
+	private Pantheon pantheon;
+
 	public static final Pair<ChunkPos, DimensionType> EMPTY_FLAG = new Pair<>(new ChunkPos(0, 0),
 			DimensionType.OVERWORLD);
 
@@ -93,6 +97,8 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 		this.setName(data.giveRandomEmpireName());
 
 		this.randomizeRaceWeights();
+
+		this.pantheon = Pantheon.generatePantheon(this);
 	}
 
 	public Race chooseRandomRace(Random rand) {
@@ -148,6 +154,14 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 		return empireId;
 	}
 
+	public Pantheon getPantheon() {
+		return pantheon;
+	}
+
+	public void setPantheon(Pantheon pantheon) {
+		this.pantheon = pantheon;
+	}
+
 	@Override
 	public CompoundNBT serializeNBT() {
 		CompoundNBT nbt = new CompoundNBT();
@@ -169,6 +183,7 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 				subtag.putUniqueId("ID", leaders.get(type));
 			return subtag;
 		}));
+		nbt.put("Pantheon", this.pantheon.serialize(NBTDynamicOps.INSTANCE));
 		nbt.putString("Name", name.toString());
 		if (center != EMPTY_FLAG) {
 			nbt.putInt("CenterDim", this.center.getSecond().getId());
@@ -213,6 +228,7 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 			}
 			return new Pair<>(lead, uu);
 		}));
+		this.pantheon = new Pantheon(this, GMNBT.makeDynamic(nbt.get("Pantheon")));
 		if (!nbt.getBoolean("CenterFlag")) {
 			this.center = new Pair<>(new ChunkPos(nbt.getLong("Center")),
 					DimensionType.getById(nbt.getInt("CenterDim")));

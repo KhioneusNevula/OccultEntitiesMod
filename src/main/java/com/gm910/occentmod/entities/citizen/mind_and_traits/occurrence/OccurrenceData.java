@@ -7,11 +7,14 @@ import java.util.stream.Collectors;
 
 import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.api.util.GMNBT;
+import com.gm910.occentmod.empires.Empire;
 import com.google.common.collect.Sets;
 
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.NBTDynamicOps;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.DimensionSavedDataManager;
 import net.minecraft.world.storage.WorldSavedData;
@@ -25,6 +28,8 @@ public class OccurrenceData extends WorldSavedData {
 
 	private Set<Occurrence> occurrences = new HashSet<>();
 
+	private ServerWorld world;
+
 	public OccurrenceData(String name) {
 		super(name);
 		MinecraftForge.EVENT_BUS.register(this);
@@ -34,12 +39,44 @@ public class OccurrenceData extends WorldSavedData {
 		this(NAME);
 	}
 
+	public ServerWorld getWorld() {
+		return world;
+	}
+
+	public OccurrenceData setWorld(ServerWorld world) {
+		this.world = world;
+		return this;
+	}
+
 	public void addOccurrence(Occurrence oc) {
 		this.occurrences.add(oc);
 	}
 
 	public void removeOccurrence(Occurrence oc) {
 		this.occurrences.remove(oc);
+	}
+
+	public Set<Occurrence> getWithinEmpire(Empire em) {
+		Set<ChunkPos> chunks = em.getChunkPositions(this.world.dimension.getType());
+		return filter((occurrence) -> {
+			for (ChunkPos pos : chunks) {
+				int xMin = pos.getXStart();
+				int zMin = pos.getZStart();
+				int xMax = pos.getXEnd();
+				int zMax = pos.getZEnd();
+				if (occurrence.position.x >= xMin && occurrence.position.z >= zMin && occurrence.position.x <= xMax
+						&& occurrence.position.z <= zMax) {
+					return true;
+				}
+			}
+			return false;
+		});
+	}
+
+	public Set<Occurrence> getVisible(LivingEntity e) {
+		return filter((occ) -> {
+			return occ.canOccurrenceBeSeen(e);
+		});
 	}
 
 	public Set<Occurrence> filter(Predicate<? super Occurrence> pred) {
@@ -56,8 +93,8 @@ public class OccurrenceData extends WorldSavedData {
 
 	@Override
 	public void read(CompoundNBT nbt) {
-		occurrences = Sets.newHashSet(
-				GMNBT.createList((ListNBT) nbt.get("Ocs"), (e) -> OccurrenceType.deserialize(GMNBT.makeDynamic(e))));
+		occurrences = Sets.newHashSet(GMNBT.createList((ListNBT) nbt.get("Ocs"),
+				(e) -> OccurrenceType.deserialize(world, GMNBT.makeDynamic(e))));
 	}
 
 	@SubscribeEvent
@@ -82,7 +119,7 @@ public class OccurrenceData extends WorldSavedData {
 	public static OccurrenceData get(ServerWorld world) {
 		DimensionSavedDataManager dimdat = world.getSavedData();
 		return dimdat.getOrCreate(() -> {
-			return new OccurrenceData();
+			return new OccurrenceData().setWorld(world);
 		}, NAME);
 	}
 

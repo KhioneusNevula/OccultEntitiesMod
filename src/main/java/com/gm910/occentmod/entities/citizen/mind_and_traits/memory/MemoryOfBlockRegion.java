@@ -31,6 +31,7 @@ public class MemoryOfBlockRegion extends CitizenMemory {
 				Sets.newHashSet(statesPoses).stream().collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));
 	}
 
+	@SuppressWarnings("unchecked")
 	public MemoryOfBlockRegion(CitizenEntity owner, Dynamic<?> dyn) {
 		this(owner, DimensionType.getById(dyn.get("dim").asInt(0)),
 				dyn.get("blocks").asStream().<Pair<BlockPos, BlockState>>map((e) -> {
@@ -52,6 +53,18 @@ public class MemoryOfBlockRegion extends CitizenMemory {
 
 		return ops.createMap(ImmutableMap.of(ops.createString("dim"), ops.createInt(this.dim.getId()),
 				ops.createString("blocks"), s));
+	}
+
+	public BlockState getDesiredState(BlockPos pos) {
+		return this.blocks.get(pos);
+	}
+
+	public DimensionType getDim() {
+		return dim;
+	}
+
+	public Map<BlockPos, BlockState> getBlocks() {
+		return blocks;
 	}
 
 	@Override

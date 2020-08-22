@@ -8,9 +8,9 @@ import com.gm910.occentmod.capabilities.rooms.RoomManager;
 import com.gm910.occentmod.capabilities.rooms.RoomStorage;
 import com.gm910.occentmod.capabilities.speciallocs.SpecialLocationManager;
 import com.gm910.occentmod.capabilities.speciallocs.SpecialLocationStorage;
-import com.gm910.occentmod.capabilities.wizardcap.IWizard;
-import com.gm910.occentmod.capabilities.wizardcap.Wizard;
+import com.gm910.occentmod.capabilities.wizardcap.MagicData;
 import com.gm910.occentmod.capabilities.wizardcap.WizardStorage;
+import com.gm910.occentmod.empires.gods.Deity;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -30,8 +30,8 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 @EventBusSubscriber
 public class CapabilityProvider<T, K> implements ICapabilitySerializable<CompoundNBT> {
 
-	@CapabilityInject(IWizard.class)
-	public static Capability<IWizard> WIZARD = null;
+	@CapabilityInject(MagicData.class)
+	public static Capability<MagicData> MAGIC_DATA = null;
 
 	@CapabilityInject(SpecialLocationManager.class)
 	public static Capability<SpecialLocationManager> SPECIAL_LOCS = null;
@@ -86,10 +86,10 @@ public class CapabilityProvider<T, K> implements ICapabilitySerializable<Compoun
 
 	public static void preInit() {
 
-		CapabilityManager.INSTANCE.register(IWizard.class, new WizardStorage(), () -> {
-			return new Wizard();
+		CapabilityManager.INSTANCE.register(MagicData.class, new WizardStorage(), () -> {
+			return new MagicData();
 		});
-		System.out.println("THE VALUE OF CP WIZ IS NOW " + CapabilityProvider.WIZARD);
+		System.out.println("THE VALUE OF CP WIZ IS NOW " + CapabilityProvider.MAGIC_DATA);
 
 		CapabilityManager.INSTANCE.register(SpecialLocationManager.class, new SpecialLocationStorage(), () -> {
 			return new SpecialLocationManager();
@@ -114,14 +114,22 @@ public class CapabilityProvider<T, K> implements ICapabilitySerializable<Compoun
 	@SubscribeEvent
 	public static void attachEn(AttachCapabilitiesEvent<Entity> event) {
 		if (event.getObject() instanceof PlayerEntity) {
-			event.addCapability(Wizard.LOC, new CapabilityProvider<IWizard, LivingEntity>(CapabilityProvider.WIZARD,
-					(LivingEntity) event.getObject()));
 			event.addCapability(MindInventory.LOC, new CapabilityProvider<MindInventory, PlayerEntity>(
 					CapabilityProvider.MIND_INVENTORY, (PlayerEntity) event.getObject()));
 		}
-		if (event.getObject() instanceof LivingEntity)
-			event.addCapability(Formshift.LOC, new CapabilityProvider<Formshift, LivingEntity>(
-					CapabilityProvider.FORM, (LivingEntity) event.getObject()));
+		if (event.getObject() instanceof LivingEntity) {
+			event.addCapability(MagicData.LOC, new CapabilityProvider<MagicData, LivingEntity>(
+					CapabilityProvider.MAGIC_DATA, (LivingEntity) event.getObject()));
+			event.addCapability(Formshift.LOC, new CapabilityProvider<Formshift, LivingEntity>(CapabilityProvider.FORM,
+					(LivingEntity) event.getObject()));
+		}
+	}
+
+	@SubscribeEvent
+	public static void attachDeity(AttachCapabilitiesEvent<Deity> event) {
+
+		event.addCapability(MagicData.LOC,
+				new CapabilityProvider<MagicData, Deity>(CapabilityProvider.MAGIC_DATA, event.getObject()));
 	}
 
 	@SubscribeEvent

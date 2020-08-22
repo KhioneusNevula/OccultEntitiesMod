@@ -5,15 +5,12 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.ModReflect;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.EntityDependentInformationHolder;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
-
-import net.minecraft.nbt.NBTDynamicOps;
 
 public class MemoryHolder extends EntityDependentInformationHolder<CitizenEntity> {
 
@@ -68,6 +65,7 @@ public class MemoryHolder extends EntityDependentInformationHolder<CitizenEntity
 	}
 
 	public void addKnowledge(CitizenMemory mem) {
+		mem.owner = this.getEntityIn();
 		this.knowledge.add(mem);
 	}
 
@@ -77,8 +75,7 @@ public class MemoryHolder extends EntityDependentInformationHolder<CitizenEntity
 	}
 
 	public void receiveKnowledge(CitizenMemory mem) {
-		CitizenMemory copy = CitizenMemory.deserialize(this.getEntityIn(),
-				GMNBT.makeDynamic(mem.serialize(NBTDynamicOps.INSTANCE)));
+		CitizenMemory copy = CitizenMemory.copy(this.getEntityIn(), mem);
 
 		copy.affectCitizen(this.getEntityIn());
 

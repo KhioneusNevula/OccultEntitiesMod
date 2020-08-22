@@ -389,7 +389,21 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 				}
 			}
 
+			for (Occurrence occ : this.occurrences.getVisible(this)) {
+				this.reactToEvent(occ);
+			}
+
 		}
+	}
+
+	public boolean canSeeWithEyes(LivingEntity other) {
+		Vec3d vec3d = this.getLook(1.0F).normalize();
+		Vec3d vec3d1 = new Vec3d(other.getPosX() - this.getPosX(), other.getPosY() - this.getPosYEye(),
+				other.getPosZ() - this.getPosZ());
+		double d0 = vec3d1.length();
+		vec3d1 = vec3d1.normalize();
+		double d1 = vec3d.dotProduct(vec3d1);
+		return d1 > 1.0D - 0.025D / d0 ? canEntityBeSeen(other) : false;
 	}
 
 	public void decrementFoodLevel(double amount) {
@@ -533,7 +547,7 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		return this.getHealth() > 0.0F && this.getHealth() < this.getMaxHealth();
 	}
 
-	public enum Mood {
+	public enum HappinessStatus {
 		VERY_HAPPY, HAPPY, FINE, SAD, VERY_SAD;
 	}
 
