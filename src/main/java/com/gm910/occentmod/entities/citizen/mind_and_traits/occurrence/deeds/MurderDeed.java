@@ -1,6 +1,6 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds;
 
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
+import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect.Connotation;
@@ -68,9 +68,9 @@ public class MurderDeed extends CitizenDeed {
 	}
 
 	@Override
-	public float getRelationshipChange(CitizenEntity en) {
-		Relationships ships = en.getRelationships();
-		float sadism = en.getPersonality().getTrait(PersonalityTrait.SADISM);
+	public float getRelationshipChange(LivingEntity en) {
+		Relationships ships = CitizenInfo.get(en).orElse(null).getRelationships();
+		float sadism = CitizenInfo.get(en).orElse(null).getPersonality().getTrait(PersonalityTrait.SADISM);
 		int change = (int) ships.getLikeValue(killed);
 
 		return (int) (-sadism * (change));

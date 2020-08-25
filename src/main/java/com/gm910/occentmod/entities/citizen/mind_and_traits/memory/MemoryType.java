@@ -7,7 +7,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import com.gm910.occentmod.api.language.Translate;
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.CauseEffectMemory;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.ExternallyGivenMemory;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.IdeaMemory;
@@ -20,6 +19,7 @@ import com.gm910.occentmod.util.GMFiles;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.Dynamic;
 
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
@@ -100,15 +100,15 @@ public class MemoryType<T extends Memory> {
 
 	public final ResourceLocation regName;
 
-	public final BiFunction<CitizenEntity, Dynamic<?>, T> deserializer;
+	public final BiFunction<LivingEntity, Dynamic<?>, T> deserializer;
 
 	public final Function<T, Object[]> displayer;
 
-	public MemoryType(ResourceLocation regName, BiFunction<CitizenEntity, Dynamic<?>, T> deserializer) {
+	public MemoryType(ResourceLocation regName, BiFunction<LivingEntity, Dynamic<?>, T> deserializer) {
 		this(regName, deserializer, (e) -> new Object[] {});
 	}
 
-	public MemoryType(ResourceLocation regName, BiFunction<CitizenEntity, Dynamic<?>, T> deserializer,
+	public MemoryType(ResourceLocation regName, BiFunction<LivingEntity, Dynamic<?>, T> deserializer,
 			Function<T, Object[]> displayer) {
 		this.regName = regName;
 		this.deserializer = deserializer;

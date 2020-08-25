@@ -2,8 +2,7 @@ package com.gm910.occentmod.entities.citizen.mind_and_traits.task;
 
 import java.util.Map;
 
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
-
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.world.server.ServerWorld;
@@ -24,7 +23,7 @@ public abstract class ImmediateTask extends CitizenTask {
 	}
 
 	@Override
-	public boolean shouldExecute(ServerWorld worldIn, CitizenEntity owner) {
+	public boolean shouldExecute(ServerWorld worldIn, LivingEntity owner) {
 		return true;
 	}
 

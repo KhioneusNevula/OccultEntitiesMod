@@ -6,7 +6,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import com.gm910.occentmod.api.language.Translate;
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect;
@@ -14,6 +13,7 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrenc
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.server.ServerWorld;
@@ -26,7 +26,7 @@ public class CauseEffectMemory extends Memory {
 
 	private int observationCount;
 
-	public CauseEffectMemory(CitizenEntity owner, Occurrence cause, @Nullable Occurrence effect,
+	public CauseEffectMemory(LivingEntity owner, Occurrence cause, @Nullable Occurrence effect,
 			@Nullable OccurrenceEffect connotation) {
 		super(owner, MemoryType.DEED);
 		this.cause = cause;
@@ -34,7 +34,7 @@ public class CauseEffectMemory extends Memory {
 		this.connotation = effect.getEffect();
 	}
 
-	public CauseEffectMemory(CitizenEntity owner, Dynamic<?> dyn) {
+	public CauseEffectMemory(LivingEntity owner, Dynamic<?> dyn) {
 		this(owner, OccurrenceType.deserialize(((ServerWorld) owner.world), dyn.get("cause").get().get()),
 				dyn.get("effect").get().isPresent()
 						? OccurrenceType.deserialize(((ServerWorld) owner.world), dyn.get("effect").get().get())
@@ -93,7 +93,7 @@ public class CauseEffectMemory extends Memory {
 	}
 
 	@Override
-	public void affectCitizen(CitizenEntity en) {
+	public void affectCitizen(LivingEntity en) {
 
 	}
 

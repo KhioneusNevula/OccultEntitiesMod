@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.api.util.GMNBT;
+import com.gm910.occentmod.api.util.GeneralInventory;
 import com.gm910.occentmod.capabilities.GMCapabilityUser;
 import com.gm910.occentmod.capabilities.formshifting.Formshift;
 import com.gm910.occentmod.empires.Empire;
@@ -59,7 +60,6 @@ import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.sensor.Sensor;
 import net.minecraft.entity.ai.brain.sensor.SensorType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Food;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -115,7 +115,7 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 	private double previousFoodPosX;
 	private double previousFoodPosY;
 	private double previousFoodPosZ;
-	private final Inventory inventory = new Inventory(30);
+	private final GeneralInventory inventory = new GeneralInventory(30);
 
 	public CitizenEntity(EntityType<? extends AgeableEntity> type, World worldIn) {
 		super(type, worldIn);
@@ -232,7 +232,7 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		this.info.setSkills(skills);
 	}
 
-	public Inventory getInventory() {
+	public GeneralInventory getInventory() {
 		return this.inventory;
 	}
 
@@ -511,6 +511,7 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 	@Override
 	public void writeAdditional(CompoundNBT compound) {
 		super.writeAdditional(compound);
+		compound.put("Inventory", this.inventory.serializeNBT());
 		compound.put("CitizenInformation", this.info.serialize(NBTDynamicOps.INSTANCE));
 	}
 
@@ -546,6 +547,7 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 	public void readAdditional(CompoundNBT compound) {
 		super.readAdditional(compound);
 		this.info = new CitizenInformation<CitizenEntity>(this, GMNBT.makeDynamic(compound.get("CitizenInformation")));
+		this.inventory.deserializeNBT(compound.getCompound("Inventory"));
 	}
 
 	@Override

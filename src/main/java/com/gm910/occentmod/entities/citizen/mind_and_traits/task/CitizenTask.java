@@ -9,7 +9,7 @@ import java.util.Set;
 import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.ModReflect;
 import com.gm910.occentmod.api.util.NonNullMap;
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
+import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait.TraitLevel;
@@ -24,6 +24,7 @@ import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.task.Task;
@@ -31,7 +32,7 @@ import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.util.IDynamicSerializable;
 import net.minecraft.world.server.ServerWorld;
 
-public abstract class CitizenTask extends Task<CitizenEntity> implements IDynamicSerializable, Cloneable {
+public abstract class CitizenTask<E extends LivingEntity> extends Task<E> implements IDynamicSerializable, Cloneable {
 
 	private Set<Context> contexts = Sets.newHashSet();
 
@@ -47,7 +48,7 @@ public abstract class CitizenTask extends Task<CitizenEntity> implements IDynami
 		this.delegateMemoryMap.putAll(requiredMemoryStateIn);
 	}
 
-	public CitizenTask setContext(Context... contexts) {
+	public CitizenTask<E> setContext(Context... contexts) {
 		this.contexts = Sets.newHashSet(contexts);
 		return this;
 	}
@@ -95,7 +96,7 @@ public abstract class CitizenTask extends Task<CitizenEntity> implements IDynami
 	/**
 	 * Initializes the information that will create the task's deed
 	 */
-	public void preExecution(ServerWorld world, CitizenEntity owner) {
+	public void preExecution(ServerWorld world, LivingEntity owner) {
 		this.shouldExecute(world, owner);
 	}
 
@@ -116,7 +117,7 @@ public abstract class CitizenTask extends Task<CitizenEntity> implements IDynami
 	}
 
 	@Override
-	public boolean shouldExecute(ServerWorld worldIn, CitizenEntity owner) {
+	public boolean shouldExecute(ServerWorld worldIn, LivingEntity owner) {
 		return true;
 	}
 
@@ -129,9 +130,10 @@ public abstract class CitizenTask extends Task<CitizenEntity> implements IDynami
 		return true;
 	}
 
-	public boolean canExecute(CitizenEntity owner) {
-		return this.canExecuteWithPersonality(owner.getPersonality().generateTraitReactionMap())
-				&& hasNecessarySkills(owner.getSkills());
+	public boolean canExecute(LivingEntity owner) {
+		return this.canExecuteWithPersonality(
+				CitizenInfo.get(owner).orElse(null).getPersonality().generateTraitReactionMap())
+				&& hasNecessarySkills(CitizenInfo.get(owner).orElse(null).getSkills());
 	}
 
 	public boolean canExecuteWithPersonality(Map<PersonalityTrait, TraitLevel> e) {
@@ -173,7 +175,7 @@ public abstract class CitizenTask extends Task<CitizenEntity> implements IDynami
 	 * @param en
 	 * @return
 	 */
-	public boolean cannotBeOverriden(CitizenEntity en) {
+	public boolean cannotBeOverriden(LivingEntity en) {
 		return false;
 	}
 
@@ -183,7 +185,7 @@ public abstract class CitizenTask extends Task<CitizenEntity> implements IDynami
 	 * @param en
 	 * @return
 	 */
-	public boolean isUrgent(CitizenEntity en) {
+	public boolean isUrgent(LivingEntity en) {
 		return false;
 	}
 
@@ -194,7 +196,7 @@ public abstract class CitizenTask extends Task<CitizenEntity> implements IDynami
 	 * @param seer
 	 * @return
 	 */
-	public boolean isVisible(CitizenEntity doer, CitizenEntity seer) {
+	public boolean isVisible(LivingEntity doer, LivingEntity seer) {
 		return true;
 	}
 

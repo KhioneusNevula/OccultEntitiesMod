@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
@@ -14,6 +13,7 @@ import com.mojang.datafixers.types.DynamicOps;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.math.BlockPos;
@@ -25,7 +25,7 @@ public class MemoryOfBlockRegion extends Memory {
 
 	private DimensionType dim;
 
-	public MemoryOfBlockRegion(CitizenEntity owner, DimensionType dim, Pair<BlockPos, BlockState>... statesPoses) {
+	public MemoryOfBlockRegion(LivingEntity owner, DimensionType dim, Pair<BlockPos, BlockState>... statesPoses) {
 		super(owner, MemoryType.BLOCKSTATE);
 		this.dim = dim;
 		this.blocks.putAll(
@@ -33,7 +33,7 @@ public class MemoryOfBlockRegion extends Memory {
 	}
 
 	@SuppressWarnings("unchecked")
-	public MemoryOfBlockRegion(CitizenEntity owner, Dynamic<?> dyn) {
+	public MemoryOfBlockRegion(LivingEntity owner, Dynamic<?> dyn) {
 		this(owner, DimensionType.getById(dyn.get("dim").asInt(0)),
 				dyn.get("blocks").asStream().<Pair<BlockPos, BlockState>>map((e) -> {
 					try {
@@ -69,7 +69,7 @@ public class MemoryOfBlockRegion extends Memory {
 	}
 
 	@Override
-	public void affectCitizen(CitizenEntity en) {
+	public void affectCitizen(LivingEntity en) {
 
 	}
 

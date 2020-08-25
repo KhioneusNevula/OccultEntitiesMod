@@ -15,30 +15,36 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relatio
 import com.gm910.occentmod.entities.citizen.mind_and_traits.religion.Religion;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.skills.Skills;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.Autonomy;
+import com.mojang.datafixers.Dynamic;
+import com.mojang.datafixers.types.DynamicOps;
 
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NBTDynamicOps;
+import net.minecraft.util.IDynamicSerializable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.common.util.LazyOptional;
 
 public abstract class CitizenInfo<E extends LivingEntity>
-		implements IModCapability<E>, INBTSerializable<CompoundNBT> {
+		implements IModCapability<E>, INBTSerializable<CompoundNBT>, IDynamicSerializable {
 
 	public static final ResourceLocation LOC = new ResourceLocation(OccultEntities.MODID, "citizeninfo");
 
 	private E owner;
 
-	private Personality personality;
-	private Memories knowledge;
-	private Relationships relationships;
-	private DynamicCitizenIdentity identity;
-	private Genetics<E> genetics;
-	private Autonomy autonomy;
-	private Needs needs;
-	private Emotions emotions;
-	private Skills skills;
-	private Religion religion;
+	protected Personality personality;
+	protected Memories knowledge;
+	protected Relationships relationships;
+	protected DynamicCitizenIdentity identity;
+	protected Genetics<E> genetics;
+	protected Autonomy autonomy;
+	protected Needs needs;
+	protected Emotions emotions;
+	protected Skills skills;
+	protected Religion religion;
 
 	@Override
 	public void $setOwner(E wiz) {
@@ -144,8 +150,31 @@ public abstract class CitizenInfo<E extends LivingEntity>
 		this.skills = skills;
 	}
 
-	public static <T extends LivingEntity> CitizenInfo<T> get(T e) {
-		return e.getCapability(GMCapabilityUser.CITIZEN_INFO).orElse(null);
+	public abstract IInventory getInventory();
+
+	@Override
+	public CompoundNBT serializeNBT() {
+		return new CompoundNBT();
+	}
+
+	@Override
+	public void deserializeNBT(CompoundNBT nbt) {
+
+	}
+
+	public <T> void deserialize(Dynamic<T> dyn) {
+		this.deserializeNBT((CompoundNBT) Dynamic.convert(dyn.getOps(), NBTDynamicOps.INSTANCE, dyn.getValue()));
+	}
+
+	@Override
+	public <T> T serialize(DynamicOps<T> ops) {
+		CompoundNBT nb = this.serializeNBT();
+
+		return Dynamic.convert(NBTDynamicOps.INSTANCE, ops, nb);
+	}
+
+	public static <T extends LivingEntity> LazyOptional<CitizenInfo<T>> get(T e) {
+		return e.getCapability(GMCapabilityUser.CITIZEN_INFO).cast();
 	}
 
 }

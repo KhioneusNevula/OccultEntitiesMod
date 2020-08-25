@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
 
 public class NeedType<T> {
@@ -81,7 +82,7 @@ public class NeedType<T> {
 		return checker.apply(this, en);
 	}
 
-	public int getCheckInterval(CitizenEntity en) {
+	public int getCheckInterval(LivingEntity en) {
 		return en.getRNG().nextInt(100);
 	}
 

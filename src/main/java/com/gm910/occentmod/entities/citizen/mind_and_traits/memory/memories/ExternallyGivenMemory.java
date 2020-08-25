@@ -1,12 +1,13 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories;
 
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.CauseEffectMemory.Certainty;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
+
+import net.minecraft.entity.LivingEntity;
 
 public class ExternallyGivenMemory extends Memory {
 
@@ -16,7 +17,7 @@ public class ExternallyGivenMemory extends Memory {
 
 	private CitizenIdentity giver;
 
-	public ExternallyGivenMemory(CitizenEntity owner, CitizenIdentity giver, Memory delegate, Certainty trust) {
+	public ExternallyGivenMemory(LivingEntity owner, CitizenIdentity giver, Memory delegate, Certainty trust) {
 		super(owner, MemoryType.EXTERNALLY_GIVEN_MEMORY);
 		this.delegate = delegate;
 		this.trust = trust;
@@ -56,14 +57,14 @@ public class ExternallyGivenMemory extends Memory {
 		this.giver = giver;
 	}
 
-	public ExternallyGivenMemory(CitizenEntity owner, Dynamic<?> dyn) {
+	public ExternallyGivenMemory(LivingEntity owner, Dynamic<?> dyn) {
 		this(owner, new CitizenIdentity(dyn.get("giver").get().get()),
 				Memory.deserialize(owner, dyn.get("delegate").get().get()),
 				Certainty.valueOf(dyn.get("trust").asString("")));
 	}
 
 	@Override
-	public void affectCitizen(CitizenEntity en) {
+	public void affectCitizen(LivingEntity en) {
 
 	}
 

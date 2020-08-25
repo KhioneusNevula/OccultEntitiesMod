@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.capabilities.formshifting.Formshift;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
@@ -32,25 +31,12 @@ import net.minecraft.entity.ai.brain.task.LookTask;
 import net.minecraft.entity.ai.brain.task.SwimTask;
 import net.minecraft.entity.ai.brain.task.Task;
 import net.minecraft.entity.ai.brain.task.WalkToTargetTask;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTDynamicOps;
-import net.minecraft.util.IDynamicSerializable;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.world.server.ServerWorld;
 
-public class CitizenInformation<E extends CitizenEntity> extends CitizenInfo<E> implements IDynamicSerializable {
+public class CitizenInformation<E extends CitizenEntity> extends CitizenInfo<E> {
 
 	private E citizen;
-
-	private Personality personality;
-	private Memories knowledge;
-	private Relationships relationships;
-	private DynamicCitizenIdentity identity;
-	private Genetics<E> genetics;
-	private Autonomy autonomy;
-	private Needs needs;
-	private Emotions emotions;
-	private Skills skills;
-	private Religion religion;
 
 	public CitizenInformation(E en) {
 		this.citizen = en;
@@ -274,14 +260,8 @@ public class CitizenInformation<E extends CitizenEntity> extends CitizenInfo<E> 
 	}
 
 	@Override
-	public CompoundNBT serializeNBT() {
-
-		return (CompoundNBT) serialize(NBTDynamicOps.INSTANCE);
-	}
-
-	@Override
-	public void deserializeNBT(CompoundNBT nbt) {
-		deserialize(GMNBT.makeDynamic(nbt));
+	public IInventory getInventory() {
+		return this.$getOwner().getInventory();
 	}
 
 }

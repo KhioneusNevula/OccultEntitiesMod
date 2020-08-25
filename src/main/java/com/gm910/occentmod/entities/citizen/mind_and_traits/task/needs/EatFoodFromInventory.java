@@ -5,7 +5,7 @@ import java.util.Set;
 
 import com.gm910.occentmod.api.networking.messages.Networking;
 import com.gm910.occentmod.api.networking.messages.types.TaskParticles;
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
+import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect;
@@ -23,7 +23,7 @@ import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.particles.ItemParticleData;
@@ -54,7 +54,7 @@ public class EatFoodFromInventory extends ImmediateTask implements INeedsTask<Ne
 	}
 
 	@Override
-	public boolean shouldContinueExecuting(ServerWorld worldIn, CitizenEntity entityIn, long gameTimeIn) {
+	public boolean shouldContinueExecuting(ServerWorld worldIn, LivingEntity entityIn, long gameTimeIn) {
 		return INeedsTask.super.shouldContinueExecuting(worldIn, entityIn, gameTimeIn);
 	}
 
@@ -74,14 +74,14 @@ public class EatFoodFromInventory extends ImmediateTask implements INeedsTask<Ne
 	}
 
 	@Override
-	public boolean shouldExecute(ServerWorld worldIn, CitizenEntity owner) {
+	public boolean shouldExecute(ServerWorld worldIn, LivingEntity owner) {
 		Set<ItemStack> foods = getFoodFromInventory(owner);
 		foodOp = foods.stream().findAny();
 		return foodOp.isPresent() && super.shouldExecute(worldIn, owner);
 	}
 
 	@Override
-	public void startExecuting(ServerWorld worldIn, CitizenEntity owner, long gameTime) {
+	public void startExecuting(ServerWorld worldIn, LivingEntity owner, long gameTime) {
 
 		ItemStack foodOp = this.foodOp.get().copy();
 		owner.onFoodEaten(worldIn, foodOp);
@@ -96,8 +96,8 @@ public class EatFoodFromInventory extends ImmediateTask implements INeedsTask<Ne
 		}
 	}
 
-	public Set<ItemStack> getFoodFromInventory(CitizenEntity owner) {
-		Inventory inventory = owner.getInventory();
+	public Set<ItemStack> getFoodFromInventory(LivingEntity owner) {
+		IInventory inventory = CitizenInfo.get(owner).orElse(null).getInventory();
 		Set<ItemStack> stacks = Sets.newHashSet();
 		for (int i = 0; i < inventory.getSizeInventory(); i++) {
 			ItemStack stack = inventory.getStackInSlot(i);
@@ -119,13 +119,13 @@ public class EatFoodFromInventory extends ImmediateTask implements INeedsTask<Ne
 	}
 
 	@Override
-	protected void resetTask(ServerWorld worldIn, CitizenEntity entityIn, long gameTimeIn) {
+	protected void resetTask(ServerWorld worldIn, LivingEntity entityIn, long gameTimeIn) {
 		super.resetTask(worldIn, entityIn, gameTimeIn);
 		this.foodOp = Optional.empty();
 	}
 
 	@Override
-	public boolean isUrgent(CitizenEntity en) {
+	public boolean isUrgent(LivingEntity en) {
 		return en.getFoodLevel() < en.getMaxFoodLevel() / 6;
 	}
 

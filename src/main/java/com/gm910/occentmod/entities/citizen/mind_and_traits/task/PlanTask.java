@@ -15,6 +15,7 @@ import com.google.common.collect.Sets;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.world.server.ServerWorld;
@@ -54,7 +55,7 @@ public class PlanTask extends CitizenTask {
 	}
 
 	@Override
-	public boolean shouldExecute(ServerWorld worldIn, CitizenEntity owner) {
+	public boolean shouldExecute(ServerWorld worldIn, LivingEntity owner) {
 		return super.shouldExecute(worldIn, owner);
 	}
 
@@ -67,7 +68,7 @@ public class PlanTask extends CitizenTask {
 	}
 
 	@Override
-	public boolean isVisible(CitizenEntity en, CitizenEntity seer) {
+	public boolean isVisible(LivingEntity en, LivingEntity seer) {
 		return false;
 	}
 

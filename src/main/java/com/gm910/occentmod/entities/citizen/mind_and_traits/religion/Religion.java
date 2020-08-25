@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.empires.gods.Deity;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.EntityDependentInformationHolder;
@@ -19,9 +20,10 @@ import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.server.ServerWorld;
 
-public class Religion extends EntityDependentInformationHolder<CitizenEntity> {
+public class Religion extends EntityDependentInformationHolder<LivingEntity> {
 
 	private Deity personalGod;
 	private Set<CitizenTask> worshipTasks = new HashSet<>();
@@ -43,14 +45,14 @@ public class Religion extends EntityDependentInformationHolder<CitizenEntity> {
 	}
 
 	public void initialize() {
-		Personality persona = getEntityIn().getPersonality();
+		Personality persona = CitizenInfo.get(getEntityIn()).orElse(null).getPersonality();
 		TraitLevel level = PersonalityTrait.PIETY.getWeightedRandomReaction(persona.getTrait(PersonalityTrait.PIETY));
 		boolean atheist = false;
 		if (level == TraitLevel.EXCEPTIONAL_LOW) {
 			atheist = getEntityIn().getRNG().nextInt(5) < 2;
 		}
 		if (!atheist) {
-			Genealogy gen = getEntityIn().getIdentity().getGenealogy();
+			Genealogy gen = CitizenInfo.get(getEntityIn()).orElse(null).getIdentity().getGenealogy();
 
 			if (gen.getFirstParent() != null) {
 				Entity e = gen.getFirstParent().getEntity((ServerWorld) getEntityIn().world);

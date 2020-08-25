@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import com.gm910.occentmod.api.language.NamePhonemicHelper.PhonemeWord;
 import com.gm910.occentmod.capabilities.GMCapabilityUser;
+import com.gm910.occentmod.capabilities.citizeninfo.DeityInformation;
 import com.gm910.occentmod.empires.Empire;
 import com.gm910.occentmod.init.EntityInit;
 import com.google.common.collect.Lists;
@@ -22,6 +23,7 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.IDynamicSerializable;
 import net.minecraft.util.ResourceLocation;
@@ -35,12 +37,15 @@ public class Deity extends LivingEntity implements IDynamicSerializable {
 	private Empire empire;
 	private Set<DeityPower> powers = new HashSet<>();// TODO
 	private PhonemeWord name;
+	private DeityInformation info;
+	public final DivineInventory inventory = new DivineInventory(50);
 
 	public Deity(Empire e, PhonemeWord name, Set<DeityElement> elements) {
 		this(EntityInit.DEITY_DUMMY.get(), e.getCenterWorld());
 		empire = e;
 		this.elements.addAll(elements);
 		this.name = name;
+		this.info = new DeityInformation();
 	}
 
 	public Deity(EntityType<Deity> t, World world) {
@@ -59,6 +64,8 @@ public class Deity extends LivingEntity implements IDynamicSerializable {
 				e1.printStackTrace();
 			}
 		}
+		this.inventory.deserialize(d.get("inventory").get().get());
+		this.info.deserialize(d.get("info").get().get());
 	}
 
 	public void addPower(DeityPower power) {
@@ -96,6 +103,8 @@ public class Deity extends LivingEntity implements IDynamicSerializable {
 		if (capa != null) {
 			map.put(ops.createString("caps"), ops.createString(capa.getString()));
 		}
+		map.put(ops.createString("inventory"), this.inventory.serialize(ops));
+		map.put(ops.createString("info"), this.info.serialize(ops));
 		return ops.createMap(map);
 	}
 
@@ -115,10 +124,10 @@ public class Deity extends LivingEntity implements IDynamicSerializable {
 	}
 
 	@Override
-	public <T> LazyOptional<T> getCapability(Capability<T> cap) {
+	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction nu) {
 		if (cap.equals(GMCapabilityUser.CITIZEN_INFO)) {
 			// TODO
-			return LazyOptional.empty();
+			return LazyOptional.of(() -> info).cast();
 		}
 		return super.getCapability(cap);
 	}

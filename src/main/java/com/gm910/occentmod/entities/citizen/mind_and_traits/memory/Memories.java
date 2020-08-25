@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.gm910.occentmod.api.util.ModReflect;
+import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.EntityDependentInformationHolder;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.emotions.Mood;
@@ -19,7 +20,9 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
-public class Memories extends EntityDependentInformationHolder<CitizenEntity> {
+import net.minecraft.entity.LivingEntity;
+
+public class Memories extends EntityDependentInformationHolder<LivingEntity> {
 
 	/**
 	 * 
@@ -60,13 +63,15 @@ public class Memories extends EntityDependentInformationHolder<CitizenEntity> {
 
 	public void generateIdeas() {
 
+		CitizenInfo<LivingEntity> info = CitizenInfo.get(getEntityIn()).orElse(null);
+
 		float chancia = this.getEntityIn().getRNG().nextFloat();
-		float inqui = getEntityIn().getPersonality().getTrait(PersonalityTrait.INQUISITIVITY);
-		if (chancia < inqui && !this.getEntityIn().getEmotions().getMoods().contains(Mood.CREATIVE)) {
-			this.getEntityIn().getEmotions().addMood(Mood.CREATIVE, (int) (inqui * 40), this.getEntityIn());
+		float inqui = info.getPersonality().getTrait(PersonalityTrait.INQUISITIVITY);
+		if (chancia < inqui && !info.getEmotions().getMoods().contains(Mood.CREATIVE)) {
+			info.getEmotions().addMood(Mood.CREATIVE, (int) (inqui * 40), this.getEntityIn());
 		}
 
-		if (this.getEntityIn().getEmotions().getMoods().contains(Mood.CREATIVE) && chancia < inqui) {
+		if (info.getEmotions().getMoods().contains(Mood.CREATIVE) && chancia < inqui) {
 			this.addKnowledge(new IdeaMemory(this.getEntityIn()));
 		}
 
@@ -132,11 +137,12 @@ public class Memories extends EntityDependentInformationHolder<CitizenEntity> {
 
 	public void receiveKnowledge(Memory mem) {
 
-		float trustProba = this.getEntityIn().getRelationships().getTrustValue(mem.getOwner().getIdentity())
-				/ Relationships.MAX_TRUST_VALUE;
+		float trustProba = CitizenInfo.get(this.getEntityIn()).orElse(null).getRelationships().getTrustValue(
+				CitizenInfo.get(mem.getOwner()).orElse(null).getIdentity()) / Relationships.MAX_TRUST_VALUE;
 		Certainty trust = Certainty.values()[(int) (trustProba * Certainty.values().length)];
 		if (mem.getOwner() != this.getEntityIn()) {
-			mem = new ExternallyGivenMemory(this.getEntityIn(), mem.getOwner().getIdentity(), mem, trust);
+			mem = new ExternallyGivenMemory(this.getEntityIn(),
+					CitizenInfo.get(mem.getOwner()).orElse(null).getIdentity(), mem, trust);
 		}
 
 		Memory copy = Memory.copy(this.getEntityIn(), mem);

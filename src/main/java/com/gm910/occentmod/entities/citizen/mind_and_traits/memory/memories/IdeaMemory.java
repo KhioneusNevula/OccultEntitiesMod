@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
+import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.TaskType;
@@ -13,18 +13,21 @@ import com.google.common.collect.Sets;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
+import net.minecraft.entity.LivingEntity;
+
 public class IdeaMemory extends Memory {
 
 	private CitizenTask doTask;
 
-	public IdeaMemory(CitizenEntity owner) {
+	public IdeaMemory(LivingEntity owner) {
 		super(owner, MemoryType.IDEA);
 		initialize();
 	}
 
 	public void initialize() {
 		Set<CitizenTask> tasques = Sets.newHashSet(TaskType.getValues()).stream()
-				.filter(TaskType::canBeRandomlyThoughtOf).map((m) -> m.createNew(this.getOwner().getAutonomy()))
+				.filter(TaskType::canBeRandomlyThoughtOf)
+				.map((m) -> m.createNew(CitizenInfo.get(this.getOwner()).orElse(null).getAutonomy()))
 				.filter((e) -> e.canExecute(this.getOwner())).collect(Collectors.toSet());
 		Optional<CitizenTask> tasca = tasques.stream().findAny();
 		if (tasca.isPresent()) {
@@ -32,7 +35,7 @@ public class IdeaMemory extends Memory {
 		}
 	}
 
-	public IdeaMemory(CitizenEntity owner, Dynamic<?> dyn) {
+	public IdeaMemory(LivingEntity owner, Dynamic<?> dyn) {
 		super(owner, MemoryType.IDEA);
 		if (dyn.get("task").get().isPresent()) {
 			this.doTask = TaskType.deserialize(dyn.get("task").get().get());
@@ -67,9 +70,9 @@ public class IdeaMemory extends Memory {
 	}
 
 	@Override
-	public void affectCitizen(CitizenEntity en) {
+	public void affectCitizen(LivingEntity en) {
 		if (doTask != null) {
-			en.getAutonomy().considerTask(2, doTask, false);
+			CitizenInfo.get(en).orElse(null).getAutonomy().considerTask(2, doTask, false);
 		}
 	}
 

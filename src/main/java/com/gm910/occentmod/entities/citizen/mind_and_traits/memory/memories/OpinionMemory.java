@@ -1,16 +1,18 @@
-package com.gm910.occentmod.entities.citizen.mind_and_traits.memory;
+package com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.Memory;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceType;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.server.ServerWorld;
 
 public class OpinionMemory extends Memory {
@@ -19,11 +21,11 @@ public class OpinionMemory extends Memory {
 	private OccurrenceEffect connotation;
 	private OccurrenceEffect.Connotation opinion;
 
-	public OpinionMemory(CitizenEntity owner, Occurrence cause) {
+	public OpinionMemory(LivingEntity owner, Occurrence cause) {
 		super(owner, MemoryType.DEED);
 		this.opinionTarget = cause;
 		this.connotation = cause.getEffect();
-		this.opinion = cause.getEffect().getEffect(owner.getIdentity());
+		this.opinion = cause.getEffect().getEffect(CitizenInfo.get(owner).orElse(null).getIdentity());
 	}
 
 	public OpinionMemory(CitizenEntity owner, Dynamic<?> dyn) {
@@ -58,7 +60,7 @@ public class OpinionMemory extends Memory {
 	}
 
 	@Override
-	public void affectCitizen(CitizenEntity en) {
+	public void affectCitizen(LivingEntity en) {
 
 	}
 

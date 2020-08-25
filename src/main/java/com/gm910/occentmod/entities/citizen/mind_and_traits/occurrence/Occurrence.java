@@ -8,8 +8,7 @@ import java.util.Set;
 import com.gm910.occentmod.api.language.Translate;
 import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.IWorldTickable;
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenInformation;
+import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
@@ -109,7 +108,7 @@ public abstract class Occurrence implements IDynamicSerializable, IWorldTickable
 	 * 
 	 * @param e
 	 */
-	public void affectCitizen(CitizenInformation<CitizenEntity> e) {
+	public void affectCitizen(CitizenInfo<? extends LivingEntity> e) {
 
 	}
 
@@ -121,12 +120,12 @@ public abstract class Occurrence implements IDynamicSerializable, IWorldTickable
 	 * @param gametime
 	 * @param daytime
 	 */
-	public Set<CitizenEntity> propagate(WorldTickEvent event, long gametime, long daytime) {
+	public Set<LivingEntity> propagate(WorldTickEvent event, long gametime, long daytime) {
 		if (this.position != null) {
-			Set<CitizenEntity> es = new HashSet<>();
-			List<CitizenEntity> inBounds = event.world.getEntitiesWithinAABB(CitizenEntity.class,
-					new AxisAlignedBB(new BlockPos(position)).grow(40));
-			for (CitizenEntity e : inBounds) {
+			Set<LivingEntity> es = new HashSet<>();
+			List<LivingEntity> inBounds = event.world.getEntitiesWithinAABB(LivingEntity.class,
+					new AxisAlignedBB(new BlockPos(position)).grow(40), (e) -> CitizenInfo.get(e).isPresent());
+			for (LivingEntity e : inBounds) {
 				if (this.canOccurrenceBeSeen(e)) {
 					es.add(e);
 				}

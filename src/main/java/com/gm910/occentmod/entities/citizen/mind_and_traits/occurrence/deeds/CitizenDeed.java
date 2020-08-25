@@ -1,8 +1,7 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds;
 
 import com.gm910.occentmod.api.util.ServerPos;
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenInformation;
+import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
@@ -11,6 +10,7 @@ import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 
 public abstract class CitizenDeed extends Occurrence {
@@ -53,16 +53,16 @@ public abstract class CitizenDeed extends Occurrence {
 	}
 
 	@Override
-	public void affectCitizen(CitizenInformation<CitizenEntity> e) {
+	public void affectCitizen(CitizenInfo<? extends LivingEntity> e) {
 	}
 
 	/**
-	 * Relationship change between this citizen and deed performer
+	 * Relationship change between the given citizen and deed performer
 	 * 
 	 * @param e
 	 * @return
 	 */
-	public float getRelationshipChange(CitizenEntity e) {
+	public float getRelationshipChange(LivingEntity e) {
 		return 0;
 	}
 

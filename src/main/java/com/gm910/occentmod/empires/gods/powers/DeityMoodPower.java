@@ -27,7 +27,7 @@ public abstract class DeityMoodPower extends DeityPower {
 	public void usePower(Deity owner, Event e) {
 
 		Empire em = owner.getEmpire();
-		deployPower(e, owner, em, CitizenInfo.get(owner).getEmotions().getTimeLeft(mood));
+		deployPower(e, owner, em, CitizenInfo.get(owner).orElse(null).getEmotions().getTimeLeft(mood));
 	}
 
 	public abstract void deployPower(Event e, Deity owner, Empire em, int moodTimeLeft);

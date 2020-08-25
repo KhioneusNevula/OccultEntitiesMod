@@ -36,7 +36,7 @@ public class GMCapabilityUser<T, K> implements ICapabilitySerializable<CompoundN
 	public static Capability<MagicData> MAGIC_DATA = null;
 
 	@CapabilityInject(CitizenInfo.class)
-	public static Capability<CitizenInfo> CITIZEN_INFO = null;
+	public static Capability<CitizenInfo<? extends LivingEntity>> CITIZEN_INFO = null;
 
 	@CapabilityInject(SpecialLocationManager.class)
 	public static Capability<SpecialLocationManager> SPECIAL_LOCS = null;
@@ -125,8 +125,9 @@ public class GMCapabilityUser<T, K> implements ICapabilitySerializable<CompoundN
 		if (event.getObject() instanceof PlayerEntity) {
 			event.addCapability(MindInventory.LOC, new GMCapabilityUser<MindInventory, PlayerEntity>(
 					GMCapabilityUser.MIND_INVENTORY, (PlayerEntity) event.getObject()));
-			event.addCapability(CitizenInfo.LOC, new GMCapabilityUser<CitizenInfo, PlayerEntity>(
-					GMCapabilityUser.CITIZEN_INFO, (PlayerEntity) event.getObject()));
+			event.addCapability(CitizenInfo.LOC,
+					new GMCapabilityUser<CitizenInfo<? extends LivingEntity>, PlayerEntity>(
+							GMCapabilityUser.CITIZEN_INFO, (PlayerEntity) event.getObject()));
 		}
 		if (event.getObject() instanceof LivingEntity) {
 			event.addCapability(MagicData.LOC, new GMCapabilityUser<MagicData, LivingEntity>(

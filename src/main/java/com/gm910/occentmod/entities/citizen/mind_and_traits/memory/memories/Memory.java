@@ -1,12 +1,12 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories;
 
 import com.gm910.occentmod.api.util.GMNBT;
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryType;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.util.IDynamicSerializable;
 import net.minecraft.util.ResourceLocation;
@@ -16,13 +16,13 @@ public abstract class Memory implements IDynamicSerializable, Cloneable {
 
 	protected MemoryType<?> type;
 
-	private CitizenEntity owner;
+	private LivingEntity owner;
 
 	protected long memoryCreationTime;
 
 	private int accessedTimes;
 
-	public Memory(CitizenEntity owner, MemoryType<?> type) {
+	public Memory(LivingEntity owner, MemoryType<?> type) {
 		this.setOwner(owner);
 		this.type = type;
 		this.memoryCreationTime = this.getOwner().world.getGameTime();
@@ -45,7 +45,7 @@ public abstract class Memory implements IDynamicSerializable, Cloneable {
 		this.accessedTimes = accessedTimes;
 	}
 
-	public static Memory deserialize(CitizenEntity owner, Dynamic<?> dynamic) {
+	public static Memory deserialize(LivingEntity owner, Dynamic<?> dynamic) {
 		ResourceLocation des = new ResourceLocation(dynamic.get("resource").asString(""));
 		Memory kno = MemoryType.get(des).deserializer.apply(owner, dynamic.get("data").get().get());
 		kno.memoryCreationTime = dynamic.get("creationtime").asLong(0);
@@ -73,7 +73,7 @@ public abstract class Memory implements IDynamicSerializable, Cloneable {
 
 	public abstract <T> T writeData(DynamicOps<T> ops);
 
-	public abstract void affectCitizen(CitizenEntity en);
+	public abstract void affectCitizen(LivingEntity en);
 
 	public ITextComponent getDisplayText() {
 		return type.display(this);
@@ -89,7 +89,7 @@ public abstract class Memory implements IDynamicSerializable, Cloneable {
 				&& this.writeData(NBTDynamicOps.INSTANCE).equals(((Memory) o).writeData(NBTDynamicOps.INSTANCE));
 	}
 
-	public static <T extends Memory> T copy(CitizenEntity owner, T of) {
+	public static <T extends Memory> T copy(LivingEntity owner, T of) {
 		T e = (T) of.getType().deserializer.apply(owner, GMNBT.makeDynamic(of.serialize(NBTDynamicOps.INSTANCE)));
 		e.setOwner(owner);
 		e.memoryCreationTime = owner.ticksExisted;
@@ -101,7 +101,7 @@ public abstract class Memory implements IDynamicSerializable, Cloneable {
 		return (Memory) super.clone();
 	}
 
-	public CitizenEntity getOwner() {
+	public LivingEntity getOwner() {
 		return owner;
 	}
 
@@ -123,7 +123,7 @@ public abstract class Memory implements IDynamicSerializable, Cloneable {
 		return 3;
 	}
 
-	public void setOwner(CitizenEntity owner) {
+	public void setOwner(LivingEntity owner) {
 		this.owner = owner;
 	}
 

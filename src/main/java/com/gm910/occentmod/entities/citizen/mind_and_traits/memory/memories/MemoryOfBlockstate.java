@@ -1,7 +1,6 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories;
 
 import com.gm910.occentmod.api.util.ServerPos;
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryType;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -9,6 +8,7 @@ import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTUtil;
@@ -19,14 +19,14 @@ public class MemoryOfBlockstate extends Memory {
 
 	private BlockState storedState;
 
-	public MemoryOfBlockstate(CitizenEntity owner, BlockState type, ServerPos pos) {
+	public MemoryOfBlockstate(LivingEntity owner, BlockState type, ServerPos pos) {
 		super(owner, MemoryType.BLOCKSTATE);
 
 		this.storedState = type;
 		this.storedPos = pos;
 	}
 
-	public MemoryOfBlockstate(CitizenEntity owner, Dynamic<?> dyn) throws CommandSyntaxException {
+	public MemoryOfBlockstate(LivingEntity owner, Dynamic<?> dyn) throws CommandSyntaxException {
 		this(owner, NBTUtil.readBlockState(JsonToNBT.getTagFromJson(dyn.get("state").asString(""))),
 				ServerPos.deserialize(dyn.get("pos").get().get()));
 	}
@@ -48,7 +48,7 @@ public class MemoryOfBlockstate extends Memory {
 	}
 
 	@Override
-	public void affectCitizen(CitizenEntity en) {
+	public void affectCitizen(LivingEntity en) {
 
 	}
 

@@ -1,14 +1,16 @@
 package com.gm910.occentmod.capabilities.citizeninfo;
 
-import net.minecraft.entity.player.PlayerEntity;
+import com.gm910.occentmod.empires.gods.Deity;
+
 import net.minecraft.inventory.IInventory;
 import net.minecraft.nbt.CompoundNBT;
 
-public class PlayerCitizenInformation extends CitizenInfo<PlayerEntity> {
+public class DeityInformation extends CitizenInfo<Deity> {
 
 	@Override
 	public CompoundNBT serializeNBT() {
-		return new CompoundNBT();
+		CompoundNBT nbt = new CompoundNBT();
+		return nbt;
 	}
 
 	@Override

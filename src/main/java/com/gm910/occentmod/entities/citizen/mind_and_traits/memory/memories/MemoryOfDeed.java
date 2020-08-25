@@ -1,21 +1,22 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories;
 
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
+import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
 import com.mojang.datafixers.Dynamic;
 
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.server.ServerWorld;
 
 public class MemoryOfDeed extends MemoryOfOccurrence {
 
-	public MemoryOfDeed(CitizenEntity owner, CitizenDeed deed) {
+	public MemoryOfDeed(LivingEntity owner, CitizenDeed deed) {
 		super(owner, deed);
 		this.type = MemoryType.DEED;
 	}
 
-	public MemoryOfDeed(CitizenEntity owner, Dynamic<?> dyn) {
+	public MemoryOfDeed(LivingEntity owner, Dynamic<?> dyn) {
 		this(owner,
 				(CitizenDeed) OccurrenceType.deserialize(((ServerWorld) owner.world), dyn.get("event").get().get()));
 	}
@@ -25,9 +26,10 @@ public class MemoryOfDeed extends MemoryOfOccurrence {
 	}
 
 	@Override
-	public void affectCitizen(CitizenEntity en) {
-		en.getRelationships().changeLikeValue(en.getIdentity(), getDeed().getRelationshipChange(en));
-		getDeed().affectCitizen(en.getInfo());
+	public void affectCitizen(LivingEntity en1) {
+		CitizenInfo<LivingEntity> en = CitizenInfo.get(en1).orElse(null);
+		en.getRelationships().changeLikeValue(en.getIdentity(), getDeed().getRelationshipChange(en.$getOwner()));
+		getDeed().affectCitizen(en);
 	}
 
 }
