@@ -10,18 +10,22 @@ It includes:
 * Perhaps a way to create your own transformed beings with magic? That would be REALLY cool. And maybe your own genes, too. Make an entire race of supernatural beings by cursing someone?
 
 Ores:
-* Salt: Found in the same configuration as coal
+* Salt: Found in the same configuration as coal. The harvested salt dust be put on surfaces and links like redstone; when placed on a surface it produces a wall of force preventing spirits from moving through it (and dealing damage to them) that either stops when the next block has a different material than the one it propagated through, or when it's gone over 20 blocks. A salt line can be placed on the side of a magnet block and only a magnet block. Placing it on a magnet block changes the direction it travels in to the opposite of the side it was placed on. (Magnet block crafted using nine iron blocks).
+* Salt block: Does the same thing as regular salt (and when next to a magnet block it works the same way) except that it can propagate its effect through a different block than air, such as water.
+* Chalk: This produces chalk dust, which can be crafted into chalk
 
 Items:
 * Scraper: A device craftable using iron in the shape of a stick with salt on the end; this device can be right-clicked on a mob to store its species
 * Lycopodium Powder: Dropped by lycopodium, if right-clicked on an entity will store its body's UUID. A form-changing magic can fool lycopodium.
 * Block-bag: Crafted using leather, a silk-touch enchantment book, and a pickaxe; will be capable of storing any block which can be mined using the pickaxe used to craft it, storing the block and tile entity's exact state. Using the bag while sneaking will place the block and empty the bag; while not-shifting the bag will do nothing.
+* Chalk: Chalk can be used to draw patterns and does not lose any durability, making it a refreshing break from having to constantly gather resources (seeing as the rest of ritualism is difficult enough). It comes in a regular, gold, lapis, glowstone (this makes glowing patterns), dirt, and redstone variant. //It draws in a 16/16 grid.
+* /*Pattern Paper: A pattern paper can be used on a chalk pattern to copy it. The pattern paper can be used to place a chalk pattern as long as the right type of chalk is present in the hotbar.
 
 Plants:
 * Lycopodium: Drops lycopodium powder when harvested.
 
 Mobs:
-* Living Block: We'll see if there's a use for these... they basically just look like blocks and have health proportional to their blocktype.
+* Living Block: We'll see if there's a use for these... they basically just look like blocks but are mobs and have health proportional to their blocktype.
 * Citizen: Citizens are the most complex being in all of the mod. They either work in villages (a special kind) or are part of empires. Every citizen has a mind with certain traits and memories which determine the chance of them performing certain actions. Citizens have: <ul>
   <li>GENES: Inheritable traits which can be Mendelian or random that determine their appearance and abilities
   </li><li>PERSONALITY TRAITS (data which determines which actions they can perform and when they perform them)
@@ -56,7 +60,10 @@ Concepts:
  </ul>
 * Empires: These are centered in "palaces" (woodland mansion-type buildings with a throne in their center) and have a leader. They also have a network of information via mailbox blocks. An empire conquers villages by forcing them to convert to their religion. When enough citizens of a village convert, the empire has taken over the village (based on the positions of the villagers' beds and meeting point). At that point, a mailbox will be built for the empire.
 * Ritualism: This is a magic practice which requires a sufficient ritualism skill. It works by having components to create magical effects in an area.<ul>
-  <li>
+  <li>Center: A ritual is centered at a golden glyph. This marks the exact center of the ritual's functionality and activates the ritual when it receives redstone power or a right click.
+    <li>Connection: For a glyph to be considered part of a specific ritual, it must be connected to it via a chain of glyphs which are adjacent to each other (not diagonal). If there are no glyphs that would work in a specific place, dirt chalk can be used to make an arbitrary connection.
+      <li>Blocks: For a block that is part of a ritual, it must have one redstone glyph at each of the four cardinal directions around it, with at least one redstone glyph being connected to the general ritual glyph chain.
+        <li>Sensors: A lapis glyph is a 
   </ul>
 * Alchemy: This is a magic practice involving transmutation, conjuration, and vanishment which requires a sufficient alchemy skill<ul>
   <li>
