@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.gm910.occentmod.api.util.Translate;
+import com.gm910.occentmod.api.language.Translate;
 import com.gm910.occentmod.util.GMFiles;
 
 import net.minecraft.util.ResourceLocation;
@@ -15,22 +15,30 @@ public class Mood {
 
 	private static final Map<ResourceLocation, Mood> TYPES = new HashMap<>();
 
-	public static final Mood APOCALYPTIC = new Mood(GMFiles.rl("deity_apocalyptic"), true);
-	public static final Mood PROSPEROUS = new Mood(GMFiles.rl("deity_prosperous"), true);
-	public static final Mood PROTECTIVE = new Mood(GMFiles.rl("deity_protective"), true);
+	public static final Mood APOCALYPTIC = new Mood(GMFiles.rl("deity_apocalyptic"), true, false);
+	public static final Mood PROSPEROUS = new Mood(GMFiles.rl("deity_prosperous"), true, false);
+	public static final Mood PROTECTIVE = new Mood(GMFiles.rl("deity_protective"), true, false);
+	public static final Mood CREATIVE = new Mood(GMFiles.rl("creative"), true, true);
 
 	private ResourceLocation rl;
 
 	private boolean forDeities;
 
-	public Mood(ResourceLocation rl, boolean forDeities) {
+	private boolean forCitizens;
+
+	public Mood(ResourceLocation rl, boolean forDeities, boolean forCitizens) {
 		this.rl = rl;
 		TYPES.put(rl, this);
 		this.forDeities = forDeities;
+		this.forCitizens = forCitizens;
 	}
 
 	public boolean isForDeities() {
 		return forDeities;
+	}
+
+	public boolean isForCitizens() {
+		return forCitizens;
 	}
 
 	public ResourceLocation getRL() {

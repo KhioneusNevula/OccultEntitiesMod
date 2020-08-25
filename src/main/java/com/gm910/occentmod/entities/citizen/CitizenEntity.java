@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.api.util.GMNBT;
+import com.gm910.occentmod.capabilities.GMCapabilityUser;
 import com.gm910.occentmod.capabilities.formshifting.Formshift;
 import com.gm910.occentmod.empires.Empire;
 import com.gm910.occentmod.empires.EmpireData;
@@ -18,11 +19,11 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenMemoryAndSens
 import com.gm910.occentmod.entities.citizen.mind_and_traits.emotions.Emotions;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Genetics;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.CauseEffectTheory;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.CauseEffectTheory.Certainty;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryHolder;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryOfDeed;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryOfOccurrence;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.Memories;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.CauseEffectMemory;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.CauseEffectMemory.Certainty;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.MemoryOfDeed;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.MemoryOfOccurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceData;
@@ -68,6 +69,7 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.MathHelper;
@@ -76,6 +78,8 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
 
 public class CitizenEntity extends AgeableEntity implements INPC {
 
@@ -115,13 +119,24 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 
 	public CitizenEntity(EntityType<? extends AgeableEntity> type, World worldIn) {
 		super(type, worldIn);
+		regularInit(type, worldIn);
+
+	}
+
+	public void regularInit(EntityType<? extends AgeableEntity> type, World worldIn) {
 		this.info = new CitizenInformation<CitizenEntity>(this);
-		info.initialize();
+		info.initialize(true);
 		if (worldIn instanceof ServerWorld) {
 			this.empdata = EmpireData.get((ServerWorld) worldIn);
 			this.occurrences = OccurrenceData.get((ServerWorld) world);
 		}
+	}
 
+	public CitizenEntity(EntityType<? extends AgeableEntity> type, World world, boolean regularInit) {
+		this(type, world);
+		if (regularInit) {
+			regularInit(type, world);
+		}
 	}
 
 	public CitizenEntity(World world) {
@@ -167,6 +182,10 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		this.setPosition(pos.x, pos.y, pos.z);
 	}
 
+	public EmpireData getEmpireData() {
+		return empdata;
+	}
+
 	@Override
 	protected void registerAttributes() {
 		super.registerAttributes();
@@ -185,7 +204,7 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		this.info.setPersonality(personality);
 	}
 
-	public void setKnowledge(MemoryHolder gossipKnowledge) {
+	public void setKnowledge(Memories gossipKnowledge) {
 		this.info.setKnowledge(gossipKnowledge);
 	}
 
@@ -323,15 +342,17 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		Set<CitizenTask> tasques = event.getPotentialWitnessReactions();
 		this.reaction(event, tasques);
 		MemoryOfOccurrence meme = new MemoryOfOccurrence(this, event);
-		for (MemoryOfOccurrence occ : this.getKnowledge()
-				.<MemoryOfOccurrence>getByPredicate((e) -> e instanceof MemoryOfOccurrence)) {
+		Set<MemoryOfOccurrence> occs = this.getKnowledge()
+				.<MemoryOfOccurrence>getByPredicate((e) -> e instanceof MemoryOfOccurrence);
+		occs.forEach((o) -> o.access());
+		for (MemoryOfOccurrence occ : occs) {
 
 			if (occ.couldEventBeCauseOf(meme)) {
-				CauseEffectTheory theo = new CauseEffectTheory(this, occ.getEvent(), event, null);
-				Set<CauseEffectTheory> theors = this.getKnowledge().getByPredicate((e) -> e instanceof CauseEffectTheory
-						&& ((CauseEffectTheory) e).fitsObservation(theo.getCause(), theo.getEffect()));
+				CauseEffectMemory theo = new CauseEffectMemory(this, occ.getEvent(), event, null);
+				Set<CauseEffectMemory> theors = this.getKnowledge().getByPredicate((e) -> e instanceof CauseEffectMemory
+						&& ((CauseEffectMemory) e).fitsObservation(theo.getCause(), theo.getEffect()));
 				if (!theors.isEmpty()) {
-					for (CauseEffectTheory t : theors) {
+					for (CauseEffectMemory t : theors) {
 						if (t.getCertainty() != Certainty.TRUE) {
 							t.incrementObservation(1);
 							t.getEffect().getEffect().getEffects().putAll(event.getEffect().getEffects());
@@ -463,7 +484,7 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		return info.getPersonality();
 	}
 
-	public MemoryHolder getKnowledge() {
+	public Memories getKnowledge() {
 		return info.getKnowledge();
 	}
 
@@ -545,6 +566,14 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 
 	public boolean shouldHeal() {
 		return this.getHealth() > 0.0F && this.getHealth() < this.getMaxHealth();
+	}
+
+	@Override
+	public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction facing) {
+		if (capability.equals(GMCapabilityUser.CITIZEN_INFO)) {
+			return LazyOptional.of(() -> this.info).cast();
+		}
+		return super.getCapability(capability, facing);
 	}
 
 	public enum HappinessStatus {

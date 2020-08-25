@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.gm910.occentmod.empires.gods.Deity;
+import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.InformationHolder;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait;
@@ -16,6 +18,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.common.capabilities.CapabilityProvider;
 
 public class Emotions extends InformationHolder {
 
@@ -57,8 +60,10 @@ public class Emotions extends InformationHolder {
 		super();
 	}
 
-	public void addMood(Mood mood, int time) {
-		this.moods.put(mood, time);
+	public void addMood(Mood mood, int time, CapabilityProvider<?> entity) {
+		if (entity instanceof Deity && mood.isForDeities() || entity instanceof CitizenEntity && mood.isForCitizens()) {
+			this.moods.put(mood, time);
+		}
 	}
 
 	@Override
@@ -216,8 +221,8 @@ public class Emotions extends InformationHolder {
 		T s = ops.createFloat(socialLevel);
 		T f = ops.createFloat(funLevel);
 		T c = ops.createFloat(comfortLevel);
-		T m = ops.createMap(moods.entrySet().stream()
-				.map((e) -> Pair.of(ops.createString(e.getKey().getRL().toString()), ops.createInt(e.getValue())))
+		T m = ops.createMap(moods.object2IntEntrySet().stream()
+				.map((e) -> Pair.of(ops.createString(e.getKey().getRL().toString()), ops.createInt(e.getIntValue())))
 				.collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));
 		return ops.createMap(ImmutableMap.of(ops.createString("happiness"), h, ops.createString("social"), s,
 				ops.createString("fun"), f, ops.createString("comfort"), c, ops.createString("moods"), m));

@@ -1,4 +1,4 @@
-package com.gm910.occentmod.api.util;
+package com.gm910.occentmod.api.language;
 
 import net.minecraft.util.text.TranslationTextComponent;
 

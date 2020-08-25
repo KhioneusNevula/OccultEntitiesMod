@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.MurderDeed;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.NeedFulfilledDeed;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.events.DamageOccurrence;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.task.needs.NeedFulfilledDeed;
 import com.gm910.occentmod.util.GMFiles;
 import com.mojang.datafixers.Dynamic;
 
@@ -26,6 +26,9 @@ public class OccurrenceType<T extends Occurrence> {
 			GMFiles.rl("need_fulfilled"), (e) -> new NeedFulfilledDeed());
 
 	public static final OccurrenceType<DamageOccurrence> DAMAGE = new OccurrenceType<>(GMFiles.rl("damage"),
+			(e) -> new DamageOccurrence(e));
+
+	public static final OccurrenceType<DamageOccurrence> ATTACK = new OccurrenceType<>(GMFiles.rl("attack"),
 			(e) -> new DamageOccurrence(e));
 
 	private Function<ServerWorld, T> supplier;

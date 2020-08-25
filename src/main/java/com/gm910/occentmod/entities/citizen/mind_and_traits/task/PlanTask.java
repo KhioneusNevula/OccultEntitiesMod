@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.Dynamic;
@@ -103,6 +105,11 @@ public class PlanTask extends CitizenTask {
 		T a = ops.createBoolean(this.isActive);
 
 		return ops.createMap(ImmutableMap.of(ops.createString("tasks"), da, ops.createString("active"), a));
+	}
+
+	@Override
+	public CitizenDeed getDeed(CitizenIdentity doer) {
+		return null;
 	}
 
 }

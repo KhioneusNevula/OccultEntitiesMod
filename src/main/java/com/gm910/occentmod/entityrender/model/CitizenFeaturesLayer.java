@@ -56,7 +56,6 @@ public class CitizenFeaturesLayer<E extends BipedModel<CitizenEntity>>
 	}
 
 	public boolean shouldRender(CitizenEntity en) {
-
 		return should.test(en, en.getGenetics());
 	}
 

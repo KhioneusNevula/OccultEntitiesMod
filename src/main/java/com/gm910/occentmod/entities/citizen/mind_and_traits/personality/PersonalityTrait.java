@@ -105,6 +105,10 @@ public enum PersonalityTrait implements IStringSerializable {
 	 */
 	RESTLESSNESS("restlessness", 0, 1),
 	/**
+	 * higher = comes up with ideas more
+	 */
+	INQUISITIVITY("inquisitivity", 0, 1),
+	/**
 	 * higher values = needs more socialization and can more easily make friends<Br>
 	 * lower/zero values = doesn't often need socialization
 	 */
@@ -113,7 +117,12 @@ public enum PersonalityTrait implements IStringSerializable {
 	 * positive = more likely to perform safe actions<br>
 	 * negative = more likely to perform dangerous actions
 	 */
-	PARANOIA("paranoia");
+	PARANOIA("paranoia"),
+	/**
+	 * How likely the citizen is to copy its family's beliefs and opinions<br>
+	 * negative = more likely to reject them
+	 */
+	CONFORMITY("conformity");
 	;
 
 	public static enum TraitLevel {

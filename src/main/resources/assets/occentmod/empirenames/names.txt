@@ -2,7 +2,7 @@
 Roma/Rome,Roman,Roman,Romans
 Rema/Rem/Reme,Reman,Reman,Remans
 Odoma,Odoman,Odoman,Odomans
-Petruria,Petruscan,Petruscan,Petruscans
+Zetruria,Zetruscan,Zetruscan,Zetruscans
 Grace,Grake,Grake,Grakes
 Elkloria,Elklorian,Elklorian,Elklorians
 Papilon/Papilonia,Papilonian/Papiloni,Papilonian/Papiloni,Papilonians/Papilonis
@@ -33,3 +33,26 @@ Jivuna/Jivon/Jivona,Jivonish/Jivunese/Jivoni,Jivon/Jevunese/Jevunese person/Jivo
 Zul/Zulia,Zulian,Zulian/Zul,ZuliansZuls
 State,Statian/State,Statian/Stater,Statians/Staters
 Grandoi,Grandoian,Grandoian,Grandoians
+$,ian,ian,ians{consonant
+$ia,ian,ian,ians{consonant
+$a,an,an,ans{consonant
+$a,ic,ic/ic person,ic/ic people{consonant
+$e,ic,ic/ic person,ic/ic people{consonant
+$,ic,ic/ic person,ic/ic people{!i
+$o,an,an,ans{consonant
+$u,uan,uan,uans{consonant
+$u,unan,unan,unans{consonant
+$,an,an,ans{consonant
+$,ese,ese/ese person,ese/ese people{consonant
+$,itic,ite,ites{consonant
+$ia,iatic,iatic,iatics{consonant
+$ica,ican,ican,icans{!i
+$ain,ish,ish/ish person,ish/ish people{consonant
+$uria,uscan,uscan,uscans{phoneme
+$atti,ittite,ittite,ittites{consonants
+$e,an,an,ans{consonant
+$an,ani,anian/ani/ani person,anis/ani/anians/ani people{phoneme
+$o,in/inian/inese/oan,in/inian/inese/inese person/oan,ins/inians/inese/inese people/oans{consonant
+$o,olian/olese,olian/olese/olese person,olians/olese/olese people{consonant
+$ina,ine/inian,ine/inian/ine person,ine/inians/ine people{consonant
+$,,,s{consonant

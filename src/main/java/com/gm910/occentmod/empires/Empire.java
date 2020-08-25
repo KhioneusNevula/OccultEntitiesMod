@@ -11,6 +11,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.gm910.occentmod.api.language.NamePhonemicHelper.PhonemeWord;
 import com.gm910.occentmod.api.util.GMHelper;
 import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.NonNullMap;
@@ -184,7 +185,7 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 			return subtag;
 		}));
 		nbt.put("Pantheon", this.pantheon.serialize(NBTDynamicOps.INSTANCE));
-		nbt.putString("Name", name.toString());
+		nbt.putString("Name", name.writeData());
 		if (center != EMPTY_FLAG) {
 			nbt.putInt("CenterDim", this.center.getSecond().getId());
 			nbt.putLong("Center", this.center.getFirst().asLong());
@@ -203,7 +204,7 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 		nbt.put("RaceWeights", GMNBT.makeList(this.raceWeights.keySet(), (key) -> {
 			CompoundNBT nbt1 = new CompoundNBT();
 			nbt1.putInt("Key", key.getId());
-			nbt1.putDouble("Weight", raceWeights.get(key));
+			nbt1.putDouble("Weight", raceWeights.getDouble(key));
 			return nbt1;
 		}));
 		return nbt;
@@ -235,7 +236,7 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 		} else {
 			this.center = EMPTY_FLAG;
 		}
-		this.name = EmpireName.of(nbt.getString("Name"));
+		this.name = EmpireName.fromData(nbt.getString("Name"));
 		this.empireId = nbt.getUniqueId("ID");
 		this.centerStructureType = nbt.getString("SType");
 		this.favoredRace = Race.fromId(nbt.getInt("FavoredRace"));
@@ -291,12 +292,8 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 		return name;
 	}
 
-	public String getSingleName() {
-		return name.getName();
-	}
-
-	public void setSingleName(String name) {
-		this.name = this.name.withName(name);
+	public PhonemeWord getSingleName() {
+		return name.getRegularName();
 	}
 
 	public void setName(EmpireName name) {
@@ -304,7 +301,7 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 	}
 
 	public void setFullName(String name) {
-		this.name = EmpireName.of(name);
+		this.name = EmpireName.fromData(name);
 	}
 
 	public Empire setServer(MinecraftServer server) {

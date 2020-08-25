@@ -1,17 +1,17 @@
-package com.gm910.occentmod.entities.citizen.mind_and_traits.task.needs;
+package com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds;
 
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Need;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect.Connotation;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceType;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
+
+import net.minecraft.entity.LivingEntity;
 
 public class NeedFulfilledDeed extends CitizenDeed {
 
@@ -37,7 +37,7 @@ public class NeedFulfilledDeed extends CitizenDeed {
 	}
 
 	@Override
-	public Object[] getDataForDisplay(CitizenEntity en) {
+	public Object[] getDataForDisplay(LivingEntity en) {
 		return new Object[] { this.citizen, need };
 	}
 

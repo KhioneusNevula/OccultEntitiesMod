@@ -5,7 +5,7 @@ package com.gm910.occentmod.world.spirit;
 
 import java.awt.Color;
 
-import com.gm910.occentmod.api.util.Translate;
+import com.gm910.occentmod.api.language.Translate;
 
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;

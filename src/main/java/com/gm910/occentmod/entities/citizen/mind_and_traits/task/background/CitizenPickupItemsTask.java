@@ -37,4 +37,5 @@ public class CitizenPickupItemsTask extends Task<CitizenEntity> {
 		entityIn.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(vec3d, 0.5F, 0));
 
 	}
+
 }

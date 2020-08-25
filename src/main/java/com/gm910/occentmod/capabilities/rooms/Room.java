@@ -294,7 +294,7 @@ public class Room implements IDynamicSerializable {
 			Set<Long> poses = this.inside.keySet().stream().filter((l) -> !BlockPos.fromLong(l).equals(importantPos))
 					.collect(Collectors.toSet());
 			if (poses.stream().findAny().isPresent()) {
-				if (room.inside.containsKey(poses.stream().findAny())) {
+				if (room.inside.containsKey(poses.stream().findAny().get().longValue())) {
 					this.copy(room);
 					return;
 				}
@@ -322,12 +322,12 @@ public class Room implements IDynamicSerializable {
 
 	@Override
 	public <T> T serialize(DynamicOps<T> ops) {
-		T longlist = ops.createMap(inside.entrySet().stream()
-				.map((entry) -> Pair.of(ops.createLong(entry.getKey()), ops.createInt(entry.getValue())))
+		T longlist = ops.createMap(inside.long2IntEntrySet().stream()
+				.map((entry) -> Pair.of(ops.createLong(entry.getLongKey()), ops.createInt(entry.getIntValue())))
 				.collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));
 		T pos = importantPos.serialize(ops);
-		T partsobj = ops.createMap(roomParts.entrySet().stream().map((entry) -> {
-			return Pair.of(ops.createLong(entry.getKey()), entry.getValue().serialize(ops));
+		T partsobj = ops.createMap(roomParts.long2ObjectEntrySet().stream().map((entry) -> {
+			return Pair.of(ops.createLong(entry.getLongKey()), entry.getValue().serialize(ops));
 		}).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));
 		return ops.createMap(ImmutableMap.of(ops.createString("center"), pos, ops.createString("inside"), longlist,
 				ops.createString("parts"), partsobj));

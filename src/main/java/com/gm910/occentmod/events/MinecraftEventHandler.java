@@ -3,6 +3,11 @@ package com.gm910.occentmod.events;
 import java.util.Optional;
 
 import com.gm910.occentmod.capabilities.speciallocs.SpecialLocationManager;
+import com.gm910.occentmod.entities.citizen.CitizenEntity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceData;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenAttackDeed;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.events.DamageOccurrence;
 import com.gm910.occentmod.init.DataInit;
 import com.google.common.base.Predicates;
 
@@ -13,6 +18,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -46,6 +52,18 @@ public class MinecraftEventHandler {
 	@SubscribeEvent
 	public static void liv(LivingUpdateEvent event) {
 
+	}
+
+	public static void at(LivingHurtEvent event) {
+		if (event.getEntity().world.isRemote)
+			return;
+		OccurrenceData occ = OccurrenceData.get((ServerWorld) event.getEntity().world);
+		Occurrence occurrence = event.getSource().getTrueSource() instanceof CitizenEntity
+				? new CitizenAttackDeed(event.getEntityLiving(), event.getEntity().world.getGameTime(),
+						(CitizenEntity) event.getEntityLiving(), event.getSource(), event.getAmount())
+				: new DamageOccurrence(event.getEntityLiving(), event.getEntity().world.getGameTime(),
+						event.getSource(), event.getAmount());
+		occ.addOccurrence(occurrence);
 	}
 
 	@SubscribeEvent

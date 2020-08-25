@@ -1,7 +1,7 @@
 package com.gm910.occentmod.capabilities.mental_inventory;
 
 import com.gm910.occentmod.OccultEntities;
-import com.gm910.occentmod.capabilities.CapabilityProvider;
+import com.gm910.occentmod.capabilities.GMCapabilityUser;
 import com.gm910.occentmod.world.mindrealm.ModItemStackHandler;
 
 import net.minecraft.entity.player.PlayerEntity;
@@ -84,7 +84,7 @@ public class MindInventory implements INBTSerializable<CompoundNBT>, IInventoryC
 	}
 
 	public void updateInventory(PlayerEntity player) {
-		if (player.getCapability(CapabilityProvider.MIND_INVENTORY).orElse(null) != this) {
+		if (player.getCapability(GMCapabilityUser.MIND_INVENTORY).orElse(null) != this) {
 			return;
 		}
 		PlayerInventory inventory = player.inventory;
@@ -123,7 +123,7 @@ public class MindInventory implements INBTSerializable<CompoundNBT>, IInventoryC
 	 * Switches to other inventory and sets isInMind to the corresponding value;
 	 */
 	public void switchInventory(PlayerEntity player) {
-		if (player.getCapability(CapabilityProvider.MIND_INVENTORY).orElse(null) != this) {
+		if (player.getCapability(GMCapabilityUser.MIND_INVENTORY).orElse(null) != this) {
 			return;
 		}
 
@@ -136,7 +136,7 @@ public class MindInventory implements INBTSerializable<CompoundNBT>, IInventoryC
 	}
 
 	public static MindInventory get(PlayerEntity player) {
-		return player.getCapability(CapabilityProvider.MIND_INVENTORY).orElse(null);
+		return player.getCapability(GMCapabilityUser.MIND_INVENTORY).orElse(null);
 	}
 
 	@Override

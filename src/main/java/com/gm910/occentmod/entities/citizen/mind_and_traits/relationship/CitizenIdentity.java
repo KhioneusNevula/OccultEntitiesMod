@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.gm910.occentmod.api.language.Translate;
+import com.gm910.occentmod.api.language.NamePhonemicHelper.PhonemeWord;
 import com.gm910.occentmod.api.util.ServerPos;
-import com.gm910.occentmod.api.util.Translate;
 import com.gm910.occentmod.empires.Empire;
 import com.gm910.occentmod.empires.EmpireData;
-import com.gm910.occentmod.entities.citizen.NamePhonemicHelper.PhonemeWord;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.BodyForm;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race;
 import com.google.common.collect.ImmutableMap;
@@ -17,6 +17,8 @@ import com.mojang.datafixers.OptionalDynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.util.IDynamicSerializable;
 import net.minecraft.world.server.ServerWorld;
 
@@ -88,7 +90,7 @@ public class CitizenIdentity implements IDynamicSerializable {
 	}
 
 	public Entity getEntity(ServerWorld world2) {
-		return ServerPos.getEntityFromUUID(this.trueId, world2.getServer());
+		return (LivingEntity) ServerPos.getEntityFromUUID(this.trueId, world2.getServer());
 	}
 
 	public CitizenIdentity withName(PhonemeWord name) {
@@ -160,10 +162,13 @@ public class CitizenIdentity implements IDynamicSerializable {
 		return citizen;
 	}
 
-	@Override
 	public boolean equals(Object obj) {
-
 		return this.citizen.equals(((CitizenIdentity) obj).citizen);
+	}
+
+	public boolean trueEquals(Object obj) {
+
+		return this.serialize(NBTDynamicOps.INSTANCE).equals(((CitizenIdentity) obj).serialize(NBTDynamicOps.INSTANCE));
 	}
 
 	@Override

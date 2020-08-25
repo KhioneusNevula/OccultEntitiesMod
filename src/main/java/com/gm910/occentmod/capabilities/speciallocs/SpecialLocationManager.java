@@ -12,7 +12,7 @@ import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.IWorldTickable;
 import com.gm910.occentmod.api.util.ModReflect;
 import com.gm910.occentmod.api.util.NonNullMap;
-import com.gm910.occentmod.capabilities.CapabilityProvider;
+import com.gm910.occentmod.capabilities.GMCapabilityUser;
 import com.gm910.occentmod.capabilities.IModCapability;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.util.Pair;
@@ -284,7 +284,7 @@ public class SpecialLocationManager implements INBTSerializable<CompoundNBT>, IM
 	}
 
 	public static SpecialLocationManager getForWorld(ServerWorld world) {
-		return world.getCapability(CapabilityProvider.SPECIAL_LOCS).orElse(null);
+		return world.getCapability(GMCapabilityUser.SPECIAL_LOCS).orElse(null);
 	}
 
 }

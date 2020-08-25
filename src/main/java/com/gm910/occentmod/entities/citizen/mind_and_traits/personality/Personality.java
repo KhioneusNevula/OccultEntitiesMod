@@ -10,7 +10,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import com.gm910.occentmod.entities.citizen.mind_and_traits.InformationHolder;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.CitizenMemoryType;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait.TraitLevel;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
@@ -25,12 +25,12 @@ public class Personality extends InformationHolder {
 
 	private Object2FloatMap<PersonalityTrait> traits = new Object2FloatOpenHashMap<>();
 
-	private List<CitizenMemoryType<?>> gossipPriority = new ArrayList<>();
+	private List<MemoryType<?>> gossipPriority = new ArrayList<>();
 
 	@Override
 	public <T> T serialize(DynamicOps<T> ops) {
-		T trait1 = ops.createMap(traits.entrySet().stream().map((trait) -> {
-			return Pair.of(ops.createString(trait.getKey().getName()), ops.createFloat(trait.getValue()));
+		T trait1 = ops.createMap(traits.object2FloatEntrySet().stream().map((trait) -> {
+			return Pair.of(ops.createString(trait.getKey().getName()), ops.createFloat(trait.getFloatValue()));
 		}).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));
 		T gos = ops.createList(gossipPriority.stream().map((e) -> ops.createString(e.regName.toString())));
 		return ops.createMap(
@@ -41,8 +41,8 @@ public class Personality extends InformationHolder {
 		Map<PersonalityTrait, Float> map = dyn.get("traits").asMap((d) -> PersonalityTrait.fromName(d.asString("")),
 				(d) -> d.asFloat(0));
 		traits.putAll(map);
-		List<CitizenMemoryType<?>> gos = dyn.get("gossipPriority")
-				.asList((ee) -> CitizenMemoryType.get(new ResourceLocation(ee.asString(""))));
+		List<MemoryType<?>> gos = dyn.get("gossipPriority")
+				.asList((ee) -> MemoryType.get(new ResourceLocation(ee.asString(""))));
 		this.gossipPriority.addAll(gos);
 	}
 
@@ -50,7 +50,7 @@ public class Personality extends InformationHolder {
 		for (PersonalityTrait trait : PersonalityTrait.values()) {
 			traits.put(trait, 0.0f);
 		}
-		Collection<CitizenMemoryType<?>> ls = CitizenMemoryType.getMemoryTypes();
+		Collection<MemoryType<?>> ls = MemoryType.getMemoryTypes();
 		this.gossipPriority = new ArrayList<>(ls);
 		Collections.shuffle(gossipPriority);
 	}

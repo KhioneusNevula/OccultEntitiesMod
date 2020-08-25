@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.gm910.occentmod.api.language.Translate;
 import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.IWorldTickable;
-import com.gm910.occentmod.api.util.Translate;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenInformation;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
@@ -98,7 +98,7 @@ public abstract class Occurrence implements IDynamicSerializable, IWorldTickable
 		return ops.createMap(mapa);
 	}
 
-	public abstract Object[] getDataForDisplay(CitizenEntity en);
+	public abstract Object[] getDataForDisplay(LivingEntity en);
 
 	public Set<CitizenTask> getPotentialWitnessReactions() {
 		return new HashSet<>();
@@ -166,7 +166,7 @@ public abstract class Occurrence implements IDynamicSerializable, IWorldTickable
 		return this.getClass().getSimpleName() + " of type " + this.getType();
 	}
 
-	public ITextComponent getDisplay(CitizenEntity en) {
+	public ITextComponent getDisplay(LivingEntity en) {
 		return Translate.make("event." + this.type.getName().getNamespace() + "." + this.type.getName().getPath(),
 				this.getDataForDisplay(en));
 	}

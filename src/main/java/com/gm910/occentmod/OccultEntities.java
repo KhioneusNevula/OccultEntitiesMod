@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 import com.gm910.occentmod.api.networking.messages.ModChannels;
 import com.gm910.occentmod.api.networking.messages.Networking.TaskMessage;
 import com.gm910.occentmod.blocks.worldcontroller.SmallerUnitTESR;
-import com.gm910.occentmod.capabilities.CapabilityProvider;
+import com.gm910.occentmod.capabilities.GMCapabilityUser;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race;
 import com.gm910.occentmod.init.BiomeInit;
 import com.gm910.occentmod.init.BlockInit;
@@ -106,7 +106,7 @@ public class OccultEntities {
 	@SuppressWarnings("deprecation")
 	private void setup(final FMLCommonSetupEvent event) {
 		System.out.println("HELLO FROM PREINIT");
-		CapabilityProvider.preInit();
+		GMCapabilityUser.preInit();
 		DeferredWorkQueue.runLater(StructureInit::registerStructures);
 
 		DeferredWorkQueue.runLater(() -> EntityInit.registerSittableEntities());

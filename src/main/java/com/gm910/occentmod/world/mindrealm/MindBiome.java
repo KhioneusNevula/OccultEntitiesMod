@@ -3,7 +3,7 @@
  */
 package com.gm910.occentmod.world.mindrealm;
 
-import com.gm910.occentmod.api.util.Translate;
+import com.gm910.occentmod.api.language.Translate;
 
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.util.math.BlockPos;

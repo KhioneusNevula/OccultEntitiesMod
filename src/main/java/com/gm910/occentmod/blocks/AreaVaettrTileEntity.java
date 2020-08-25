@@ -3,12 +3,12 @@ package com.gm910.occentmod.blocks;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.gm910.occentmod.api.language.Translate;
 import com.gm910.occentmod.api.networking.messages.Networking;
 import com.gm910.occentmod.api.networking.messages.types.TaskChangeBlock;
 import com.gm910.occentmod.api.networking.messages.types.TaskParticles;
 import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.ServerPos;
-import com.gm910.occentmod.api.util.Translate;
 import com.gm910.occentmod.vaettr.Vaettr.VaettrType;
 
 import net.minecraft.block.Block;

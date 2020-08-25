@@ -11,7 +11,7 @@ import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.IWorldTickable;
 import com.gm910.occentmod.api.util.NonNullMap;
-import com.gm910.occentmod.capabilities.CapabilityProvider;
+import com.gm910.occentmod.capabilities.GMCapabilityUser;
 import com.gm910.occentmod.capabilities.IModCapability;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.Dynamic;
@@ -206,7 +206,7 @@ public class RoomManager implements INBTSerializable<CompoundNBT>, IModCapabilit
 	}
 
 	public static RoomManager getForWorld(ServerWorld world) {
-		return world.getCapability(CapabilityProvider.ROOMS).orElse(null);
+		return world.getCapability(GMCapabilityUser.ROOMS).orElse(null);
 	}
 
 }

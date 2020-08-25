@@ -2,6 +2,7 @@ package com.gm910.occentmod.init;
 
 import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.api.sitting.SitEntity;
+import com.gm910.occentmod.empires.gods.Deity;
 import com.gm910.occentmod.entities.LivingBlockEntity;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 
@@ -39,6 +40,11 @@ public final class EntityInit {
 	public static final RegistryObject<EntityType<CitizenEntity>> CITIZEN = ENTITY_TYPES.register("citizen", () -> {
 		return EntityType.Builder.<CitizenEntity>create(CitizenEntity::new, EntityClassification.CREATURE)
 				.size(1.0f, 1.0f).build(new ResourceLocation(OccultEntities.MODID, "citizen").toString());
+	});
+
+	public static final RegistryObject<EntityType<Deity>> DEITY_DUMMY = ENTITY_TYPES.register("deity_dummy", () -> {
+		return EntityType.Builder.<Deity>create(Deity::new, EntityClassification.AMBIENT).size(1.0f, 1.0f)
+				.build(new ResourceLocation(OccultEntities.MODID, "deity_dummy").toString());
 	});
 
 }

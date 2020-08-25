@@ -4,6 +4,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.TaskType;
 import com.google.common.collect.ImmutableMap;
@@ -55,7 +57,11 @@ public class DummyHobbyTask extends CitizenTask {
 
 	@Override
 	public TaskType<?> getType() {
-		// TODO Auto-generated method stub
+		return TaskType.DUMMY_HOBBY;
+	}
+
+	@Override
+	public CitizenDeed getDeed(CitizenIdentity doer) {
 		return null;
 	}
 

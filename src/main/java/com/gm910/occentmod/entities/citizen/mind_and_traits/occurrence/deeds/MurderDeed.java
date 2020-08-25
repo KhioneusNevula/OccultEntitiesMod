@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 
@@ -61,7 +62,7 @@ public class MurderDeed extends CitizenDeed {
 	}
 
 	@Override
-	public Object[] getDataForDisplay(CitizenEntity en) {
+	public Object[] getDataForDisplay(LivingEntity en) {
 		return new Object[] { citizen.getString((ServerWorld) en.getEntityWorld()),
 				killed.getString((ServerWorld) en.getEntityWorld()) };
 	}

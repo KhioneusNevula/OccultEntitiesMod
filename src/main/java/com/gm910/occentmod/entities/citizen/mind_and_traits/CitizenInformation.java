@@ -4,17 +4,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.gm910.occentmod.api.util.GMNBT;
+import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.capabilities.formshifting.Formshift;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.emotions.Emotions;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Genetics;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryHolder;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.Memories;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity.DynamicCitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relationships;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.religion.Religion;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.skills.Skills;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.Autonomy;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.background.CitizenPickupItemsTask;
@@ -29,15 +32,17 @@ import net.minecraft.entity.ai.brain.task.LookTask;
 import net.minecraft.entity.ai.brain.task.SwimTask;
 import net.minecraft.entity.ai.brain.task.Task;
 import net.minecraft.entity.ai.brain.task.WalkToTargetTask;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.util.IDynamicSerializable;
 import net.minecraft.world.server.ServerWorld;
 
-public class CitizenInformation<E extends CitizenEntity> implements IDynamicSerializable {
+public class CitizenInformation<E extends CitizenEntity> extends CitizenInfo<E> implements IDynamicSerializable {
 
 	private E citizen;
 
 	private Personality personality;
-	private MemoryHolder knowledge;
+	private Memories knowledge;
 	private Relationships relationships;
 	private DynamicCitizenIdentity identity;
 	private Genetics<E> genetics;
@@ -45,21 +50,15 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 	private Needs needs;
 	private Emotions emotions;
 	private Skills skills;
+	private Religion religion;
 
 	public CitizenInformation(E en) {
 		this.citizen = en;
 	}
 
-	public <T> CitizenInformation(E en, Dynamic<T> dyn) {
-		this(en);
-		if (dyn.get("gossip").get().isPresent())
-			this.knowledge = new MemoryHolder(en, dyn.get("gossip").get().get());
-		else
-			this.knowledge = new MemoryHolder(en);
-		if (dyn.get("personality").get().isPresent())
-			this.personality = new Personality(dyn.get("personality").get().get());
-		else
-			this.personality = new Personality();
+	public <T> void deserialize(Dynamic<T> dyn) {
+
+		E en = citizen;
 		if (dyn.get("personality").get().isPresent())
 			this.relationships = new Relationships(en, dyn.get("relationships").get().get());
 		else
@@ -88,22 +87,37 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 			this.skills = new Skills(dyn.get("skills").get().get());
 		else
 			this.skills = new Skills();
+		if (dyn.get("religion").get().isPresent())
+			this.religion = new Religion(en, dyn.get("religion").get().get());
 	}
 
-	public void initialize() {
+	public <T> CitizenInformation(E en, Dynamic<T> dyn) {
+		this(en);
+		deserialize(dyn);
+	}
+
+	public void initialize(boolean regular) {
 
 		this.personality = new Personality();
 		personality.initializeRandomTraits(this.getCitizen().getRNG());
-		this.knowledge = new MemoryHolder(this.citizen);
+		this.knowledge = new Memories(this.citizen);
 		this.relationships = new Relationships(this.citizen);
 		this.identity = new DynamicCitizenIdentity(Formshift.get(this.citizen).getTrueForm(),
 				this.citizen.getUniqueID());
-		this.genetics = new Genetics<>();
+		if (regular)
+			this.genetics = new Genetics<>();
 		this.autonomy = new Autonomy(this.citizen);
-		this.needs = new Needs(this.citizen);
+		if (regular)
+			this.needs = new Needs(this.citizen);
 		this.emotions = new Emotions();
-		this.skills = new Skills();
-		this.autonomy.registerBackgroundTasks(getDefaultBackgroundTasks());
+		if (regular)
+			this.skills = new Skills();
+		if (regular) {
+			this.religion = new Religion(this.getCitizen());
+			religion.initialize();
+		}
+		if (regular)
+			this.autonomy.registerBackgroundTasks(getDefaultBackgroundTasks());
 	}
 
 	public void initIdentity(ServerWorld world) {
@@ -138,6 +152,7 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 		mapa.put(ops.createString("needs"), needs.serialize(ops));
 		mapa.put(ops.createString("emotions"), emotions.serialize(ops));
 		mapa.put(ops.createString("skills"), skills.serialize(ops));
+		mapa.put(ops.createString("religion"), religion.serialize(ops));
 		return ops.createMap(ImmutableMap.copyOf(mapa));
 	}
 
@@ -161,10 +176,17 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 		world.getProfiler().startSection("emotions");
 		this.getEmotions().update();
 		world.getProfiler().endSection();
+		world.getProfiler().startSection("religion");
+		this.getReligion().update();
+		world.getProfiler().endSection();
 	}
 
 	public Emotions getEmotions() {
 		return emotions;
+	}
+
+	public Religion getReligion() {
+		return religion;
 	}
 
 	public Autonomy getAutonomy() {
@@ -183,7 +205,7 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 		return needs;
 	}
 
-	public MemoryHolder getKnowledge() {
+	public Memories getKnowledge() {
 		return knowledge;
 	}
 
@@ -211,7 +233,11 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 		this.citizen = citizen;
 	}
 
-	public void setKnowledge(MemoryHolder gossipKnowledge) {
+	public void setReligion(Religion religion) {
+		this.religion = religion;
+	}
+
+	public void setKnowledge(Memories gossipKnowledge) {
 		this.knowledge = gossipKnowledge;
 	}
 
@@ -245,6 +271,17 @@ public class CitizenInformation<E extends CitizenEntity> implements IDynamicSeri
 
 	public void setSkills(Skills skills) {
 		this.skills = skills;
+	}
+
+	@Override
+	public CompoundNBT serializeNBT() {
+
+		return (CompoundNBT) serialize(NBTDynamicOps.INSTANCE);
+	}
+
+	@Override
+	public void deserializeNBT(CompoundNBT nbt) {
+		deserialize(GMNBT.makeDynamic(nbt));
 	}
 
 }

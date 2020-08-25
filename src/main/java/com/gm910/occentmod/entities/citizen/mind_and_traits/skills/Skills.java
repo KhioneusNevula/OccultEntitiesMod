@@ -19,8 +19,8 @@ public class Skills extends InformationHolder {
 
 	@Override
 	public <T> T serialize(DynamicOps<T> ops) {
-		T trait1 = ops.createMap(skills.entrySet().stream().map((trait) -> {
-			return Pair.of(ops.createString(trait.getKey().resource.toString()), ops.createInt(trait.getValue()));
+		T trait1 = ops.createMap(skills.object2IntEntrySet().stream().map((trait) -> {
+			return Pair.of(ops.createString(trait.getKey().resource.toString()), ops.createInt(trait.getIntValue()));
 		}).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)));
 		return ops.createMap(ImmutableMap.of(ops.createString("skills"), trait1));
 	}

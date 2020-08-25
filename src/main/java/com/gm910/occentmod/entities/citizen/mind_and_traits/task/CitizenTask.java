@@ -2,9 +2,11 @@ package com.gm910.occentmod.entities.citizen.mind_and_traits.task;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.ModReflect;
 import com.gm910.occentmod.api.util.NonNullMap;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
@@ -25,10 +27,11 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.task.Task;
+import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.util.IDynamicSerializable;
 import net.minecraft.world.server.ServerWorld;
 
-public abstract class CitizenTask extends Task<CitizenEntity> implements IDynamicSerializable {
+public abstract class CitizenTask extends Task<CitizenEntity> implements IDynamicSerializable, Cloneable {
 
 	private Set<Context> contexts = Sets.newHashSet();
 
@@ -89,6 +92,13 @@ public abstract class CitizenTask extends Task<CitizenEntity> implements IDynami
 		return this;
 	}
 
+	/**
+	 * Initializes the information that will create the task's deed
+	 */
+	public void preExecution(ServerWorld world, CitizenEntity owner) {
+		this.shouldExecute(world, owner);
+	}
+
 	public boolean isTimedOut(long gameTime) {
 		return super.isTimedOut(gameTime) && !isIndefinite();
 	}
@@ -134,6 +144,10 @@ public abstract class CitizenTask extends Task<CitizenEntity> implements IDynami
 		return cond;
 	}
 
+	public Set<TraitLevel> getNecessaryPersonalityTrait(PersonalityTrait trata) {
+		return this.willPerform.getOrDefault(trata, new HashSet<>());
+	}
+
 	public CitizenTask addContext(Context... contexts) {
 		this.contexts.addAll(Sets.newHashSet(contexts));
 		return this;
@@ -151,12 +165,7 @@ public abstract class CitizenTask extends Task<CitizenEntity> implements IDynami
 		super(requiredMemoryStateIn, 60);
 	}
 
-	/**
-	 * Return null if it's nothing worth talking about
-	 */
-	public CitizenDeed getDeed(CitizenIdentity doer) {
-		return null;
-	}
+	public abstract CitizenDeed getDeed(CitizenIdentity doer);
 
 	/**
 	 * Whether this task MUST occur
@@ -190,6 +199,12 @@ public abstract class CitizenTask extends Task<CitizenEntity> implements IDynami
 	}
 
 	public abstract TaskType<?> getType();
+
+	@Override
+	public CitizenTask clone() throws CloneNotSupportedException {
+
+		return this.getType().runDeserialize(GMNBT.makeDynamic(this.writeData(NBTDynamicOps.INSTANCE)));
+	}
 
 	@Override
 	public <T> T serialize(DynamicOps<T> ops) {

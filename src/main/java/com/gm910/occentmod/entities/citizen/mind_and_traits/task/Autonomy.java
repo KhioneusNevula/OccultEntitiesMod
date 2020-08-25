@@ -8,11 +8,11 @@ import java.util.stream.Collectors;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.EntityDependentInformationHolder;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.CauseEffectTheory;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryOfDeed;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.CauseEffectMemory;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.MemoryOfDeed;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Need;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedType;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect.Connotation;
@@ -119,6 +119,7 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 			return false;
 		}
 		CitizenEntity en = this.getEntityIn();
+
 		CitizenDeed d = task.getDeed(en.getIdentity());
 		float sympathy = en.getPersonality().getTrait(PersonalityTrait.SYMPATHY);
 		float selfishness = en.getPersonality().getTrait(PersonalityTrait.SELFISHNESS);
@@ -126,9 +127,10 @@ public class Autonomy extends EntityDependentInformationHolder<CitizenEntity> {
 		float activeness = en.getPersonality().getTrait(PersonalityTrait.ACTIVENESS);
 		float chance = makeFirstTask ? 1 : (activeness + 1) / 2;
 		if (d != null) {
-			Set<CauseEffectTheory> theories = en.getKnowledge().getByPredicate((e) -> e instanceof CauseEffectTheory);
+			Set<CauseEffectMemory> theories = en.getKnowledge().getByPredicate((e) -> e instanceof CauseEffectMemory);
+			theories.forEach((e) -> e.access());
 
-			for (CauseEffectTheory theory : theories) {
+			for (CauseEffectMemory theory : theories) {
 				if (theory.getCause().isSimilarTo(d)) {
 					Occurrence effect = theory.getEffect();
 					OccurrenceEffect con = effect.getEffect();

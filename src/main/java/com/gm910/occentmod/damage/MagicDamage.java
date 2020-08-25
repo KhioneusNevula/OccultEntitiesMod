@@ -1,6 +1,6 @@
 package com.gm910.occentmod.damage;
 
-import com.gm910.occentmod.api.util.Translate;
+import com.gm910.occentmod.api.language.Translate;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.EntityDamageSource;
