@@ -2,25 +2,30 @@ package com.gm910.occentmod.entities.citizen.mind_and_traits.task;
 
 import java.util.Set;
 
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
+import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.server.ServerWorld;
 
-public interface CitizenAction {
+public interface CitizenAction<Doer extends LivingEntity> {
 
-	public static <T extends CitizenTask & CitizenAction> void startExecuting(T this_, ServerWorld worldIn,
-			CitizenEntity entityIn, long gameTimeIn) {
-		Set<CitizenEntity> en = this_.startActionOn(worldIn, entityIn, gameTimeIn);
-		for (CitizenEntity e : en) {
-			e.react(this_, entityIn);
+	public static <Doer extends LivingEntity, T extends CitizenTask<?> & CitizenAction<Doer>> void startExecuting(
+			T this_, ServerWorld worldIn, Doer entityIn, long gameTimeIn) {
+		Set<? extends LivingEntity> en = this_.startActionOn(worldIn, entityIn, gameTimeIn);
+		for (LivingEntity e : en) {
+			if (!CitizenInfo.get(e).isPresent())
+				continue;
+			CitizenInfo.get(e).orElse(null).getAutonomy().react(this_, entityIn);
 		}
 	}
 
-	public static <T extends CitizenTask & CitizenAction> void updateTask(T this_, ServerWorld worldIn,
-			CitizenEntity owner, long gameTime) {
-		Set<CitizenEntity> en = this_.updateActionOn(worldIn, owner, gameTime);
-		for (CitizenEntity e : en) {
-			e.react(this_, owner);
+	public static <Doer extends LivingEntity, T extends CitizenTask<?> & CitizenAction<Doer>> void updateTask(T this_,
+			ServerWorld worldIn, Doer owner, long gameTime) {
+		Set<? extends LivingEntity> en = this_.updateActionOn(worldIn, owner, gameTime);
+		for (LivingEntity e : en) {
+			if (!CitizenInfo.get(e).isPresent())
+				continue;
+			CitizenInfo.get(e).orElse(null).getAutonomy().react(this_, owner);
 		}
 	}
 
@@ -32,7 +37,7 @@ public interface CitizenAction {
 	 * @param gameTime
 	 * @return
 	 */
-	public Set<CitizenEntity> startActionOn(ServerWorld world, CitizenEntity entity, long gameTime);
+	public Set<? extends LivingEntity> startActionOn(ServerWorld world, Doer entity, long gameTime);
 
 	/**
 	 * Return an empty set if no one is affected
@@ -42,13 +47,13 @@ public interface CitizenAction {
 	 * @param gameTime
 	 * @return
 	 */
-	public Set<CitizenEntity> updateActionOn(ServerWorld world, CitizenEntity entity, long gameTime);
+	public Set<? extends LivingEntity> updateActionOn(ServerWorld world, Doer entity, long gameTime);
 
 	/**
 	 * Return empty if the given citizen entity would not react
 	 * 
 	 * @return
 	 */
-	public Set<CitizenTask> getPotentialReactions();
+	public Set<CitizenTask<? extends LivingEntity>> getPotentialReactions();
 
 }

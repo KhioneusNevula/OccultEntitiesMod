@@ -66,7 +66,7 @@ public abstract class CitizenTask<E extends LivingEntity> extends Task<E> implem
 	 *                    capable of performing the task regardless of personality.
 	 * @return
 	 */
-	public CitizenTask setPersonalityConditions(boolean willPerform,
+	public CitizenTask<E> setPersonalityConditions(boolean willPerform,
 			Pair<PersonalityTrait, Collection<TraitLevel>>... pairs) {
 		if (willPerform) {
 			for (Pair<PersonalityTrait, Collection<TraitLevel>> pair : pairs) {
@@ -85,7 +85,7 @@ public abstract class CitizenTask<E extends LivingEntity> extends Task<E> implem
 		return this;
 	}
 
-	public CitizenTask setSkillLevels(Pair<SkillType, Integer>... pairs) {
+	public CitizenTask<E> setSkillLevels(Pair<SkillType, Integer>... pairs) {
 		for (Pair<SkillType, Integer> pair : pairs) {
 			this.skill.put(pair.getFirst(), pair.getSecond() == null ? 0 : pair.getSecond());
 		}
@@ -96,7 +96,7 @@ public abstract class CitizenTask<E extends LivingEntity> extends Task<E> implem
 	/**
 	 * Initializes the information that will create the task's deed
 	 */
-	public void preExecution(ServerWorld world, LivingEntity owner) {
+	public void preExecution(ServerWorld world, E owner) {
 		this.shouldExecute(world, owner);
 	}
 
@@ -117,7 +117,7 @@ public abstract class CitizenTask<E extends LivingEntity> extends Task<E> implem
 	}
 
 	@Override
-	public boolean shouldExecute(ServerWorld worldIn, LivingEntity owner) {
+	public boolean shouldExecute(ServerWorld worldIn, E owner) {
 		return true;
 	}
 
@@ -130,7 +130,7 @@ public abstract class CitizenTask<E extends LivingEntity> extends Task<E> implem
 		return true;
 	}
 
-	public boolean canExecute(LivingEntity owner) {
+	public boolean canExecute(E owner) {
 		return this.canExecuteWithPersonality(
 				CitizenInfo.get(owner).orElse(null).getPersonality().generateTraitReactionMap())
 				&& hasNecessarySkills(CitizenInfo.get(owner).orElse(null).getSkills());
@@ -150,7 +150,7 @@ public abstract class CitizenTask<E extends LivingEntity> extends Task<E> implem
 		return this.willPerform.getOrDefault(trata, new HashSet<>());
 	}
 
-	public CitizenTask addContext(Context... contexts) {
+	public CitizenTask<E> addContext(Context... contexts) {
 		this.contexts.addAll(Sets.newHashSet(contexts));
 		return this;
 	}
@@ -175,7 +175,7 @@ public abstract class CitizenTask<E extends LivingEntity> extends Task<E> implem
 	 * @param en
 	 * @return
 	 */
-	public boolean cannotBeOverriden(LivingEntity en) {
+	public boolean cannotBeOverriden(E en) {
 		return false;
 	}
 
@@ -185,7 +185,7 @@ public abstract class CitizenTask<E extends LivingEntity> extends Task<E> implem
 	 * @param en
 	 * @return
 	 */
-	public boolean isUrgent(LivingEntity en) {
+	public boolean isUrgent(E en) {
 		return false;
 	}
 
@@ -196,21 +196,21 @@ public abstract class CitizenTask<E extends LivingEntity> extends Task<E> implem
 	 * @param seer
 	 * @return
 	 */
-	public boolean isVisible(LivingEntity doer, LivingEntity seer) {
+	public boolean isVisible(E doer, LivingEntity seer) {
 		return true;
 	}
 
-	public abstract TaskType<?> getType();
+	public abstract TaskType<E, ? extends CitizenTask<E>> getType();
 
 	@Override
-	public CitizenTask clone() throws CloneNotSupportedException {
+	public CitizenTask<E> clone() throws CloneNotSupportedException {
 
 		return this.getType().runDeserialize(GMNBT.makeDynamic(this.writeData(NBTDynamicOps.INSTANCE)));
 	}
 
 	@Override
 	public <T> T serialize(DynamicOps<T> ops) {
-		CitizenTask task = (CitizenTask) this;
+		CitizenTask<E> task = (CitizenTask<E>) this;
 		T type = ops.createString(getType().rl.toString());
 		T data = writeData(ops);
 		T cons = ops.createList(task.getContexts().stream().map((m) -> ops.createString(m.toString())));

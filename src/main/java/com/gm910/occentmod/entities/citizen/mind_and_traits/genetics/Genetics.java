@@ -28,7 +28,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class Genetics<E extends LivingEntity> extends InformationHolder {
 
-	private Map<GeneType<?, E>, Gene<?>> genes = Maps.newHashMap();
+	private Map<GeneType<?, ? super E>, Gene<?>> genes = Maps.newHashMap();
 
 	/*
 		public static void forceClinit() {
@@ -45,25 +45,25 @@ public class Genetics<E extends LivingEntity> extends InformationHolder {
 	}
 
 	public Genetics<E> initGenes(Race race, E entity) {
-		Set geneTypes = race.getGeneTypes();
-		for (Object type1 : geneTypes) {
-			GeneType type = (GeneType) type1;
+		Set<GeneType<Object, E>> geneTypes = race.getGeneTypes(entity);
+		for (GeneType<Object, E> type1 : geneTypes) {
+			GeneType<Object, E> type = type1;
 			this.genes.put(type, type.getInitialValue(race, entity));
 		}
 		return this;
 	}
 
-	public void addGene(GeneType<?, E> gene, Race race, E entity) {
+	public void addGene(GeneType<?, ? super E> gene, Race race, E entity) {
 		this.genes.put(gene, gene.getInitialValue(race, entity));
 	}
 
-	public void addGenes(Map<GeneType<?, E>, Gene<?>> genes) {
+	public void addGenes(Map<GeneType<?, ? super E>, Gene<?>> genes) {
 		this.genes.putAll(genes);
 	}
 
-	public Map<GeneType<?, E>, Gene<?>> removeGenes(BiPredicate<GeneType<?, E>, Gene<?>> remover) {
-		Map<GeneType<?, E>, Gene<?>> map = new HashMap<>();
-		for (GeneType<?, E> type : new HashSet<>(genes.keySet())) {
+	public Map<GeneType<?, ? super E>, Gene<?>> removeGenes(BiPredicate<GeneType<?, ? super E>, Gene<?>> remover) {
+		Map<GeneType<?, ? super E>, Gene<?>> map = new HashMap<>();
+		for (GeneType<?, ? super E> type : new HashSet<>(genes.keySet())) {
 			if (remover.test(type, genes.get(type))) {
 				map.put(type, genes.get(type));
 				genes.remove(type);
@@ -72,7 +72,7 @@ public class Genetics<E extends LivingEntity> extends InformationHolder {
 		return map;
 	}
 
-	public Map<GeneType<?, E>, Gene<?>> removeGenesFromRace(Race race) {
+	public Map<GeneType<?, ? super E>, Gene<?>> removeGenesFromRace(Race race) {
 		return this.removeGenes((g, ge) -> ge.getRaceMarker() == race);
 	}
 
@@ -84,15 +84,15 @@ public class Genetics<E extends LivingEntity> extends InformationHolder {
 
 	@Nullable
 	@SuppressWarnings("unchecked")
-	public <T> Gene<T> getGene(GeneType<T, E> type) {
+	public <T> Gene<T> getGene(GeneType<T, ? super E> type) {
 		return (Gene<T>) genes.get(type);
 	}
 
-	public <T> void setGene(GeneType<?, E> type, Gene<?> gene) {
+	public <T> void setGene(GeneType<?, ? super E> type, Gene<?> gene) {
 		this.genes.put(type, gene);
 	}
 
-	public <T> T getValue(GeneType<T, E> genetype) {
+	public <T> T getValue(GeneType<T, ? super E> genetype) {
 		Gene<T> gene = getGene(genetype);
 		if (gene == null) {
 			return genetype.getNullValue();
@@ -102,8 +102,8 @@ public class Genetics<E extends LivingEntity> extends InformationHolder {
 
 	@SuppressWarnings("unchecked")
 	public Genetics(Dynamic<?> dyn) {
-		this.genes = dyn.get("genes").<GeneType<?, E>, Gene<?>>asMap(
-				(e) -> (GeneType<?, E>) GeneType.get(new ResourceLocation(e.asString(""))), Gene::deserialize);
+		this.genes = dyn.get("genes").<GeneType<?, ? super E>, Gene<?>>asMap(
+				(e) -> (GeneType<?, ? super E>) GeneType.get(new ResourceLocation(e.asString(""))), Gene::deserialize);
 	}
 
 	@Override
@@ -159,10 +159,10 @@ public class Genetics<E extends LivingEntity> extends InformationHolder {
 	}
 
 	public Genetics<E> getChild(Genetics<E> other, E child) {
-		Set<GeneType<?, E>> geneTypes = Sets.newHashSet(this.genes.keySet());
+		Set<GeneType<?, ? super E>> geneTypes = Sets.newHashSet(this.genes.keySet());
 		geneTypes.addAll(other.genes.keySet());
 		Genetics<E> new1 = new Genetics<E>();
-		for (GeneType<?, E> type : geneTypes) {
+		for (GeneType<?, ? super E> type : geneTypes) {
 			if (this.getGene(type) != null && other.getGene(type) != null) {
 				new1.setGene(type, type.mix(this.getGene(type), other.getGene(type)));
 			} else {

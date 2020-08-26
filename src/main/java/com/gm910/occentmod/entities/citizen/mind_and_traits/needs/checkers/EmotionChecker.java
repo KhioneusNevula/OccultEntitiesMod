@@ -1,16 +1,18 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.needs.checkers;
 
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
+import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.emotions.Emotions.EmotionType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Need;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedChecker;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedType;
 
-public class EmotionChecker extends NeedChecker<Float> {
+import net.minecraft.entity.LivingEntity;
+
+public class EmotionChecker extends NeedChecker<LivingEntity, Float> {
 
 	private EmotionType emotionType;
 
-	public EmotionChecker(NeedType<Float> type, EmotionType type2, CitizenEntity entity) {
+	public EmotionChecker(NeedType<LivingEntity, Float> type, EmotionType type2, LivingEntity entity) {
 		super(type, entity);
 		this.emotionType = type2;
 
@@ -23,19 +25,21 @@ public class EmotionChecker extends NeedChecker<Float> {
 	@Override
 	public boolean fulfillNeeds() {
 
-		float curval = this.entity.getEmotions().getLevel(emotionType);
-		float desval = this.entity.getEmotions().getThreshholdOfSatisfaction(entity.getPersonality(), emotionType);
+		CitizenInfo<LivingEntity> entity = CitizenInfo.get(this.entity).orElse(null);
+		float curval = entity.getEmotions().getLevel(emotionType);
+		float desval = entity.getEmotions().getThreshholdOfSatisfaction(entity.getPersonality(), emotionType);
 		return curval >= desval;
 	}
 
 	@Override
-	public Need<Float> findNeeds() {
-		float curval = this.entity.getEmotions().getLevel(emotionType);
-		float desval = this.entity.getEmotions().getThreshholdOfSatisfaction(entity.getPersonality(), emotionType);
+	public Need<LivingEntity, Float> findNeeds() {
+		CitizenInfo<LivingEntity> entity = CitizenInfo.get(this.entity).orElse(null);
+		float curval = entity.getEmotions().getLevel(emotionType);
+		float desval = entity.getEmotions().getThreshholdOfSatisfaction(entity.getPersonality(), emotionType);
 
-		CitizenEntity e = this.entity;
+		LivingEntity e = this.entity;
 		if (curval <= desval) {
-			return new Need<Float>(super.getType(), desval);
+			return new Need<LivingEntity, Float>(super.getType(), desval);
 		}
 		return null;
 	}

@@ -9,10 +9,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.gm910.occentmod.api.util.ServerPos;
+import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.damage.MagicDamage;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect.Connotation;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceType;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
@@ -196,8 +199,11 @@ public class DamageOccurrence extends Occurrence {
 
 	@Override
 	public OccurrenceEffect getEffect() {
-		// TODO Auto-generated method stub
-		return null;
+		if (CitizenInfo.get(this.damaged).isPresent()) {
+			return new OccurrenceEffect(
+					ImmutableMap.of(CitizenInfo.get(this.damaged).orElse(null).getIdentity(), Connotation.HARMFUL));
+		}
+		return new OccurrenceEffect(ImmutableMap.of());
 	}
 
 	@Override

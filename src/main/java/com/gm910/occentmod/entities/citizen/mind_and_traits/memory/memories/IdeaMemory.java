@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.gm910.occentmod.api.util.ModReflect;
 import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
@@ -15,27 +16,44 @@ import com.mojang.datafixers.types.DynamicOps;
 
 import net.minecraft.entity.LivingEntity;
 
-public class IdeaMemory extends Memory {
+public class IdeaMemory<E extends LivingEntity> extends Memory<E> {
 
-	private CitizenTask doTask;
+	private CitizenTask<? super E> doTask;
 
-	public IdeaMemory(LivingEntity owner) {
+	private Class<E> clazz;
+
+	public IdeaMemory(E owner) {
 		super(owner, MemoryType.IDEA);
+		clazz = (Class<E>) owner.getClass();
 		initialize();
 	}
 
+	@Override
+	public E getOwner() {
+		// TODO Auto-generated method stub
+		return super.getOwner();
+	}
+
+	@Override
+	public void setOwner(E owner) {
+		// TODO Auto-generated method stub
+		super.setOwner(owner);
+	}
+
 	public void initialize() {
-		Set<CitizenTask> tasques = Sets.newHashSet(TaskType.getValues()).stream()
+		Set<CitizenTask<? super E>> tasques = Sets.newHashSet(TaskType.getValues()).stream()
 				.filter(TaskType::canBeRandomlyThoughtOf)
-				.map((m) -> m.createNew(CitizenInfo.get(this.getOwner()).orElse(null).getAutonomy()))
-				.filter((e) -> e.canExecute(this.getOwner())).collect(Collectors.toSet());
-		Optional<CitizenTask> tasca = tasques.stream().findAny();
+				.filter((m) -> ModReflect.<CitizenTask<? super E>>instanceOf(m, null))
+				.map((m) -> (CitizenTask<? super E>) m
+						.createNew(CitizenInfo.get(this.getOwner()).orElse(null).getAutonomy()))
+				.filter((e) -> e.canExecute((E) this.getOwner())).collect(Collectors.toSet());
+		Optional<CitizenTask<? super E>> tasca = tasques.stream().findAny();
 		if (tasca.isPresent()) {
 			doTask = tasca.get();
 		}
 	}
 
-	public IdeaMemory(LivingEntity owner, Dynamic<?> dyn) {
+	public IdeaMemory(E owner, Dynamic<?> dyn) {
 		super(owner, MemoryType.IDEA);
 		if (dyn.get("task").get().isPresent()) {
 			this.doTask = TaskType.deserialize(dyn.get("task").get().get());
@@ -52,11 +70,11 @@ public class IdeaMemory extends Memory {
 		}
 	}
 
-	public CitizenTask getDoTask() {
+	public CitizenTask<? super E> getDoTask() {
 		return doTask;
 	}
 
-	public void setDoTask(CitizenTask doTask) {
+	public void setDoTask(CitizenTask<? super E> doTask) {
 		this.doTask = doTask;
 	}
 
@@ -70,7 +88,7 @@ public class IdeaMemory extends Memory {
 	}
 
 	@Override
-	public void affectCitizen(LivingEntity en) {
+	public void affectCitizen(E en) {
 		if (doTask != null) {
 			CitizenInfo.get(en).orElse(null).getAutonomy().considerTask(2, doTask, false);
 		}

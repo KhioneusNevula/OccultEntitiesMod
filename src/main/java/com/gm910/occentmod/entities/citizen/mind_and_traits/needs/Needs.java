@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.gm910.occentmod.api.util.NonNullMap;
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.EntityDependentInformationHolder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
@@ -15,59 +14,60 @@ import com.mojang.datafixers.types.DynamicOps;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.entity.LivingEntity;
 
-public class Needs extends EntityDependentInformationHolder<CitizenEntity> {
+public class Needs<E extends LivingEntity> extends EntityDependentInformationHolder<E> {
 
-	private Map<NeedType<?>, NeedChecker<?>> needCheckers = new HashMap<>();
+	private Map<NeedType<E, ?>, NeedChecker<E, ?>> needCheckers = new HashMap<>();
 
-	private Map<NeedType<?>, Set<Need<?>>> needs = new NonNullMap<>(Sets::newHashSet);
+	private Map<NeedType<E, ?>, Set<Need<E, ?>>> needs = new NonNullMap<>(Sets::newHashSet);
 
-	private Object2IntMap<NeedType<?>> randomCheckInterval = new Object2IntOpenHashMap<>();
+	private Object2IntMap<NeedType<E, ?>> randomCheckInterval = new Object2IntOpenHashMap<>();
 
-	public Needs(CitizenEntity entity) {
+	public Needs(E entity) {
 		super(entity);
 	}
 
-	public int getRandomCheckInterval(NeedType<?> t) {
+	public int getRandomCheckInterval(NeedType<E, ?> t) {
 		return randomCheckInterval.getInt(t);
 	}
 
-	public void newRandomCheckInterval(NeedType<?> t) {
+	public void newRandomCheckInterval(NeedType<E, ?> t) {
 		randomCheckInterval.put(t, t.getCheckInterval(this.getEntityIn()));
 	}
 
-	public Set<NeedType<?>> getNeedTypes() {
+	public Set<NeedType<E, ?>> getNeedTypes() {
 		return needCheckers.keySet();
 	}
 
-	public Needs(CitizenEntity en, Dynamic<?> des) {
+	public Needs(E en, Dynamic<?> des) {
 		this(en);
-		Set<Need<?>> need1s = des.get("needs").asStream().map((d) -> NeedType.deserializeStatic(d))
+		Set<Need<E, ?>> need1s = des.get("needs").asStream().map((d) -> (Need<E, ?>) NeedType.deserializeStatic(d))
 				.collect(Collectors.toSet());
-		for (Need<?> need : need1s) {
+		for (Need<E, ?> need : need1s) {
 			needs.get(need.getType()).add(need);
 			newRandomCheckInterval(need.getType());
 		}
 	}
 
-	public Set<Need<?>> getNeeds(NeedType<?> type) {
+	public Set<Need<E, ?>> getNeeds(NeedType<E, ?> type) {
 		return Sets.newHashSet(needs.get(type));
 	}
 
-	public void addNeed(Need<?> need) {
+	public void addNeed(Need<E, ?> need) {
 		this.needs.get(need.getType()).add(need);
 	}
 
-	public void removeNeed(Need<?> need) {
+	public void removeNeed(Need<E, ?> need) {
 		this.needs.get(need.getType()).remove(need);
 	}
 
-	public <T> NeedChecker<T> getChecker(NeedType<T> type) {
-		return (NeedChecker<T>) needCheckers.get(type);
+	public <T> NeedChecker<E, T> getChecker(NeedType<E, T> type) {
+		return (NeedChecker<E, T>) needCheckers.get(type);
 	}
 
-	public Needs registerNeeds(Set<NeedType<?>> needTypes) {
-		for (NeedType<?> type : needTypes) {
+	public Needs<E> registerNeeds(Set<NeedType<E, ?>> needTypes) {
+		for (NeedType<E, ?> type : needTypes) {
 			this.needCheckers.put(type, type.makeNeedsChecker(this.getEntityIn()));
 			this.newRandomCheckInterval(type);
 		}
@@ -75,19 +75,19 @@ public class Needs extends EntityDependentInformationHolder<CitizenEntity> {
 		return this;
 	}
 
-	public boolean hasNeed(NeedType<?> type) {
+	public boolean hasNeed(NeedType<E, ?> type) {
 		return needs.values().stream().flatMap((e) -> e.stream()).anyMatch((e) -> e.getType() == type);
 	}
 
 	@Override
 	public void tick() {
-		for (Need<?> need : this.needs.values().stream().flatMap((e) -> e.stream()).collect(Collectors.toSet())) {
+		for (Need<E, ?> need : this.needs.values().stream().flatMap((e) -> e.stream()).collect(Collectors.toSet())) {
 			if (need.isFulfilled()) {
 				this.needs.get(need.getType()).remove(need);
 			}
 		}
 		this.needCheckers.values().forEach((e) -> e.tick());
-		for (NeedChecker<?> check : needCheckers.values()) {
+		for (NeedChecker<E, ?> check : needCheckers.values()) {
 			if (check.areNeedsFulfilled()) {
 				this.needs.get(check.getType()).clear();
 			}

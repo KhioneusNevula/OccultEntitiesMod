@@ -9,14 +9,14 @@ import com.mojang.datafixers.Dynamic;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.server.ServerWorld;
 
-public class MemoryOfDeed extends MemoryOfOccurrence {
+public class MemoryOfDeed<E extends LivingEntity> extends MemoryOfOccurrence<E> {
 
-	public MemoryOfDeed(LivingEntity owner, CitizenDeed deed) {
+	public MemoryOfDeed(E owner, CitizenDeed deed) {
 		super(owner, deed);
 		this.type = MemoryType.DEED;
 	}
 
-	public MemoryOfDeed(LivingEntity owner, Dynamic<?> dyn) {
+	public MemoryOfDeed(E owner, Dynamic<?> dyn) {
 		this(owner,
 				(CitizenDeed) OccurrenceType.deserialize(((ServerWorld) owner.world), dyn.get("event").get().get()));
 	}
@@ -26,8 +26,8 @@ public class MemoryOfDeed extends MemoryOfOccurrence {
 	}
 
 	@Override
-	public void affectCitizen(LivingEntity en1) {
-		CitizenInfo<LivingEntity> en = CitizenInfo.get(en1).orElse(null);
+	public void affectCitizen(E en1) {
+		CitizenInfo<E> en = CitizenInfo.get(en1).orElse(null);
 		en.getRelationships().changeLikeValue(en.getIdentity(), getDeed().getRelationshipChange(en.$getOwner()));
 		getDeed().affectCitizen(en);
 	}

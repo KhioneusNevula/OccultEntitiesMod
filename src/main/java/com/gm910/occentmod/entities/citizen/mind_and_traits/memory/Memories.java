@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import com.gm910.occentmod.api.util.ModReflect;
 import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.EntityDependentInformationHolder;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.emotions.Mood;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.CauseEffectMemory.Certainty;
@@ -22,14 +21,14 @@ import com.mojang.datafixers.types.DynamicOps;
 
 import net.minecraft.entity.LivingEntity;
 
-public class Memories extends EntityDependentInformationHolder<LivingEntity> {
+public class Memories<E extends LivingEntity> extends EntityDependentInformationHolder<E> {
 
 	/**
 	 * 
 	 */
-	private Set<Memory> knowledge = new HashSet<>();
+	private Set<Memory<? super E>> knowledge = new HashSet<>();
 
-	private Set<Memory> forgotten = new HashSet<>();
+	private Set<Memory<? super E>> forgotten = new HashSet<>();
 
 	@Override
 	public <T> T serialize(DynamicOps<T> ops) {
@@ -42,17 +41,17 @@ public class Memories extends EntityDependentInformationHolder<LivingEntity> {
 		return ops.createMap(ImmutableMap.of(ops.createString("knowledge"), gmemo, ops.createString("forgotten"), g));
 	}
 
-	public Memories(CitizenEntity en, Dynamic<?> dyn) {
+	public Memories(E en, Dynamic<?> dyn) {
 		super(en);
-		Set<Memory> map2 = dyn.get("knowledge").asStream().map((d) -> Memory.deserialize(this.getEntityIn(), d))
-				.collect(Collectors.toSet());
+		Set<Memory<? super E>> map2 = dyn.get("knowledge").asStream()
+				.map((d) -> Memory.deserialize(this.getEntityIn(), d)).collect(Collectors.toSet());
 		knowledge.addAll(map2);
 		map2 = dyn.get("forgotten").asStream().map((d) -> Memory.deserialize(this.getEntityIn(), d))
 				.collect(Collectors.toSet());
 		forgotten.addAll(map2);
 	}
 
-	public Memories(CitizenEntity en) {
+	public Memories(E en) {
 		super(en);
 	}
 
@@ -63,7 +62,7 @@ public class Memories extends EntityDependentInformationHolder<LivingEntity> {
 
 	public void generateIdeas() {
 
-		CitizenInfo<LivingEntity> info = CitizenInfo.get(getEntityIn()).orElse(null);
+		CitizenInfo<E> info = CitizenInfo.get(getEntityIn()).orElse(null);
 
 		float chancia = this.getEntityIn().getRNG().nextFloat();
 		float inqui = info.getPersonality().getTrait(PersonalityTrait.INQUISITIVITY);
@@ -72,10 +71,10 @@ public class Memories extends EntityDependentInformationHolder<LivingEntity> {
 		}
 
 		if (info.getEmotions().getMoods().contains(Mood.CREATIVE) && chancia < inqui) {
-			this.addKnowledge(new IdeaMemory(this.getEntityIn()));
+			this.addKnowledge(new IdeaMemory<E>(this.getEntityIn()));
 		}
 
-		for (IdeaMemory mem : this.<IdeaMemory>getByPredicate((e) -> e instanceof IdeaMemory)) {
+		for (IdeaMemory<? super E> mem : this.<IdeaMemory<? super E>>getByPredicate((e) -> e instanceof IdeaMemory)) {
 			if (!mem.isUseless()) {
 				chancia = this.getEntityIn().getRNG().nextFloat();
 				if (chancia < inqui) {
@@ -87,7 +86,7 @@ public class Memories extends EntityDependentInformationHolder<LivingEntity> {
 	}
 
 	public void processMemories() {
-		for (Memory mem : new HashSet<>(this.knowledge)) {
+		for (Memory<? super E> mem : new HashSet<>(this.knowledge)) {
 			long existed = mem.getTicksExisted();
 			int accesses = mem.getAccessedTimes();
 			if (mem.memTolerance() <= 0 ? false
@@ -98,61 +97,61 @@ public class Memories extends EntityDependentInformationHolder<LivingEntity> {
 		}
 	}
 
-	public Set<Memory> getKnowledge() {
+	public Set<Memory<? super E>> getKnowledge() {
 		return new HashSet<>(this.knowledge);
 	}
 
-	public Set<Memory> getForgottenKnowledge() {
+	public Set<Memory<? super E>> getForgottenKnowledge() {
 		return new HashSet<>(this.forgotten);
 	}
 
-	public boolean knows(Memory mem) {
+	public boolean knows(Memory<? super E> mem) {
 		return this.knowledge.contains(mem);
 	}
 
-	public boolean knows(Predicate<? super Memory> pred) {
+	public boolean knows(Predicate<? super Memory<? super E>> pred) {
 		return this.knowledge.stream().anyMatch(pred);
 	}
 
-	public <T extends Memory> Set<T> getByPredicate(Predicate<T> pred) {
+	public <T extends Memory<? super E>> Set<T> getByPredicate(Predicate<T> pred) {
 		Set<T> t = this.knowledge.stream().filter((m) -> ModReflect.<T>instanceOf(m, null)).map((d) -> (T) d)
 				.filter(pred).collect(Collectors.toSet());
 		return t;
 	}
 
-	public Set<Memory> fromTime(long minGrace, long maxGrace) {
+	public Set<Memory<? super E>> fromTime(long minGrace, long maxGrace) {
 		return this
 				.getByPredicate((e) -> e.getMemoryCreationTime() >= minGrace && e.getMemoryCreationTime() <= maxGrace);
 	}
 
-	public void addKnowledge(Memory mem) {
+	public void addKnowledge(Memory<? super E> mem) {
 		mem.setOwner(this.getEntityIn());
 		this.knowledge.add(mem);
 	}
 
-	public void shareKnowledge(Memory mem, CitizenEntity other) {
-		other.getKnowledge().receiveKnowledge(mem);
+	public void shareKnowledge(Memory<? super E> mem, E other) {
+		CitizenInfo.get(other).orElse(null).getKnowledge().receiveKnowledge(mem);
 
 	}
 
-	public void receiveKnowledge(Memory mem) {
+	public void receiveKnowledge(Memory<? super E> mem) {
 
 		float trustProba = CitizenInfo.get(this.getEntityIn()).orElse(null).getRelationships().getTrustValue(
 				CitizenInfo.get(mem.getOwner()).orElse(null).getIdentity()) / Relationships.MAX_TRUST_VALUE;
 		Certainty trust = Certainty.values()[(int) (trustProba * Certainty.values().length)];
 		if (mem.getOwner() != this.getEntityIn()) {
-			mem = new ExternallyGivenMemory(this.getEntityIn(),
+			mem = new ExternallyGivenMemory<>(this.getEntityIn(),
 					CitizenInfo.get(mem.getOwner()).orElse(null).getIdentity(), mem, trust);
 		}
 
-		Memory copy = Memory.copy(this.getEntityIn(), mem);
+		Memory<? super E> copy = Memory.copy(this.getEntityIn(), mem);
 
 		copy.affectCitizen(this.getEntityIn());
 
 		this.addKnowledge(copy);
 	}
 
-	public void forget(Memory mem) {
+	public void forget(Memory<? super E> mem) {
 		this.knowledge.remove(mem);
 		this.forgotten.add(mem);
 	}

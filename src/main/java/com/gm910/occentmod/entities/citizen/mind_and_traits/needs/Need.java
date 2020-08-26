@@ -2,30 +2,30 @@ package com.gm910.occentmod.entities.citizen.mind_and_traits.needs;
 
 import java.util.Set;
 
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.types.DynamicOps;
 
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.IDynamicSerializable;
 
-public class Need<T> implements IDynamicSerializable {
+public class Need<M extends LivingEntity, T> implements IDynamicSerializable {
 
 	private T desiredValue;
 
-	private NeedType<T> type;
+	private NeedType<M, T> type;
 
 	private boolean fulfilled;
 
 	private boolean inDanger;
 
-	public Need(NeedType<T> type, T desiredValue) {
+	public Need(NeedType<M, T> type, T desiredValue) {
 		this.type = type;
 		this.desiredValue = desiredValue;
 		this.fulfilled = false;
 	}
 
-	public Need<T> makeDangerous() {
+	public Need<M, T> makeDangerous() {
 		this.inDanger = true;
 		return this;
 	}
@@ -38,7 +38,7 @@ public class Need<T> implements IDynamicSerializable {
 		return desiredValue;
 	}
 
-	public NeedType<T> getType() {
+	public NeedType<M, T> getType() {
 		return type;
 	}
 
@@ -64,7 +64,7 @@ public class Need<T> implements IDynamicSerializable {
 				ops.createString("fulf"), fulf));
 	}
 
-	public Set<CitizenTask> getFulfillmentTasks(CitizenEntity en) {
+	public Set<CitizenTask<M>> getFulfillmentTasks(M en) {
 		return this.type.getNeedFulfillmentTask(this, en);
 	}
 
@@ -72,8 +72,8 @@ public class Need<T> implements IDynamicSerializable {
 	public boolean equals(Object obj) {
 		boolean b = false;
 		try {
-			b = this.type == ((Need) obj).type && this.inDanger == ((Need) obj).inDanger
-					&& this.desiredValue.equals(((Need) obj).desiredValue);
+			b = this.type == ((Need<?, ?>) obj).type && this.inDanger == ((Need<?, ?>) obj).inDanger
+					&& this.desiredValue.equals(((Need<?, ?>) obj).desiredValue);
 		} catch (ClassCastException e) {
 
 		}

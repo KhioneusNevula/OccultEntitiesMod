@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.gm910.occentmod.OccultEntities;
+import com.gm910.occentmod.api.util.ModReflect;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.genetype.GeneType;
 import com.gm910.occentmod.util.GMFiles;
 import com.google.common.collect.Sets;
@@ -63,6 +65,11 @@ public class Race {
 
 	public HashSet<GeneType<?, ? extends LivingEntity>> getGeneTypes() {
 		return Sets.newHashSet(geneTypes);
+	}
+
+	public <R, E extends LivingEntity> Set<GeneType<R, E>> getGeneTypes(E en) {
+		return getGeneTypes().stream().filter((e) -> !ModReflect.<GeneType<R, E>>instanceOf(e, null))
+				.map((e) -> (GeneType<R, E>) e).collect(Collectors.toSet());
 	}
 
 	public Race setGeneTypes(GeneType<?, ? extends LivingEntity>... type) {
@@ -188,6 +195,11 @@ public class Race {
 			return true;
 		}
 
+		@Override
+		public SpiritRace setGeneTypes(GeneType<?, ? extends LivingEntity>... type) {
+			return (SpiritRace) super.setGeneTypes(type);
+		}
+
 	}
 
 	public static class TransformedRace extends Race {
@@ -239,6 +251,11 @@ public class Race {
 		public boolean isHidden() {
 			// TODO Auto-generated method stub
 			return true;
+		}
+
+		@Override
+		public TransformedRace setGeneTypes(GeneType<?, ? extends LivingEntity>... type) {
+			return (TransformedRace) super.setGeneTypes(type);
 		}
 
 	}

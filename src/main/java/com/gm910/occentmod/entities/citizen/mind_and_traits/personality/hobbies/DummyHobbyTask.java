@@ -19,7 +19,7 @@ import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.server.ServerWorld;
 
-public class DummyHobbyTask extends CitizenTask {
+public class DummyHobbyTask extends CitizenTask<CitizenEntity> {
 	private long time;
 	private final int maxDistanceFromSite;
 	private MemoryModuleType<GlobalPos> memory;
@@ -56,7 +56,7 @@ public class DummyHobbyTask extends CitizenTask {
 	}
 
 	@Override
-	public TaskType<?> getType() {
+	public TaskType<CitizenEntity, DummyHobbyTask> getType() {
 		return TaskType.DUMMY_HOBBY;
 	}
 

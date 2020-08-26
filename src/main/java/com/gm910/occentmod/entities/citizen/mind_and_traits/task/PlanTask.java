@@ -26,9 +26,9 @@ import net.minecraft.world.server.ServerWorld;
  * @author borah
  *
  */
-public class PlanTask extends CitizenTask {
+public class PlanTask extends CitizenTask<LivingEntity> {
 
-	private List<? extends CitizenTask> tasks = new ArrayList<>();
+	private List<? extends CitizenTask<? extends LivingEntity>> tasks = new ArrayList<>();
 
 	private Predicate<? super CitizenEntity> shouldStart;
 
@@ -36,8 +36,8 @@ public class PlanTask extends CitizenTask {
 
 	private boolean isActive;
 
-	public PlanTask(Predicate<? super CitizenEntity> shouldStart, Predicate<? super CitizenEntity> shouldPause,
-			List<? extends CitizenTask> tasks) {
+	public PlanTask(Predicate<? super LivingEntity> shouldStart, Predicate<? super LivingEntity> shouldPause,
+			List<? extends CitizenTask<? extends LivingEntity>> tasks) {
 		super(ImmutableMap.of());
 		this.shouldStart = shouldStart;
 		this.shouldPause = shouldPause;
@@ -82,20 +82,21 @@ public class PlanTask extends CitizenTask {
 		return true;
 	}
 
-	public static List<? extends CitizenTask> getTasks(Dynamic<?> dyn) {
+	public static <E extends LivingEntity> List<? extends CitizenTask<? super E>> getTasks(Dynamic<?> dyn) {
 		return dyn.asList((d) -> TaskType.deserialize(d));
 	}
 
-	public static Map<MemoryModuleType<?>, MemoryModuleStatus> memoryStates(List<? extends CitizenTask> tasques) {
+	public static <E extends LivingEntity> Map<MemoryModuleType<?>, MemoryModuleStatus> memoryStates(
+			List<? extends CitizenTask<? super E>> tasques) {
 		Map<MemoryModuleType<?>, MemoryModuleStatus> stats = new HashMap<>();
-		for (CitizenTask tasque : tasques) {
+		for (CitizenTask<? super E> tasque : tasques) {
 			stats.putAll(tasque.getDelegateMemoryMap());
 		}
 		return stats;
 	}
 
 	@Override
-	public TaskType<?> getType() {
+	public TaskType<LivingEntity, PlanTask> getType() {
 		return TaskType.PLAN;
 	}
 

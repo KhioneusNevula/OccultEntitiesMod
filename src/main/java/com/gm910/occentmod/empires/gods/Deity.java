@@ -8,8 +8,9 @@ import java.util.UUID;
 
 import com.gm910.occentmod.api.language.NamePhonemicHelper.PhonemeWord;
 import com.gm910.occentmod.capabilities.GMCapabilityUser;
-import com.gm910.occentmod.capabilities.citizeninfo.DeityInformation;
 import com.gm910.occentmod.empires.Empire;
+import com.gm910.occentmod.empires.gods.citinfo.DeityInformation;
+import com.gm910.occentmod.empires.gods.citinfo.DivineInventory;
 import com.gm910.occentmod.init.EntityInit;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;

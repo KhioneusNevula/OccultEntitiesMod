@@ -21,4 +21,9 @@ public class PlayerCitizenInformation extends CitizenInfo<PlayerEntity> {
 		return this.$getOwner().inventory;
 	}
 
+	@Override
+	public void onCreation() {
+
+	}
+
 }

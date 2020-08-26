@@ -19,13 +19,13 @@ import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.dimension.DimensionType;
 
-public class MemoryOfBlockRegion extends Memory {
+public class MemoryOfBlockRegion<E extends LivingEntity> extends Memory<E> {
 
 	private Map<BlockPos, BlockState> blocks = new HashMap<>();
 
 	private DimensionType dim;
 
-	public MemoryOfBlockRegion(LivingEntity owner, DimensionType dim, Pair<BlockPos, BlockState>... statesPoses) {
+	public MemoryOfBlockRegion(E owner, DimensionType dim, Pair<BlockPos, BlockState>... statesPoses) {
 		super(owner, MemoryType.BLOCKSTATE);
 		this.dim = dim;
 		this.blocks.putAll(
@@ -33,7 +33,7 @@ public class MemoryOfBlockRegion extends Memory {
 	}
 
 	@SuppressWarnings("unchecked")
-	public MemoryOfBlockRegion(LivingEntity owner, Dynamic<?> dyn) {
+	public MemoryOfBlockRegion(E owner, Dynamic<?> dyn) {
 		this(owner, DimensionType.getById(dyn.get("dim").asInt(0)),
 				dyn.get("blocks").asStream().<Pair<BlockPos, BlockState>>map((e) -> {
 					try {
@@ -69,7 +69,7 @@ public class MemoryOfBlockRegion extends Memory {
 	}
 
 	@Override
-	public void affectCitizen(LivingEntity en) {
+	public void affectCitizen(E en) {
 
 	}
 

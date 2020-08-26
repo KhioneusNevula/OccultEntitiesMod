@@ -17,6 +17,7 @@ import com.gm910.occentmod.capabilities.speciallocs.SpecialLocationStorage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.world.World;
@@ -122,7 +123,7 @@ public class GMCapabilityUser<T, K> implements ICapabilitySerializable<CompoundN
 
 	@SubscribeEvent
 	public static void attachEn(AttachCapabilitiesEvent<Entity> event) {
-		if (event.getObject() instanceof PlayerEntity) {
+		if (event.getObject() instanceof ServerPlayerEntity) {
 			event.addCapability(MindInventory.LOC, new GMCapabilityUser<MindInventory, PlayerEntity>(
 					GMCapabilityUser.MIND_INVENTORY, (PlayerEntity) event.getObject()));
 			event.addCapability(CitizenInfo.LOC,

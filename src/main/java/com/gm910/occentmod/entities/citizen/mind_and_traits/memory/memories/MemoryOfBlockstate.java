@@ -13,20 +13,20 @@ import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTUtil;
 
-public class MemoryOfBlockstate extends Memory {
+public class MemoryOfBlockstate<E extends LivingEntity> extends Memory<E> {
 
 	private ServerPos storedPos;
 
 	private BlockState storedState;
 
-	public MemoryOfBlockstate(LivingEntity owner, BlockState type, ServerPos pos) {
+	public MemoryOfBlockstate(E owner, BlockState type, ServerPos pos) {
 		super(owner, MemoryType.BLOCKSTATE);
 
 		this.storedState = type;
 		this.storedPos = pos;
 	}
 
-	public MemoryOfBlockstate(LivingEntity owner, Dynamic<?> dyn) throws CommandSyntaxException {
+	public MemoryOfBlockstate(E owner, Dynamic<?> dyn) throws CommandSyntaxException {
 		this(owner, NBTUtil.readBlockState(JsonToNBT.getTagFromJson(dyn.get("state").asString(""))),
 				ServerPos.deserialize(dyn.get("pos").get().get()));
 	}
@@ -48,7 +48,7 @@ public class MemoryOfBlockstate extends Memory {
 	}
 
 	@Override
-	public void affectCitizen(LivingEntity en) {
+	public void affectCitizen(E en) {
 
 	}
 

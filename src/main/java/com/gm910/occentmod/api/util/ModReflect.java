@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
@@ -198,6 +199,19 @@ public class ModReflect {
 			// Lists.newArrayList());
 			return false;
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <X> boolean instanceOf(Object b) {
+		return instanceOf(b, null);
+	}
+
+	public static <X> Stream<X> filterByType(Stream<?> stream1, @Nullable Class<X> clazz) {
+		return stream1.filter((e) -> ModReflect.<X>instanceOf(e, null)).map((e) -> (X) e);
+	}
+
+	public static <X> Stream<X> filterByType(Stream<?> stream1) {
+		return filterByType(stream1, null);
 	}
 
 	public static Class<?> getSubclass(Class<?> clazz, String simpleName, String obfusname) {

@@ -2,6 +2,7 @@ package com.gm910.occentmod.events;
 
 import java.util.Optional;
 
+import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.capabilities.speciallocs.SpecialLocationManager;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
@@ -11,6 +12,7 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.events.Da
 import com.gm910.occentmod.init.DataInit;
 import com.google.common.base.Predicates;
 
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.village.PointOfInterestManager;
 import net.minecraft.world.chunk.Chunk;
@@ -37,6 +39,7 @@ public class MinecraftEventHandler {
 			if (obpp.isPresent()) {
 				BlockPos bpp = obpp.get();
 			}
+
 		}
 	}
 
@@ -51,7 +54,13 @@ public class MinecraftEventHandler {
 
 	@SubscribeEvent
 	public static void liv(LivingUpdateEvent event) {
-
+		if (event.getEntityLiving() instanceof ServerPlayerEntity) {
+			CitizenInfo<ServerPlayerEntity> info = CitizenInfo.get((ServerPlayerEntity) event.getEntityLiving())
+					.orElse(null);
+			if (info.$getOwner().ticksExisted <= 1) {
+				info.onCreation();
+			}
+		}
 	}
 
 	public static void at(LivingHurtEvent event) {

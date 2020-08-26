@@ -8,7 +8,7 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Need;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedChecker;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedType;
 
-public class HungerChecker extends NeedChecker<Float> {
+public class HungerChecker extends NeedChecker<CitizenEntity, Float> {
 	private static Function<CitizenEntity, Float> calc = (e) -> {
 		return e.getMaxFoodLevel() * 3 / 4;
 	};
@@ -17,7 +17,7 @@ public class HungerChecker extends NeedChecker<Float> {
 		return e.getMaxFoodLevel() / 4 > f;
 	};
 
-	public HungerChecker(NeedType<Float> type, CitizenEntity entity) {
+	public HungerChecker(NeedType<CitizenEntity, Float> type, CitizenEntity entity) {
 		super(type, entity);
 	}
 
@@ -27,12 +27,12 @@ public class HungerChecker extends NeedChecker<Float> {
 	}
 
 	@Override
-	public Need<Float> findNeeds() {
+	public Need<CitizenEntity, Float> findNeeds() {
 
 		CitizenEntity e = this.entity;
 		if (e.getFoodLevel() < e.getMaxFoodLevel() / 2) {
 			float m = calc.apply(e);
-			Need<Float> n = new Need<Float>(NeedType.HUNGER, m);
+			Need<CitizenEntity, Float> n = new Need<CitizenEntity, Float>(NeedType.HUNGER, m);
 			if (dangerous.test(e, m)) {
 				n.makeDangerous();
 			}

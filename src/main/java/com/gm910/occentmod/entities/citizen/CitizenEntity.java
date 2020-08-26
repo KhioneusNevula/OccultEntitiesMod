@@ -1,45 +1,29 @@
 package com.gm910.occentmod.entities.citizen;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.GeneralInventory;
 import com.gm910.occentmod.capabilities.GMCapabilityUser;
 import com.gm910.occentmod.capabilities.formshifting.Formshift;
-import com.gm910.occentmod.empires.Empire;
 import com.gm910.occentmod.empires.EmpireData;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.BodyForm;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenInformation;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenMemoryAndSensors;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.emotions.Emotions;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Genetics;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.Memories;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.CauseEffectMemory;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.CauseEffectMemory.Certainty;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.MemoryOfDeed;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.MemoryOfOccurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceData;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait.TraitLevel;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity.DynamicCitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Genealogy;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relationships;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.skills.Skills;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.Autonomy;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenAction;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
 import com.gm910.occentmod.init.EntityInit;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -125,9 +109,8 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 
 	public void regularInit(EntityType<? extends AgeableEntity> type, World worldIn) {
 		this.info = new CitizenInformation<CitizenEntity>(this);
-		info.initialize(true);
 		if (worldIn instanceof ServerWorld) {
-			this.empdata = EmpireData.get((ServerWorld) worldIn);
+			this.setEmpdata(EmpireData.get((ServerWorld) worldIn));
 			this.occurrences = OccurrenceData.get((ServerWorld) world);
 		}
 	}
@@ -155,19 +138,8 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 	public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason,
 			ILivingEntityData spawnDataIn, CompoundNBT dataTag) {
 
-		if (this.world instanceof ServerWorld) {
-			ServerWorld world = (ServerWorld) this.world;
-			Set<Empire> emps = empdata.getInRadius(world.dimension.getType(), this.getPosition(), 20);
-			Optional<Empire> empo = emps.stream().findAny();
-			Race tryRace = Race.getRaces().stream().findAny().get();
-			if (empo.isPresent()) {
-				tryRace = empo.get().chooseRandomRace(this.rand);
-				this.getTrueIdentity().setEmpire(empo.get());
-			}
-			this.getGenetics().initGenes(tryRace, this);
-			this.info.initValues(world);
-			info.getTrueIdentity().setName(EmpireData.get((ServerWorld) world).giveRandomCitizenName());
-			info.getTrueIdentity().setRace(this.getGenetics().getRace());
+		if (worldIn instanceof ServerWorld) {
+			this.info.initialize(true);
 		}
 
 		this.previousFoodPosX = getPosX();
@@ -183,7 +155,7 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 	}
 
 	public EmpireData getEmpireData() {
-		return empdata;
+		return getEmpdata();
 	}
 
 	@Override
@@ -204,7 +176,7 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		this.info.setPersonality(personality);
 	}
 
-	public void setKnowledge(Memories gossipKnowledge) {
+	public void setKnowledge(Memories<CitizenEntity> gossipKnowledge) {
 		this.info.setKnowledge(gossipKnowledge);
 	}
 
@@ -216,11 +188,11 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		this.info.setGenetics(genetics);
 	}
 
-	public void setAutonomy(Autonomy aut) {
+	public void setAutonomy(Autonomy<CitizenEntity> aut) {
 		this.info.setAutonomy(aut);
 	}
 
-	public Autonomy getAutonomy() {
+	public Autonomy<CitizenEntity> getAutonomy() {
 		return this.info.getAutonomy();
 	}
 
@@ -301,72 +273,6 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		return brain;
 	}
 
-	/**
-	 * Reacts to an action done by the second parameter citizen entity; this action
-	 * is assumed to be a CitizenTask
-	 * 
-	 * @param action
-	 * @param doer
-	 */
-	public void react(CitizenAction action, CitizenEntity doer) {
-		Set<CitizenTask> mapa = action.getPotentialReactions();
-		CitizenDeed deed = ((CitizenTask) action).getDeed(doer.getIdentity());
-		this.reaction(deed, mapa);
-		this.getKnowledge().receiveKnowledge(new MemoryOfDeed(this, deed));
-
-	}
-
-	/**
-	 * Performs a generic reaction by adding all tasks in the set to the execution
-	 * list of the autonomy controller
-	 * 
-	 * @param event
-	 */
-	public void reaction(Occurrence occur, Set<CitizenTask> event) {
-		Map<PersonalityTrait, TraitLevel> trets = this.getPersonality().generateTraitReactionMap();
-		for (CitizenTask tasque : event) {
-			if (tasque.canExecute(this)) {
-
-				this.getAutonomy().considerTask(tasque.isUrgent(this) ? 0 : getAutonomy().getImmediateTasks().size(),
-						tasque, tasque.isUrgent(this));
-			}
-		}
-	}
-
-	/**
-	 * Reacts to a generic event occurring in the world
-	 * 
-	 * @param event
-	 */
-	public void reactToEvent(Occurrence event) {
-		Set<CitizenTask> tasques = event.getPotentialWitnessReactions();
-		this.reaction(event, tasques);
-		MemoryOfOccurrence meme = new MemoryOfOccurrence(this, event);
-		Set<MemoryOfOccurrence> occs = this.getKnowledge()
-				.<MemoryOfOccurrence>getByPredicate((e) -> e instanceof MemoryOfOccurrence);
-		occs.forEach((o) -> o.access());
-		for (MemoryOfOccurrence occ : occs) {
-
-			if (occ.couldEventBeCauseOf(meme)) {
-				CauseEffectMemory theo = new CauseEffectMemory(this, occ.getEvent(), event, null);
-				Set<CauseEffectMemory> theors = this.getKnowledge().getByPredicate((e) -> e instanceof CauseEffectMemory
-						&& ((CauseEffectMemory) e).fitsObservation(theo.getCause(), theo.getEffect()));
-				if (!theors.isEmpty()) {
-					for (CauseEffectMemory t : theors) {
-						if (t.getCertainty() != Certainty.TRUE) {
-							t.incrementObservation(1);
-							t.getEffect().getEffect().getEffects().putAll(event.getEffect().getEffects());
-						}
-					}
-				} else {
-					this.getKnowledge().addKnowledge(theo);
-				}
-			}
-		}
-		this.getKnowledge().receiveKnowledge(meme);
-
-	}
-
 	@Override
 	public void tick() {
 		super.tick();
@@ -393,27 +299,6 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 			if (this.getFoodLevel() <= 0) {
 				this.damageEntity(DamageSource.STARVE, 0.05f);
 			}
-			Optional<Collection<CitizenEntity>> vis = this.brain
-					.getMemory(CitizenMemoryAndSensors.VISIBLE_CITIZENS.get());
-			if (vis.isPresent() && !vis.get().isEmpty()) {
-
-				for (CitizenEntity citizen : vis.get()) {
-					Set<CitizenTask> tasks = citizen.getAutonomy().getRunningTasks().stream()
-							.filter((e) -> e instanceof CitizenTask && ((CitizenTask) e).isVisible(citizen, this))
-							.map((a) -> (CitizenTask) a).collect(Collectors.toSet());
-					for (CitizenTask task : tasks) {
-						CitizenDeed deed = task.getDeed(citizen.getIdentity());
-						if (deed == null)
-							continue;
-						this.reactToEvent(deed);
-					}
-				}
-			}
-
-			for (Occurrence occ : this.occurrences.getVisible(this)) {
-				this.reactToEvent(occ);
-			}
-
 		}
 	}
 
@@ -576,6 +461,14 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 			return LazyOptional.of(() -> this.info).cast();
 		}
 		return super.getCapability(capability, facing);
+	}
+
+	public EmpireData getEmpdata() {
+		return empdata;
+	}
+
+	public void setEmpdata(EmpireData empdata) {
+		this.empdata = empdata;
 	}
 
 	public enum HappinessStatus {

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
 import com.gm910.occentmod.empires.Empire;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -77,6 +78,7 @@ public class Pantheon implements IDynamicSerializable {
 				this.gods.remove(deity);
 			}
 		}
+		gods.forEach((d) -> CitizenInfo.get(d).orElse(null).onCreation());
 	}
 
 	public static Pantheon generatePantheon(Empire em) {
@@ -110,10 +112,10 @@ public class Pantheon implements IDynamicSerializable {
 	}
 
 	public static Set<DeityElement> getPotentialElements(ChunkPos pos, ServerWorld world) {
-		Set<DeityElement> potentialElements = Sets.newHashSet(DeityElement.EARTH, DeityElement.SKY, DeityElement.WAR,
-				DeityElement.ALCHEMY, DeityElement.PLANES);
+		Set<DeityElement> potentialElements = Sets.newHashSet(DeityElement.EARTH, DeityElement.SKY,
+				DeityElement.RITUALISM, DeityElement.WEAPONRY, DeityElement.ALCHEMY, DeityElement.PLANES);
 		if (world.getBiome(pos.asBlockPos()).getDefaultTemperature() >= 1.75) {
-			potentialElements.addAll(Sets.newHashSet(DeityElement.FIRE, DeityElement.SUN));
+			potentialElements.addAll(Sets.newHashSet(DeityElement.SUN));
 		}
 
 		for (int x = -48; x <= 48; x++) {
@@ -149,8 +151,8 @@ public class Pantheon implements IDynamicSerializable {
 				}
 			}
 		}
-		if (lavacount >= 12) {
-			potentialElements.add(DeityElement.LAVA);
+		if (lavacount >= 5) {
+			potentialElements.add(DeityElement.FIRE);
 		}
 
 		return potentialElements;

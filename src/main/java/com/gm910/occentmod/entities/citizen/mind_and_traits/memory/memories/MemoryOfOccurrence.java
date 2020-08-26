@@ -11,16 +11,16 @@ import com.mojang.datafixers.types.DynamicOps;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.server.ServerWorld;
 
-public class MemoryOfOccurrence extends Memory {
+public class MemoryOfOccurrence<E extends LivingEntity> extends Memory<E> {
 
 	private Occurrence event;
 
-	public MemoryOfOccurrence(LivingEntity owner, Occurrence deed) {
+	public MemoryOfOccurrence(E owner, Occurrence deed) {
 		super(owner, MemoryType.DEED);
 		this.event = deed;
 	}
 
-	public MemoryOfOccurrence(LivingEntity owner, Dynamic<?> dyn) {
+	public MemoryOfOccurrence(E owner, Dynamic<?> dyn) {
 		this(owner, OccurrenceType.deserialize(((ServerWorld) owner.world), dyn.get("event").get().get()));
 	}
 
@@ -36,11 +36,11 @@ public class MemoryOfOccurrence extends Memory {
 	}
 
 	@Override
-	public void affectCitizen(LivingEntity en) {
+	public void affectCitizen(E en) {
 		event.affectCitizen(CitizenInfo.get(en).orElse(null));
 	}
 
-	public boolean couldEventBeCauseOf(MemoryOfOccurrence other) {
+	public boolean couldEventBeCauseOf(MemoryOfOccurrence<?> other) {
 		return this.event.couldBeCauseOf(other.event, this.getMemoryCreationTime(), other.getMemoryCreationTime());
 	}
 

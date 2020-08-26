@@ -18,7 +18,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.server.ServerWorld;
 
-public class CauseEffectMemory extends Memory {
+public class CauseEffectMemory<E extends LivingEntity> extends Memory<E> {
 
 	private Occurrence cause;
 	private Occurrence effect;
@@ -26,7 +26,7 @@ public class CauseEffectMemory extends Memory {
 
 	private int observationCount;
 
-	public CauseEffectMemory(LivingEntity owner, Occurrence cause, @Nullable Occurrence effect,
+	public CauseEffectMemory(E owner, Occurrence cause, @Nullable Occurrence effect,
 			@Nullable OccurrenceEffect connotation) {
 		super(owner, MemoryType.DEED);
 		this.cause = cause;
@@ -34,7 +34,7 @@ public class CauseEffectMemory extends Memory {
 		this.connotation = effect.getEffect();
 	}
 
-	public CauseEffectMemory(LivingEntity owner, Dynamic<?> dyn) {
+	public CauseEffectMemory(E owner, Dynamic<?> dyn) {
 		this(owner, OccurrenceType.deserialize(((ServerWorld) owner.world), dyn.get("cause").get().get()),
 				dyn.get("effect").get().isPresent()
 						? OccurrenceType.deserialize(((ServerWorld) owner.world), dyn.get("effect").get().get())
@@ -93,7 +93,7 @@ public class CauseEffectMemory extends Memory {
 	}
 
 	@Override
-	public void affectCitizen(LivingEntity en) {
+	public void affectCitizen(E en) {
 
 	}
 

@@ -1,5 +1,7 @@
 package com.gm910.occentmod.capabilities.citizeninfo;
 
+import javax.annotation.Nullable;
+
 import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.capabilities.GMCapabilityUser;
 import com.gm910.occentmod.capabilities.IModCapability;
@@ -36,15 +38,15 @@ public abstract class CitizenInfo<E extends LivingEntity>
 	private E owner;
 
 	protected Personality personality;
-	protected Memories knowledge;
+	protected Memories<E> knowledge;
 	protected Relationships relationships;
 	protected DynamicCitizenIdentity identity;
 	protected Genetics<E> genetics;
-	protected Autonomy autonomy;
-	protected Needs needs;
+	protected Autonomy<E> autonomy;
+	protected Needs<E> needs;
 	protected Emotions emotions;
 	protected Skills skills;
-	protected Religion religion;
+	protected Religion<E> religion;
 
 	@Override
 	public void $setOwner(E wiz) {
@@ -62,51 +64,62 @@ public abstract class CitizenInfo<E extends LivingEntity>
 		return owner;
 	}
 
-	public Autonomy getAutonomy() {
+	@Nullable
+	public Autonomy<E> getAutonomy() {
 		return autonomy;
 	}
 
+	@Nullable
 	public Emotions getEmotions() {
 		return emotions;
 	}
 
+	@Nullable
 	public Genetics<E> getGenetics() {
 		return genetics;
 	}
 
+	@Nullable
 	public CitizenIdentity getIdentity() {
 		return identity.copy();
 	}
 
+	@Nullable
 	public DynamicCitizenIdentity getTrueIdentity() {
 		return this.identity;
 	}
 
-	public Memories getKnowledge() {
+	@Nullable
+	public Memories<E> getKnowledge() {
 		return knowledge;
 	}
 
-	public Needs getNeeds() {
+	@Nullable
+	public Needs<E> getNeeds() {
 		return needs;
 	}
 
+	@Nullable
 	public Personality getPersonality() {
 		return personality;
 	}
 
+	@Nullable
 	public Relationships getRelationships() {
 		return relationships;
 	}
 
-	public Religion getReligion() {
+	@Nullable
+	public Religion<E> getReligion() {
 		return religion;
 	}
 
+	@Nullable
 	public Skills getSkills() {
 		return skills;
 	}
 
-	public void setAutonomy(Autonomy autonomy) {
+	public void setAutonomy(Autonomy<E> autonomy) {
 		this.autonomy = autonomy;
 	}
 
@@ -126,11 +139,11 @@ public abstract class CitizenInfo<E extends LivingEntity>
 		}
 	}
 
-	public void setKnowledge(Memories knowledge) {
+	public void setKnowledge(Memories<E> knowledge) {
 		this.knowledge = knowledge;
 	}
 
-	public void setNeeds(Needs needs) {
+	public void setNeeds(Needs<E> needs) {
 		this.needs = needs;
 	}
 
@@ -142,7 +155,7 @@ public abstract class CitizenInfo<E extends LivingEntity>
 		this.relationships = relationships;
 	}
 
-	public void setReligion(Religion religion) {
+	public void setReligion(Religion<E> religion) {
 		this.religion = religion;
 	}
 
@@ -176,5 +189,7 @@ public abstract class CitizenInfo<E extends LivingEntity>
 	public static <T extends LivingEntity> LazyOptional<CitizenInfo<T>> get(T e) {
 		return e.getCapability(GMCapabilityUser.CITIZEN_INFO).cast();
 	}
+
+	public abstract void onCreation();
 
 }

@@ -9,15 +9,15 @@ import com.mojang.datafixers.types.DynamicOps;
 
 import net.minecraft.entity.LivingEntity;
 
-public class ExternallyGivenMemory extends Memory {
+public class ExternallyGivenMemory<E extends LivingEntity> extends Memory<E> {
 
-	private Memory delegate;
+	private Memory<E> delegate;
 
 	private Certainty trust;
 
 	private CitizenIdentity giver;
 
-	public ExternallyGivenMemory(LivingEntity owner, CitizenIdentity giver, Memory delegate, Certainty trust) {
+	public ExternallyGivenMemory(E owner, CitizenIdentity giver, Memory<E> delegate, Certainty trust) {
 		super(owner, MemoryType.EXTERNALLY_GIVEN_MEMORY);
 		this.delegate = delegate;
 		this.trust = trust;
@@ -28,11 +28,11 @@ public class ExternallyGivenMemory extends Memory {
 		return trust;
 	}
 
-	public Memory getDelegate() {
+	public Memory<E> getDelegate() {
 		return delegate;
 	}
 
-	public void setDelegate(Memory delegate) {
+	public void setDelegate(Memory<E> delegate) {
 		this.delegate = delegate;
 	}
 
@@ -57,14 +57,14 @@ public class ExternallyGivenMemory extends Memory {
 		this.giver = giver;
 	}
 
-	public ExternallyGivenMemory(LivingEntity owner, Dynamic<?> dyn) {
+	public ExternallyGivenMemory(E owner, Dynamic<?> dyn) {
 		this(owner, new CitizenIdentity(dyn.get("giver").get().get()),
 				Memory.deserialize(owner, dyn.get("delegate").get().get()),
 				Certainty.valueOf(dyn.get("trust").asString("")));
 	}
 
 	@Override
-	public void affectCitizen(LivingEntity en) {
+	public void affectCitizen(E en) {
 
 	}
 

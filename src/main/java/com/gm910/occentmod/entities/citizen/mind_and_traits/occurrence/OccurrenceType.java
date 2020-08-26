@@ -22,8 +22,8 @@ public class OccurrenceType<T extends Occurrence> {
 	public static final OccurrenceType<MurderDeed> MURDER = new OccurrenceType<>(GMFiles.rl("murder"),
 			(e) -> new MurderDeed());
 
-	public static final OccurrenceType<NeedFulfilledDeed> NEED_FULFILLED = new OccurrenceType<>(
-			GMFiles.rl("need_fulfilled"), (e) -> new NeedFulfilledDeed());
+	public static final OccurrenceType<NeedFulfilledDeed<?, ?>> NEED_FULFILLED = new OccurrenceType<>(
+			GMFiles.rl("need_fulfilled"), (e) -> new NeedFulfilledDeed<>());
 
 	public static final OccurrenceType<DamageOccurrence> DAMAGE = new OccurrenceType<>(GMFiles.rl("damage"),
 			(e) -> new DamageOccurrence(e));

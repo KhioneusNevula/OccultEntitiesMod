@@ -7,7 +7,7 @@ import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.world.server.ServerWorld;
 
-public abstract class ImmediateTask extends CitizenTask {
+public abstract class ImmediateTask<E extends LivingEntity> extends CitizenTask<E> {
 
 	public ImmediateTask(Map<MemoryModuleType<?>, MemoryModuleStatus> requiredMemoryStateIn, int durationMinIn,
 			int durationMaxIn) {

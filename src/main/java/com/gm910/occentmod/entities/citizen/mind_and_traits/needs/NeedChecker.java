@@ -1,38 +1,38 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.needs;
 
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
+import net.minecraft.entity.LivingEntity;
 
-public abstract class NeedChecker<E> {
+public abstract class NeedChecker<M extends LivingEntity, E> {
 
-	private NeedType<E> type;
+	private NeedType<M, E> type;
 
-	private Need<E> need;
+	private Need<M, E> need;
 
-	protected CitizenEntity entity;
+	protected M entity;
 
-	public NeedChecker(NeedType<E> type, CitizenEntity entity) {
+	public NeedChecker(NeedType<M, E> type, M entity) {
 		this.type = type;
 		this.entity = entity;
 	}
 
-	public NeedType<E> getType() {
+	public NeedType<M, E> getType() {
 		return type;
 	}
 
-	public CitizenEntity getEntity() {
+	public M getEntity() {
 		return entity;
 	}
 
-	public Need<E> getNeed() {
+	public Need<M, E> getNeed() {
 		return need;
 	}
 
-	public void setNeed(Need<?> need) {
-		this.need = (Need<E>) need;
+	public void setNeed(Need<?, ?> need) {
+		this.need = (Need<M, E>) need;
 	}
 
 	public final void tick() {
-		Need<E> needs = this.findNeeds();
+		Need<M, E> needs = this.findNeeds();
 		if (needs != null) {
 			this.need = needs;
 		}
@@ -51,7 +51,7 @@ public abstract class NeedChecker<E> {
 	 * @param autonomy
 	 * @return
 	 */
-	public abstract Need<E> findNeeds();
+	public abstract Need<M, E> findNeeds();
 
 	/**
 	 * return true if the need is fulfilled

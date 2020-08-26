@@ -4,8 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.gm910.occentmod.empires.gods.Deity;
-import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.InformationHolder;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait;
@@ -16,9 +14,9 @@ import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.common.capabilities.CapabilityProvider;
 
 public class Emotions extends InformationHolder {
 
@@ -54,21 +52,21 @@ public class Emotions extends InformationHolder {
 	 */
 	private float comfortLevel;
 
-	private Object2IntMap<Mood> moods = new Object2IntOpenHashMap<>();
+	private Object2IntMap<Mood<?>> moods = new Object2IntOpenHashMap<>();
 
 	public Emotions() {
 		super();
 	}
 
-	public void addMood(Mood mood, int time, CapabilityProvider<?> entity) {
-		if (entity instanceof Deity && mood.isForDeities() || entity instanceof CitizenEntity && mood.isForCitizens()) {
+	public <T extends LivingEntity> void addMood(Mood<?> mood, int time, T entity) {
+		if (mood.isForClass(entity.getClass())) {
 			this.moods.put(mood, time);
 		}
 	}
 
 	@Override
 	public void tick() {
-		for (Mood m : new HashSet<>(moods.keySet())) {
+		for (Mood<?> m : new HashSet<>(moods.keySet())) {
 			moods.put(m, moods.getInt(m) - 1);
 			if (moods.getInt(m) <= 0) {
 				moods.removeInt(m);
@@ -96,11 +94,11 @@ public class Emotions extends InformationHolder {
 		}
 	}
 
-	public Set<Mood> getMoods() {
+	public Set<Mood<?>> getMoods() {
 		return moods.keySet();
 	}
 
-	public int getTimeLeft(Mood mood) {
+	public int getTimeLeft(Mood<?> mood) {
 		return moods.getInt(mood);
 	}
 

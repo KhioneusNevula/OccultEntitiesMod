@@ -13,11 +13,11 @@ import com.mojang.datafixers.types.DynamicOps;
 
 import net.minecraft.entity.LivingEntity;
 
-public class NeedFulfilledDeed extends CitizenDeed {
+public class NeedFulfilledDeed<M extends LivingEntity, T> extends CitizenDeed {
 
-	private Need<?> need;
+	private Need<M, T> need;
 
-	public NeedFulfilledDeed(CitizenIdentity citizen, Need<?> need) {
+	public NeedFulfilledDeed(CitizenIdentity citizen, Need<M, T> need) {
 		super(OccurrenceType.NEED_FULFILLED, citizen);
 		this.need = need;
 	}

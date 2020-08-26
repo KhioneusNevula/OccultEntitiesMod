@@ -99,7 +99,7 @@ public abstract class Occurrence implements IDynamicSerializable, IWorldTickable
 
 	public abstract Object[] getDataForDisplay(LivingEntity en);
 
-	public Set<CitizenTask> getPotentialWitnessReactions() {
+	public <E extends LivingEntity> Set<CitizenTask<? super E>> getPotentialWitnessReactions() {
 		return new HashSet<>();
 	}
 
