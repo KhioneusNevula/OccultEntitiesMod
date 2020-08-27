@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.gm910.occentmod.api.util.ModReflect;
-import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
+import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.EntityDependentInformationHolder;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.emotions.Mood;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.CauseEffectMemory.Certainty;
@@ -62,7 +62,7 @@ public class Memories<E extends LivingEntity> extends EntityDependentInformation
 
 	public void generateIdeas() {
 
-		CitizenInfo<E> info = CitizenInfo.get(getEntityIn()).orElse(null);
+		SapientInfo<E> info = SapientInfo.get(getEntityIn());
 
 		float chancia = this.getEntityIn().getRNG().nextFloat();
 		float inqui = info.getPersonality().getTrait(PersonalityTrait.INQUISITIVITY);
@@ -114,7 +114,7 @@ public class Memories<E extends LivingEntity> extends EntityDependentInformation
 	}
 
 	public <T extends Memory<? super E>> Set<T> getByPredicate(Predicate<T> pred) {
-		Set<T> t = this.knowledge.stream().filter((m) -> ModReflect.<T>instanceOf(m, null)).map((d) -> (T) d)
+		Set<T> t = this.knowledge.stream().filter((m) -> ModReflect.<T>instanceOf(m, Memory.class)).map((d) -> (T) d)
 				.filter(pred).collect(Collectors.toSet());
 		return t;
 	}
@@ -130,18 +130,18 @@ public class Memories<E extends LivingEntity> extends EntityDependentInformation
 	}
 
 	public void shareKnowledge(Memory<? super E> mem, E other) {
-		CitizenInfo.get(other).orElse(null).getKnowledge().receiveKnowledge(mem);
+		SapientInfo.get(other).getKnowledge().receiveKnowledge(mem);
 
 	}
 
 	public void receiveKnowledge(Memory<? super E> mem) {
 
-		float trustProba = CitizenInfo.get(this.getEntityIn()).orElse(null).getRelationships().getTrustValue(
-				CitizenInfo.get(mem.getOwner()).orElse(null).getIdentity()) / Relationships.MAX_TRUST_VALUE;
+		float trustProba = SapientInfo.get(this.getEntityIn()).getRelationships()
+				.getTrustValue(SapientInfo.get(mem.getOwner()).getIdentity()) / Relationships.MAX_TRUST_VALUE;
 		Certainty trust = Certainty.values()[(int) (trustProba * Certainty.values().length)];
 		if (mem.getOwner() != this.getEntityIn()) {
 			mem = new ExternallyGivenMemory<>(this.getEntityIn(),
-					CitizenInfo.get(mem.getOwner()).orElse(null).getIdentity(), mem, trust);
+					SapientInfo.getLazy(mem.getOwner()).orElse(null).getIdentity(), mem, trust);
 		}
 
 		Memory<? super E> copy = Memory.copy(this.getEntityIn(), mem);

@@ -2,7 +2,7 @@ package com.gm910.occentmod.api.networking.messages.types;
 
 import com.gm910.occentmod.api.networking.messages.ModTask;
 import com.gm910.occentmod.api.util.ModReflect;
-import com.gm910.occentmod.capabilities.GMCapabilityUser;
+import com.gm910.occentmod.capabilities.GMCaps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -27,7 +27,7 @@ public class TaskSyncCapability extends ModTask {
 	}
 
 	public <T> TaskSyncCapability(int entityId, String field, LivingEntity en) {
-		Capability<T> cap = ModReflect.getField(GMCapabilityUser.class, Capability.class, field, null, null);
+		Capability<T> cap = ModReflect.getField(GMCaps.class, Capability.class, field, null, null);
 		this.capComp = cap.writeNBT(en.getCapability(cap).orElse(null), (Direction) null);
 		this.entity = en.getEntityId();
 		this.dim = en.dimension;
@@ -44,8 +44,8 @@ public class TaskSyncCapability extends ModTask {
 			System.out.println("Tried to sync capability data but seems to have gotten wrong entity");
 		}
 		LivingEntity entity = (LivingEntity) e;
-		Capability cap = ModReflect.getField(GMCapabilityUser.class, Capability.class, capField, null, null);
-		cap.readNBT(entity.getCapability(cap), null, capComp);
+		Capability cap = ModReflect.getField(GMCaps.class, Capability.class, capField, null, null);
+		cap.readNBT(entity.getCapability(cap).orElse(null), null, capComp);
 
 	}
 

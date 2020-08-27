@@ -1,13 +1,13 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds;
 
-import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
+import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect.Connotation;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relationships;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.SapientIdentity;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
@@ -16,16 +16,16 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 
-public class MurderDeed extends CitizenDeed {
+public class MurderDeed extends SapientDeed {
 
-	private CitizenIdentity killed;
+	private SapientIdentity killed;
 
 	/**
 	 * Basic deserialization constructor, DO NOT USE
 	 * 
 	 * @param citizen
 	 */
-	public MurderDeed(CitizenIdentity citizen) {
+	public MurderDeed(SapientIdentity citizen) {
 		super(OccurrenceType.MURDER, citizen);
 	}
 
@@ -33,26 +33,26 @@ public class MurderDeed extends CitizenDeed {
 		super(OccurrenceType.MURDER);
 	}
 
-	public MurderDeed(CitizenIdentity murderer, CitizenIdentity victim) {
+	public MurderDeed(SapientIdentity murderer, SapientIdentity victim) {
 		this(murderer);
 		killed = victim;
 	}
 
-	public CitizenIdentity getMurderer() {
+	public SapientIdentity getMurderer() {
 		return this.citizen;
 	}
 
-	public CitizenIdentity getVictim() {
+	public SapientIdentity getVictim() {
 		return killed;
 	}
 
-	public void setVictim(CitizenIdentity killed) {
+	public void setVictim(SapientIdentity killed) {
 		this.killed = killed;
 	}
 
 	@Override
 	public void readAdditionalData(Dynamic<?> dyn) {
-		killed = new CitizenIdentity(dyn);
+		killed = new SapientIdentity(dyn);
 	}
 
 	@Override
@@ -69,8 +69,8 @@ public class MurderDeed extends CitizenDeed {
 
 	@Override
 	public float getRelationshipChange(LivingEntity en) {
-		Relationships ships = CitizenInfo.get(en).orElse(null).getRelationships();
-		float sadism = CitizenInfo.get(en).orElse(null).getPersonality().getTrait(PersonalityTrait.SADISM);
+		Relationships ships = SapientInfo.get(en).getRelationships();
+		float sadism = SapientInfo.get(en).getPersonality().getTrait(PersonalityTrait.SADISM);
 		int change = (int) ships.getLikeValue(killed);
 
 		return (int) (-sadism * (change));

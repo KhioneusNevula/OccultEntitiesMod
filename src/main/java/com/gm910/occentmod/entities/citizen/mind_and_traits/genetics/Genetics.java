@@ -22,7 +22,7 @@ import com.mojang.datafixers.types.DynamicOps;
 import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMaps;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
 
@@ -34,20 +34,28 @@ public class Genetics<E extends LivingEntity> extends InformationHolder {
 		public static void forceClinit() {
 		}
 	*/
-	public Genetics() {
+
+	private Class<E> ownerClass;
+
+	public Genetics(Class<E> ownerClass) {
+		this.ownerClass = ownerClass;
+	}
+
+	public Class<E> getOwnerClass() {
+		return ownerClass;
 	}
 
 	public Genetics<E> copy() {
-		Genetics<E> copy = new Genetics<E>();
+		Genetics<E> copy = new Genetics<E>(this.ownerClass);
 		copy.genes = this.genes.entrySet().stream().map((e) -> Pair.of(e.getKey(), e.getValue().copy()))
 				.collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
 		return copy;
 	}
 
 	public Genetics<E> initGenes(Race race, E entity) {
-		Set<GeneType<Object, E>> geneTypes = race.getGeneTypes(entity);
-		for (GeneType<Object, E> type1 : geneTypes) {
-			GeneType<Object, E> type = type1;
+		Set<GeneType<?, E>> geneTypes = race.getGeneTypes(entity);
+		for (GeneType<?, E> type1 : geneTypes) {
+			GeneType<?, E> type = type1;
 			this.genes.put(type, type.getInitialValue(race, entity));
 		}
 		return this;
@@ -125,7 +133,7 @@ public class Genetics<E extends LivingEntity> extends InformationHolder {
 		if (genes.isEmpty())
 			return null;
 		Collection<Gene<?>> geneSet = this.genes.values();
-		Object2IntMap<Race> valsForEach = Object2IntMaps.emptyMap();
+		Object2IntMap<Race> valsForEach = new Object2IntOpenHashMap<>();
 		for (Race race : Race.getRaces()) {
 			valsForEach.put(race, 0);
 		}
@@ -161,7 +169,7 @@ public class Genetics<E extends LivingEntity> extends InformationHolder {
 	public Genetics<E> getChild(Genetics<E> other, E child) {
 		Set<GeneType<?, ? super E>> geneTypes = Sets.newHashSet(this.genes.keySet());
 		geneTypes.addAll(other.genes.keySet());
-		Genetics<E> new1 = new Genetics<E>();
+		Genetics<E> new1 = new Genetics<E>(this.ownerClass);
 		for (GeneType<?, ? super E> type : geneTypes) {
 			if (this.getGene(type) != null && other.getGene(type) != null) {
 				new1.setGene(type, type.mix(this.getGene(type), other.getGene(type)));

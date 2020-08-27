@@ -9,12 +9,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.gm910.occentmod.api.util.ModReflect;
-import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
+import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.emotions.Emotions.EmotionType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.checkers.EmotionChecker;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.checkers.HungerChecker;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.task.SapientTask;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.needs.EatFoodFromInventory;
 import com.gm910.occentmod.util.GMFiles;
 import com.google.common.collect.Sets;
@@ -28,28 +28,29 @@ public class NeedType<E extends LivingEntity, T> {
 
 	private static final Map<ResourceLocation, NeedType<?, ?>> TYPES = new HashMap<>();
 
-	public static final NeedType<CitizenEntity, Float> HUNGER = new NeedType<CitizenEntity, Float>(GMFiles.rl("hunger"),
-			(en) -> en.getFoodLevel(), (a, d) -> d.asFloat(0), (d, n) -> d.createFloat(n.getDesiredValue()),
-			(m, e) -> new HungerChecker(m, e), (m, e) -> Sets.newHashSet(new EatFoodFromInventory()), true); // TODO
+	public static final NeedType<CitizenEntity, Float> HUNGER = new NeedType<CitizenEntity, Float>(CitizenEntity.class,
+			Float.class, GMFiles.rl("hunger"), (en) -> en.getFoodLevel(), (a, d) -> d.asFloat(0),
+			(d, n) -> d.createFloat(n.getDesiredValue()), (m, e) -> new HungerChecker(m, e),
+			(m, e) -> Sets.newHashSet(new EatFoodFromInventory()), true); // TODO
 
-	public static final NeedType<LivingEntity, Float> HAPPINESS = new NeedType<LivingEntity, Float>(
-			GMFiles.rl("happiness"),
-			(en) -> CitizenInfo.get(en).orElse(null).getEmotions().getLevel(EmotionType.HAPPINESS),
+	public static final NeedType<LivingEntity, Float> HAPPINESS = new NeedType<LivingEntity, Float>(LivingEntity.class,
+			Float.class, GMFiles.rl("happiness"),
+			(en) -> SapientInfo.get(en).getEmotions().getLevel(EmotionType.HAPPINESS), (a, d) -> d.asFloat(0),
+			(d, n) -> d.createFloat(n.getDesiredValue()), (m, e) -> new EmotionChecker(m, EmotionType.HAPPINESS, e),
+			(m, e) -> Sets.newHashSet(), true); // TODO
+
+	public static final NeedType<LivingEntity, Float> SOCIAL = new NeedType<LivingEntity, Float>(LivingEntity.class,
+			Float.class, GMFiles.rl("social"), (en) -> SapientInfo.get(en).getEmotions().getLevel(EmotionType.SOCIAL),
 			(a, d) -> d.asFloat(0), (d, n) -> d.createFloat(n.getDesiredValue()),
-			(m, e) -> new EmotionChecker(m, EmotionType.HAPPINESS, e), (m, e) -> Sets.newHashSet(), true); // TODO
+			(m, e) -> new EmotionChecker(m, EmotionType.SOCIAL, e), (m, e) -> Sets.newHashSet(), true); // TODO
 
-	public static final NeedType<LivingEntity, Float> SOCIAL = new NeedType<LivingEntity, Float>(GMFiles.rl("social"),
-			(en) -> CitizenInfo.get(en).orElse(null).getEmotions().getLevel(EmotionType.SOCIAL), (a, d) -> d.asFloat(0),
-			(d, n) -> d.createFloat(n.getDesiredValue()), (m, e) -> new EmotionChecker(m, EmotionType.SOCIAL, e),
-			(m, e) -> Sets.newHashSet(), true); // TODO
+	public static final NeedType<LivingEntity, Float> FUN = new NeedType<LivingEntity, Float>(LivingEntity.class,
+			Float.class, GMFiles.rl("fun"), (en) -> SapientInfo.get(en).getEmotions().getLevel(EmotionType.FUN),
+			(a, d) -> d.asFloat(0), (d, n) -> d.createFloat(n.getDesiredValue()),
+			(m, e) -> new EmotionChecker(m, EmotionType.FUN, e), (m, e) -> Sets.newHashSet(), true); // TODO
 
-	public static final NeedType<LivingEntity, Float> FUN = new NeedType<LivingEntity, Float>(GMFiles.rl("fun"),
-			(en) -> CitizenInfo.get(en).orElse(null).getEmotions().getLevel(EmotionType.FUN), (a, d) -> d.asFloat(0),
-			(d, n) -> d.createFloat(n.getDesiredValue()), (m, e) -> new EmotionChecker(m, EmotionType.FUN, e),
-			(m, e) -> Sets.newHashSet(), true); // TODO
-
-	public static final NeedType<LivingEntity, Float> COMFORT = new NeedType<LivingEntity, Float>(GMFiles.rl("comfort"),
-			(en) -> CitizenInfo.get(en).orElse(null).getEmotions().getLevel(EmotionType.COMFORT),
+	public static final NeedType<LivingEntity, Float> COMFORT = new NeedType<LivingEntity, Float>(LivingEntity.class,
+			Float.class, GMFiles.rl("comfort"), (en) -> SapientInfo.get(en).getEmotions().getLevel(EmotionType.COMFORT),
 			(a, d) -> d.asFloat(0), (d, n) -> d.createFloat(n.getDesiredValue()),
 			(m, e) -> new EmotionChecker(m, EmotionType.COMFORT, e), (m, e) -> Sets.newHashSet(), true); // TODO
 
@@ -63,14 +64,17 @@ public class NeedType<E extends LivingEntity, T> {
 
 	BiFunction<NeedType<E, T>, E, NeedChecker<E, T>> checker;
 
-	BiFunction<Need<E, T>, E, Set<CitizenTask<E>>> needFulfillmentTask;
+	BiFunction<Need<E, T>, E, Set<SapientTask<E>>> needFulfillmentTask;
 
 	public final boolean citizenNeed;
 
-	public NeedType(ResourceLocation rl, Function<E, T> getValue,
+	private Class<E> ownerType;
+	private Class<T> valueType;
+
+	public NeedType(Class<E> ownerType, Class<T> valueType, ResourceLocation rl, Function<E, T> getValue,
 			BiFunction<NeedType<E, T>, Dynamic<?>, T> deserializer, BiFunction<DynamicOps<?>, Need<E, T>, ?> serializer,
 			BiFunction<NeedType<E, T>, E, NeedChecker<E, T>> checker,
-			BiFunction<Need<E, T>, E, Set<CitizenTask<E>>> needFulfillmentTask, boolean citizenNeed) {
+			BiFunction<Need<E, T>, E, Set<SapientTask<E>>> needFulfillmentTask, boolean citizenNeed) {
 		this.resource = rl;
 		this.deserialize = deserializer;
 		this.getVal = getValue;
@@ -78,7 +82,17 @@ public class NeedType<E extends LivingEntity, T> {
 		this.needFulfillmentTask = needFulfillmentTask;
 		this.checker = checker;
 		this.citizenNeed = citizenNeed;
+		this.ownerType = ownerType;
+		this.valueType = valueType;
 		TYPES.put(rl, this);
+	}
+
+	public Class<E> getOwnerType() {
+		return ownerType;
+	}
+
+	public Class<T> getValueType() {
+		return valueType;
 	}
 
 	public NeedChecker<E, T> makeNeedsChecker(E en) {
@@ -89,7 +103,7 @@ public class NeedType<E extends LivingEntity, T> {
 		return en.getRNG().nextInt(100);
 	}
 
-	public Set<CitizenTask<E>> getNeedFulfillmentTask(Need<E, T> need, E owner) {
+	public Set<SapientTask<E>> getNeedFulfillmentTask(Need<E, T> need, E owner) {
 		return needFulfillmentTask.apply(need, owner);
 	}
 
@@ -125,7 +139,8 @@ public class NeedType<E extends LivingEntity, T> {
 	}
 
 	public static <E extends CitizenEntity> Set<NeedType<E, ?>> getCitizenNeeds() {
-		return TYPES.values().stream().filter((e) -> e.citizenNeed && ModReflect.<NeedType<E, ?>>instanceOf(e, null))
+		return TYPES.values().stream()
+				.filter((e) -> e.citizenNeed && ModReflect.<NeedType<E, ?>>instanceOf(e, NeedType.class))
 				.map((e) -> (NeedType<E, ?>) e).collect(Collectors.toSet());
 	}
 

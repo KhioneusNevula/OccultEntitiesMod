@@ -9,16 +9,16 @@ import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 
-public class CitinfoStorage<T extends LivingEntity> implements IStorage<CitizenInfo<T>> {
+public class SapinfoStorage<T extends LivingEntity> implements IStorage<SapientInfo<T>> {
 
 	@Override
-	public INBT writeNBT(Capability<CitizenInfo<T>> capability, CitizenInfo<T> instance, Direction side) {
+	public INBT writeNBT(Capability<SapientInfo<T>> capability, SapientInfo<T> instance, Direction side) {
 
 		return instance.serialize(NBTDynamicOps.INSTANCE);
 	}
 
 	@Override
-	public void readNBT(Capability<CitizenInfo<T>> capability, CitizenInfo<T> instance, Direction side, INBT nbt) {
+	public void readNBT(Capability<SapientInfo<T>> capability, SapientInfo<T> instance, Direction side, INBT nbt) {
 		instance.deserialize(GMNBT.makeDynamic(nbt));
 	}
 

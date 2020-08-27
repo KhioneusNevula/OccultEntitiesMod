@@ -20,8 +20,8 @@ public class DoubleIncompleteDominantGeneType<E extends LivingEntity> extends Ge
 
 	private double nullVal = 0;
 
-	public DoubleIncompleteDominantGeneType(ResourceLocation loc, Map<Race, Double> ofRace) {
-		super(loc, null);
+	public DoubleIncompleteDominantGeneType(Class<E> ownerType, ResourceLocation loc, Map<Race, Double> ofRace) {
+		super(loc, ownerType, double.class, null);
 		super.setGetRandomGene((e, t) -> new Gene<>(this, ofRace.get(e)).setRaceMarker(e));
 		this.ofRace = ofRace;
 	}

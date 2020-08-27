@@ -8,8 +8,8 @@ import java.util.Set;
 import com.gm910.occentmod.api.language.Translate;
 import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.IWorldTickable;
-import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
+import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.task.SapientTask;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.Dynamic;
@@ -99,7 +99,7 @@ public abstract class Occurrence implements IDynamicSerializable, IWorldTickable
 
 	public abstract Object[] getDataForDisplay(LivingEntity en);
 
-	public <E extends LivingEntity> Set<CitizenTask<? super E>> getPotentialWitnessReactions() {
+	public <E extends LivingEntity> Set<SapientTask<? super E>> getPotentialWitnessReactions() {
 		return new HashSet<>();
 	}
 
@@ -108,7 +108,7 @@ public abstract class Occurrence implements IDynamicSerializable, IWorldTickable
 	 * 
 	 * @param e
 	 */
-	public void affectCitizen(CitizenInfo<? extends LivingEntity> e) {
+	public void affectCitizen(SapientInfo<? extends LivingEntity> e) {
 
 	}
 
@@ -124,7 +124,7 @@ public abstract class Occurrence implements IDynamicSerializable, IWorldTickable
 		if (this.position != null) {
 			Set<LivingEntity> es = new HashSet<>();
 			List<LivingEntity> inBounds = event.world.getEntitiesWithinAABB(LivingEntity.class,
-					new AxisAlignedBB(new BlockPos(position)).grow(40), (e) -> CitizenInfo.get(e).isPresent());
+					new AxisAlignedBB(new BlockPos(position)).grow(40), (e) -> SapientInfo.getLazy(e).isPresent());
 			for (LivingEntity e : inBounds) {
 				if (this.canOccurrenceBeSeen(e)) {
 					es.add(e);

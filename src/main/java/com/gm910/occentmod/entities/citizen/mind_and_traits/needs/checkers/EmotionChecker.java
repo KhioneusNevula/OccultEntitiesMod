@@ -1,6 +1,6 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.needs.checkers;
 
-import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
+import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.emotions.Emotions.EmotionType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Need;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedChecker;
@@ -25,7 +25,7 @@ public class EmotionChecker extends NeedChecker<LivingEntity, Float> {
 	@Override
 	public boolean fulfillNeeds() {
 
-		CitizenInfo<LivingEntity> entity = CitizenInfo.get(this.entity).orElse(null);
+		SapientInfo<LivingEntity> entity = SapientInfo.get(this.entity);
 		float curval = entity.getEmotions().getLevel(emotionType);
 		float desval = entity.getEmotions().getThreshholdOfSatisfaction(entity.getPersonality(), emotionType);
 		return curval >= desval;
@@ -33,7 +33,7 @@ public class EmotionChecker extends NeedChecker<LivingEntity, Float> {
 
 	@Override
 	public Need<LivingEntity, Float> findNeeds() {
-		CitizenInfo<LivingEntity> entity = CitizenInfo.get(this.entity).orElse(null);
+		SapientInfo<LivingEntity> entity = SapientInfo.get(this.entity);
 		float curval = entity.getEmotions().getLevel(emotionType);
 		float desval = entity.getEmotions().getThreshholdOfSatisfaction(entity.getPersonality(), emotionType);
 

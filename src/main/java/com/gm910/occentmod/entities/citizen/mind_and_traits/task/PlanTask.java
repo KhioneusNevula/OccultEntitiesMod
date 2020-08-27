@@ -8,8 +8,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.SapientDeed;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.SapientIdentity;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.Dynamic;
@@ -26,9 +26,9 @@ import net.minecraft.world.server.ServerWorld;
  * @author borah
  *
  */
-public class PlanTask extends CitizenTask<LivingEntity> {
+public class PlanTask extends SapientTask<LivingEntity> {
 
-	private List<? extends CitizenTask<? extends LivingEntity>> tasks = new ArrayList<>();
+	private List<? extends SapientTask<? extends LivingEntity>> tasks = new ArrayList<>();
 
 	private Predicate<? super CitizenEntity> shouldStart;
 
@@ -37,15 +37,15 @@ public class PlanTask extends CitizenTask<LivingEntity> {
 	private boolean isActive;
 
 	public PlanTask(Predicate<? super LivingEntity> shouldStart, Predicate<? super LivingEntity> shouldPause,
-			List<? extends CitizenTask<? extends LivingEntity>> tasks) {
-		super(ImmutableMap.of());
+			List<? extends SapientTask<? extends LivingEntity>> tasks) {
+		super(LivingEntity.class, ImmutableMap.of());
 		this.shouldStart = shouldStart;
 		this.shouldPause = shouldPause;
 		this.isActive = false;
 	}
 
 	public PlanTask(Dynamic<?> dyn) {
-		super(memoryStates(getTasks(dyn.get("tasks").get().get())));
+		super(LivingEntity.class, memoryStates(getTasks(dyn.get("tasks").get().get())));
 		this.tasks = dyn.get("tasks").asList((e) -> TaskType.deserialize(e));
 		this.isActive = dyn.get("active").asBoolean(false);
 	}
@@ -82,14 +82,14 @@ public class PlanTask extends CitizenTask<LivingEntity> {
 		return true;
 	}
 
-	public static <E extends LivingEntity> List<? extends CitizenTask<? super E>> getTasks(Dynamic<?> dyn) {
+	public static <E extends LivingEntity> List<? extends SapientTask<? super E>> getTasks(Dynamic<?> dyn) {
 		return dyn.asList((d) -> TaskType.deserialize(d));
 	}
 
 	public static <E extends LivingEntity> Map<MemoryModuleType<?>, MemoryModuleStatus> memoryStates(
-			List<? extends CitizenTask<? super E>> tasques) {
+			List<? extends SapientTask<? super E>> tasques) {
 		Map<MemoryModuleType<?>, MemoryModuleStatus> stats = new HashMap<>();
-		for (CitizenTask<? super E> tasque : tasques) {
+		for (SapientTask<? super E> tasque : tasques) {
 			stats.putAll(tasque.getDelegateMemoryMap());
 		}
 		return stats;
@@ -110,7 +110,7 @@ public class PlanTask extends CitizenTask<LivingEntity> {
 	}
 
 	@Override
-	public CitizenDeed getDeed(CitizenIdentity doer) {
+	public SapientDeed getDeed(SapientIdentity doer) {
 		return null;
 	}
 

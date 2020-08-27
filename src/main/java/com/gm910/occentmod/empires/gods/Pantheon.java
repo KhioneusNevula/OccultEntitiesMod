@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
+import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.empires.Empire;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -78,7 +78,7 @@ public class Pantheon implements IDynamicSerializable {
 				this.gods.remove(deity);
 			}
 		}
-		gods.forEach((d) -> CitizenInfo.get(d).orElse(null).onCreation());
+		gods.forEach((d) -> SapientInfo.get(d).onCreation());
 	}
 
 	public static Pantheon generatePantheon(Empire em) {

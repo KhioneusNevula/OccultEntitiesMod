@@ -16,8 +16,8 @@ public class AllelicGeneType<E extends LivingEntity> extends GeneType<DoubleAlle
 	private Race dominantRace;
 	private Race recessiveRace;
 
-	public AllelicGeneType(ResourceLocation loc, Race dominant, Race recessive) {
-		super(loc, null);
+	public AllelicGeneType(Class<E> ownerType, ResourceLocation loc, Race dominant, Race recessive) {
+		super(loc, ownerType, DoubleAllele.class, null);
 		this.dominantRace = dominant;
 		this.recessiveRace = recessive;
 		this.setGetRandomGene((race, e) -> new Gene<DoubleAllele>(this, forRace(race)));

@@ -19,8 +19,8 @@ public class IntegerIncompleteDominantGeneType<E extends LivingEntity> extends G
 	private int defVal = 0;
 	private int nullVal = 0;
 
-	public IntegerIncompleteDominantGeneType(ResourceLocation loc, Map<Race, Integer> ofRace) {
-		super(loc, null);
+	public IntegerIncompleteDominantGeneType(Class<E> ownerType, ResourceLocation loc, Map<Race, Integer> ofRace) {
+		super(loc, ownerType, int.class, null);
 		super.setGetRandomGene((e, t) -> new Gene<>(this, ofRace.get(e)).setRaceMarker(e));
 		this.ofRace = ofRace;
 	}

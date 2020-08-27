@@ -2,12 +2,12 @@ package com.gm910.occentmod.events;
 
 import java.util.Optional;
 
-import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
+import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.capabilities.speciallocs.SpecialLocationManager;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceData;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenAttackDeed;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.SapientAttackDeed;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.events.DamageOccurrence;
 import com.gm910.occentmod.init.DataInit;
 import com.google.common.base.Predicates;
@@ -55,8 +55,7 @@ public class MinecraftEventHandler {
 	@SubscribeEvent
 	public static void liv(LivingUpdateEvent event) {
 		if (event.getEntityLiving() instanceof ServerPlayerEntity) {
-			CitizenInfo<ServerPlayerEntity> info = CitizenInfo.get((ServerPlayerEntity) event.getEntityLiving())
-					.orElse(null);
+			SapientInfo<ServerPlayerEntity> info = SapientInfo.get((ServerPlayerEntity) event.getEntityLiving());
 			if (info.$getOwner().ticksExisted <= 1) {
 				info.onCreation();
 			}
@@ -68,7 +67,7 @@ public class MinecraftEventHandler {
 			return;
 		OccurrenceData occ = OccurrenceData.get((ServerWorld) event.getEntity().world);
 		Occurrence occurrence = event.getSource().getTrueSource() instanceof CitizenEntity
-				? new CitizenAttackDeed(event.getEntityLiving(), event.getEntity().world.getGameTime(),
+				? new SapientAttackDeed(event.getEntityLiving(), event.getEntity().world.getGameTime(),
 						(CitizenEntity) event.getEntityLiving(), event.getSource(), event.getAmount())
 				: new DamageOccurrence(event.getEntityLiving(), event.getEntity().world.getGameTime(),
 						event.getSource(), event.getAmount());

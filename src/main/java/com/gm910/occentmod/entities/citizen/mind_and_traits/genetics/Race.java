@@ -67,9 +67,11 @@ public class Race {
 		return Sets.newHashSet(geneTypes);
 	}
 
-	public <R, E extends LivingEntity> Set<GeneType<R, E>> getGeneTypes(E en) {
-		return getGeneTypes().stream().filter((e) -> !ModReflect.<GeneType<R, E>>instanceOf(e, null))
-				.map((e) -> (GeneType<R, E>) e).collect(Collectors.toSet());
+	public <E extends LivingEntity> Set<GeneType<?, E>> getGeneTypes(E en) {
+		return getGeneTypes().stream()
+				.filter((e) -> !ModReflect.<GeneType<?, E>>instanceOf(e, GeneType.class)
+						&& e.getOwnerType().isAssignableFrom(en.getClass()))
+				.map((e) -> (GeneType<?, E>) e).collect(Collectors.toSet());
 	}
 
 	public Race setGeneTypes(GeneType<?, ? extends LivingEntity>... type) {

@@ -140,14 +140,16 @@ public class ParallelList<E, M> extends ArrayList<E> {
 
 	@Override
 	public boolean removeAll(Collection<?> c) {
-		return basis.removeAll(
-				ModReflect.<Collection<E>>instanceOf(c, null) ? this.translateCollectionEM((Collection<E>) c) : c);
+		return basis.removeAll(ModReflect.<Collection<E>>instanceOf(c, Collection.class)
+				? this.translateCollectionEM((Collection<E>) c)
+				: c);
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> c) {
-		return basis.retainAll(
-				ModReflect.<Collection<E>>instanceOf(c, null) ? this.translateCollectionEM((Collection<E>) c) : c);
+		return basis.retainAll(ModReflect.<Collection<E>>instanceOf(c, Collection.class)
+				? this.translateCollectionEM((Collection<E>) c)
+				: c);
 	}
 
 	@Override

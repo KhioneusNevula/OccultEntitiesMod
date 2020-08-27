@@ -5,15 +5,15 @@ import java.util.Set;
 
 import com.gm910.occentmod.api.networking.messages.Networking;
 import com.gm910.occentmod.api.networking.messages.types.TaskParticles;
-import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
+import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect.Connotation;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceType;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.SapientDeed;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.SapientIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.ImmediateTask;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.TaskType;
 import com.gm910.occentmod.util.GMFiles;
@@ -37,7 +37,7 @@ public class EatFoodFromInventory extends ImmediateTask<CitizenEntity>
 	private Optional<ItemStack> foodOp;
 
 	public EatFoodFromInventory() {
-		super(ImmutableMap.of());
+		super(CitizenEntity.class, ImmutableMap.of());
 		addContext(Context.CORE);
 		foodOp = Optional.empty();
 	}
@@ -99,7 +99,7 @@ public class EatFoodFromInventory extends ImmediateTask<CitizenEntity>
 	}
 
 	public Set<ItemStack> getFoodFromInventory(LivingEntity owner) {
-		IInventory inventory = CitizenInfo.get(owner).orElse(null).getInventory();
+		IInventory inventory = SapientInfo.get(owner).getInventory();
 		Set<ItemStack> stacks = Sets.newHashSet();
 		for (int i = 0; i < inventory.getSizeInventory(); i++) {
 			ItemStack stack = inventory.getStackInSlot(i);
@@ -116,7 +116,7 @@ public class EatFoodFromInventory extends ImmediateTask<CitizenEntity>
 	}
 
 	@Override
-	public CitizenDeed getDeed(CitizenIdentity doer) {
+	public SapientDeed getDeed(SapientIdentity doer) {
 		return new EatenFoodDeed(doer, foodOp);
 	}
 
@@ -136,7 +136,7 @@ public class EatFoodFromInventory extends ImmediateTask<CitizenEntity>
 		return TaskType.EAT_FOOD_FROM_INVENTORY;
 	}
 
-	public static class EatenFoodDeed extends CitizenDeed {
+	public static class EatenFoodDeed extends SapientDeed {
 
 		public static final OccurrenceType<EatenFoodDeed> DEED = new OccurrenceType<>(GMFiles.rl("eaten_food_deed"),
 				(wuld) -> {
@@ -149,7 +149,7 @@ public class EatFoodFromInventory extends ImmediateTask<CitizenEntity>
 			super(DEED);
 		}
 
-		public EatenFoodDeed(CitizenIdentity citizen, Optional<ItemStack> food) {
+		public EatenFoodDeed(SapientIdentity citizen, Optional<ItemStack> food) {
 			super(DEED, citizen);
 			this.food = food;
 		}

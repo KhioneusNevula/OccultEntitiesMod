@@ -27,7 +27,7 @@ public class CitizenMemoryAndSensors {
 
 	public static final RegistryObject<SensorType<VisibleEntitySensor<CitizenEntity>>> NEAREST_CITIZENS = registerSens(
 			DataInit.registerSensor("nearest_citizens", () -> {
-				return new VisibleEntitySensor<CitizenEntity>(VISIBLE_CITIZENS.get(),
+				return new VisibleEntitySensor<CitizenEntity>(CitizenEntity.class, VISIBLE_CITIZENS.get(),
 						(e) -> e.getType() == EntityInit.CITIZEN.get(), 20);
 			}));
 

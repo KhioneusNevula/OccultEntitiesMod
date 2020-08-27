@@ -3,7 +3,7 @@ package com.gm910.occentmod.capabilities.formshifting;
 import java.util.UUID;
 
 import com.gm910.occentmod.OccultEntities;
-import com.gm910.occentmod.capabilities.GMCapabilityUser;
+import com.gm910.occentmod.capabilities.GMCaps;
 import com.gm910.occentmod.capabilities.IModCapability;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.BodyForm;
 
@@ -64,7 +64,7 @@ public class Formshift implements INBTSerializable<CompoundNBT>, IModCapability<
 	}
 
 	public static Formshift get(LivingEntity player) {
-		return player.getCapability(GMCapabilityUser.FORM).orElse(null);
+		return player.getCapability(GMCaps.FORM).orElse(null);
 	}
 
 	@Override

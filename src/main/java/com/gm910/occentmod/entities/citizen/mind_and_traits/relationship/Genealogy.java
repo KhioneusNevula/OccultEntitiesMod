@@ -12,18 +12,18 @@ import net.minecraft.util.IDynamicSerializable;
 
 public class Genealogy implements IDynamicSerializable {
 
-	CitizenIdentity of = null;
-	private CitizenIdentity firstParent = null;
-	private CitizenIdentity secondParent = null;
-	private Set<CitizenIdentity> children = new HashSet<>();
-	private Set<CitizenIdentity> siblings = new HashSet<>();
+	SapientIdentity of = null;
+	private SapientIdentity firstParent = null;
+	private SapientIdentity secondParent = null;
+	private Set<SapientIdentity> children = new HashSet<>();
+	private Set<SapientIdentity> siblings = new HashSet<>();
 
-	public Genealogy(CitizenIdentity of, CitizenIdentity firstParent, CitizenIdentity secondParent) {
+	public Genealogy(SapientIdentity of, SapientIdentity firstParent, SapientIdentity secondParent) {
 		this(of, firstParent, secondParent, new HashSet<>(), new HashSet<>());
 	}
 
-	public Genealogy(CitizenIdentity of, CitizenIdentity fp, CitizenIdentity sp, Set<CitizenIdentity> chil,
-			Set<CitizenIdentity> sibs) {
+	public Genealogy(SapientIdentity of, SapientIdentity fp, SapientIdentity sp, Set<SapientIdentity> chil,
+			Set<SapientIdentity> sibs) {
 		this.of = of;
 		this.firstParent = fp;
 		this.secondParent = sp;
@@ -32,16 +32,16 @@ public class Genealogy implements IDynamicSerializable {
 		this.siblings.remove(of);
 	}
 
-	public Genealogy(CitizenIdentity of) {
+	public Genealogy(SapientIdentity of) {
 		this.of = of;
 	}
 
 	public Genealogy(Dynamic<?> dyn) {
-		this(new CitizenIdentity(dyn.get("of").get().get()),
-				dyn.get("parent1").get().isPresent() ? new CitizenIdentity(dyn.get("parent1").get().get()) : null,
-				dyn.get("parent2").get().isPresent() ? new CitizenIdentity(dyn.get("parent2").get().get()) : null,
-				dyn.get("children").asStream().map((d) -> new CitizenIdentity(d)).collect(Collectors.toSet()),
-				dyn.get("siblings").asStream().map((d) -> new CitizenIdentity(d)).collect(Collectors.toSet()));
+		this(new SapientIdentity(dyn.get("of").get().get()),
+				dyn.get("parent1").get().isPresent() ? new SapientIdentity(dyn.get("parent1").get().get()) : null,
+				dyn.get("parent2").get().isPresent() ? new SapientIdentity(dyn.get("parent2").get().get()) : null,
+				dyn.get("children").asStream().map((d) -> new SapientIdentity(d)).collect(Collectors.toSet()),
+				dyn.get("siblings").asStream().map((d) -> new SapientIdentity(d)).collect(Collectors.toSet()));
 	}
 
 	@Override
@@ -61,84 +61,84 @@ public class Genealogy implements IDynamicSerializable {
 		this(other.of, other.firstParent, other.secondParent, other.children, other.siblings);
 	}
 
-	public Set<CitizenIdentity> getChildren() {
+	public Set<SapientIdentity> getChildren() {
 		return new HashSet<>(children);
 	}
 
-	public CitizenIdentity getFirstParent() {
+	public SapientIdentity getFirstParent() {
 		return firstParent;
 	}
 
-	public CitizenIdentity getCitizen() {
+	public SapientIdentity getCitizen() {
 		return of;
 	}
 
-	public CitizenIdentity getSecondParent() {
+	public SapientIdentity getSecondParent() {
 		return secondParent;
 	}
 
-	public Set<CitizenIdentity> getSiblings() {
+	public Set<SapientIdentity> getSiblings() {
 		return new HashSet<>(siblings);
 	}
 
-	private Genealogy setFirstParentMutable(CitizenIdentity firstParent) {
+	private Genealogy setFirstParentMutable(SapientIdentity firstParent) {
 		this.firstParent = firstParent;
 		return this;
 	}
 
-	private Genealogy setSecondParentMutable(CitizenIdentity secondParent) {
+	private Genealogy setSecondParentMutable(SapientIdentity secondParent) {
 		this.secondParent = secondParent;
 		return this;
 	}
 
-	private Genealogy setChildrenMutable(Set<CitizenIdentity> children) {
+	private Genealogy setChildrenMutable(Set<SapientIdentity> children) {
 		this.children = children;
 		return this;
 	}
 
-	private Genealogy setSiblingsMutable(Set<CitizenIdentity> siblings) {
+	private Genealogy setSiblingsMutable(Set<SapientIdentity> siblings) {
 		this.siblings = siblings;
 		this.siblings.remove(of);
 		return this;
 	}
 
-	private Genealogy setOfMutable(CitizenIdentity s) {
+	private Genealogy setOfMutable(SapientIdentity s) {
 		this.of = s;
 		this.siblings.remove(of);
 		return this;
 	}
 
-	public Genealogy setFirstParent(CitizenIdentity par) {
+	public Genealogy setFirstParent(SapientIdentity par) {
 		return new Genealogy(this).setFirstParentMutable(par);
 	}
 
-	public Genealogy setSecondParent(CitizenIdentity secondParent) {
+	public Genealogy setSecondParent(SapientIdentity secondParent) {
 		return new Genealogy(this).setSecondParentMutable(secondParent);
 	}
 
-	public Genealogy setChildren(Set<CitizenIdentity> children) {
+	public Genealogy setChildren(Set<SapientIdentity> children) {
 		return new Genealogy(this).setChildrenMutable(children);
 	}
 
-	public Genealogy setSiblings(Set<CitizenIdentity> siblings) {
+	public Genealogy setSiblings(Set<SapientIdentity> siblings) {
 		return new Genealogy(this).setSiblingsMutable(siblings);
 	}
 
-	public Genealogy setOwner(CitizenIdentity owner) {
+	public Genealogy setOwner(SapientIdentity owner) {
 		return new Genealogy(this).setOfMutable(owner);
 	}
 
-	public Genealogy addSibling(CitizenIdentity sibling) {
+	public Genealogy addSibling(SapientIdentity sibling) {
 		Genealogy s = new Genealogy(this);
-		Set<CitizenIdentity> f = s.getSiblings();
+		Set<SapientIdentity> f = s.getSiblings();
 		f.add(sibling);
 		s.setSiblingsMutable(f);
 		return s;
 	}
 
-	public Genealogy addChild(CitizenIdentity child) {
+	public Genealogy addChild(SapientIdentity child) {
 		Genealogy s = new Genealogy(this);
-		Set<CitizenIdentity> f = s.getChildren();
+		Set<SapientIdentity> f = s.getChildren();
 		f.add(child);
 		s.setChildrenMutable(f);
 		return s;

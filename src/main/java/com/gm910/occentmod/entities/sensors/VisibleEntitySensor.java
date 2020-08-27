@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.gm910.occentmod.api.util.ModReflect;
 import com.google.common.collect.ImmutableSet;
 
 import net.minecraft.entity.EntityPredicate;
@@ -23,13 +22,16 @@ public class VisibleEntitySensor<T extends LivingEntity> extends Sensor<LivingEn
 	private MemoryModuleType<Collection<T>> usedMemory;
 	private Predicate<T> tester;
 	private double distance;
+	private Class<T> clazz;
 
-	public VisibleEntitySensor(MemoryModuleType<Collection<T>> usedMemory, Predicate<T> tester, double distance) {
+	public VisibleEntitySensor(Class<T> clazz, MemoryModuleType<Collection<T>> usedMemory, Predicate<T> tester,
+			double distance) {
 		this.usedMemory = usedMemory;
 		this.tester = tester;
 		this.distance = distance;
 		this.predicate = (new EntityPredicate()).setDistance(distance).allowFriendlyFire().setSkipAttackChecks()
 				.setLineOfSiteRequired();
+		this.clazz = clazz;
 	}
 
 	public Set<MemoryModuleType<?>> getUsedMemories() {
@@ -41,7 +43,7 @@ public class VisibleEntitySensor<T extends LivingEntity> extends Sensor<LivingEn
 				entityIn.getBoundingBox().grow(distance, distance, distance), (p_220980_1_) -> {
 					return p_220980_1_ != entityIn && p_220980_1_.isAlive();
 				});
-		list.removeIf((e) -> !ModReflect.<T>instanceOf(e, null));
+		list.removeIf((e) -> clazz.isInstance(e));
 		list.sort(Comparator.comparingDouble(entityIn::getDistanceSq));
 		Brain<?> brain = entityIn.getBrain();
 		brain.setMemory(MemoryModuleType.MOBS, list);

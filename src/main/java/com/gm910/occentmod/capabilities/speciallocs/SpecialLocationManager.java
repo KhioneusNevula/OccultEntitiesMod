@@ -12,7 +12,7 @@ import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.IWorldTickable;
 import com.gm910.occentmod.api.util.ModReflect;
 import com.gm910.occentmod.api.util.NonNullMap;
-import com.gm910.occentmod.capabilities.GMCapabilityUser;
+import com.gm910.occentmod.capabilities.GMCaps;
 import com.gm910.occentmod.capabilities.IModCapability;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.util.Pair;
@@ -185,7 +185,7 @@ public class SpecialLocationManager implements INBTSerializable<CompoundNBT>, IM
 	@SuppressWarnings("unchecked")
 	public <T extends SpecialLocation> List<T> getPoints(BlockPos pos) {
 		// TODO Auto-generated method stub
-		return ModReflect.<List<T>>instanceOf(get(pos), null) ? (List<T>) get(pos) : new ArrayList<>();
+		return ModReflect.<List<T>>instanceOf(get(pos), List.class) ? (List<T>) get(pos) : new ArrayList<>();
 	}
 
 	public List<SpecialLocationType<?>> getTypesAt(BlockPos pos) {
@@ -284,7 +284,7 @@ public class SpecialLocationManager implements INBTSerializable<CompoundNBT>, IM
 	}
 
 	public static SpecialLocationManager getForWorld(ServerWorld world) {
-		return world.getCapability(GMCapabilityUser.SPECIAL_LOCS).orElse(null);
+		return world.getCapability(GMCaps.SPECIAL_LOCS).orElse(null);
 	}
 
 }

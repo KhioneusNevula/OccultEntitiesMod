@@ -22,11 +22,18 @@ public abstract class Memory<E extends LivingEntity> implements IDynamicSerializ
 
 	private int accessedTimes;
 
+	private Class<E> doerType;
+
 	public Memory(E owner, MemoryType<?> type) {
 		this.setOwner(owner);
+		this.doerType = (Class<E>) owner.getClass();
 		this.type = type;
 		this.memoryCreationTime = this.getOwner().world.getGameTime();
 
+	}
+
+	public Class<E> getDoerType() {
+		return doerType;
 	}
 
 	public long getMemoryCreationTime() {

@@ -59,7 +59,7 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 
 	private int namesIndex = 0;
 
-	public static final ResourceLocation namesAndEndings = GMFiles.rl("EmpirePhonicNames/names.txt");
+	public static final ResourceLocation namesAndEndings = GMFiles.rl("empirenames/names.txt");
 
 	public static final ResourceLocation structureTypeName = GMFiles.rl("empire_center");
 
@@ -287,8 +287,15 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 
 	@SubscribeEvent
 	public void tick(WorldTickEvent event) {
-		if (event.world.isRemote || event.world.getGameTime() % 20 != 0
-				|| this.getEmpiresInWorld(event.world.dimension.getType()).isEmpty()) {
+		if (event.world.isRemote)
+			return;
+		if (this.getEmpiresInWorld(event.world.dimension.getType()).isEmpty()) {
+			return;
+		}
+		for (Deity deity : this.getAllDeities()) {
+			deity.tick();
+		}
+		if (event.world.getGameTime() % 20 != 0) {
 			return;
 		}
 		for (Empire empire : empires) {

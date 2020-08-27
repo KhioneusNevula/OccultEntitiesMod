@@ -5,9 +5,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.gm910.occentmod.api.util.ModReflect;
-import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
+import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryType;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.task.SapientTask;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.TaskType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
@@ -18,7 +18,7 @@ import net.minecraft.entity.LivingEntity;
 
 public class IdeaMemory<E extends LivingEntity> extends Memory<E> {
 
-	private CitizenTask<? super E> doTask;
+	private SapientTask<? super E> doTask;
 
 	private Class<E> clazz;
 
@@ -41,13 +41,13 @@ public class IdeaMemory<E extends LivingEntity> extends Memory<E> {
 	}
 
 	public void initialize() {
-		Set<CitizenTask<? super E>> tasques = Sets.newHashSet(TaskType.getValues()).stream()
+		Set<SapientTask<? super E>> tasques = Sets.newHashSet(TaskType.getValues()).stream()
 				.filter(TaskType::canBeRandomlyThoughtOf)
-				.filter((m) -> ModReflect.<CitizenTask<? super E>>instanceOf(m, null))
-				.map((m) -> (CitizenTask<? super E>) m
-						.createNew(CitizenInfo.get(this.getOwner()).orElse(null).getAutonomy()))
+				.filter((m) -> ModReflect.<TaskType<? super E, ?>>instanceOf(m, TaskType.class)
+						&& m.getDoerClass().isAssignableFrom(this.getOwner().getClass()))
+				.map((m) -> (SapientTask<? super E>) m.createNew(SapientInfo.get(this.getOwner()).getAutonomy()))
 				.filter((e) -> e.canExecute((E) this.getOwner())).collect(Collectors.toSet());
-		Optional<CitizenTask<? super E>> tasca = tasques.stream().findAny();
+		Optional<SapientTask<? super E>> tasca = tasques.stream().findAny();
 		if (tasca.isPresent()) {
 			doTask = tasca.get();
 		}
@@ -70,11 +70,11 @@ public class IdeaMemory<E extends LivingEntity> extends Memory<E> {
 		}
 	}
 
-	public CitizenTask<? super E> getDoTask() {
+	public SapientTask<? super E> getDoTask() {
 		return doTask;
 	}
 
-	public void setDoTask(CitizenTask<? super E> doTask) {
+	public void setDoTask(SapientTask<? super E> doTask) {
 		this.doTask = doTask;
 	}
 
@@ -90,7 +90,7 @@ public class IdeaMemory<E extends LivingEntity> extends Memory<E> {
 	@Override
 	public void affectCitizen(E en) {
 		if (doTask != null) {
-			CitizenInfo.get(en).orElse(null).getAutonomy().considerTask(2, doTask, false);
+			SapientInfo.get(en).getAutonomy().considerTask(2, doTask, false);
 		}
 	}
 

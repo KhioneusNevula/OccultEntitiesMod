@@ -1,6 +1,6 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories;
 
-import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
+import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceType;
@@ -37,7 +37,7 @@ public class MemoryOfOccurrence<E extends LivingEntity> extends Memory<E> {
 
 	@Override
 	public void affectCitizen(E en) {
-		event.affectCitizen(CitizenInfo.get(en).orElse(null));
+		event.affectCitizen(SapientInfo.get(en));
 	}
 
 	public boolean couldEventBeCauseOf(MemoryOfOccurrence<?> other) {

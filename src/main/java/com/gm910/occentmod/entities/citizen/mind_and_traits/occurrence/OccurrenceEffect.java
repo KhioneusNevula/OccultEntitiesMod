@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.SapientIdentity;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 import com.mojang.datafixers.util.Pair;
@@ -39,29 +39,29 @@ public class OccurrenceEffect implements IDynamicSerializable {
 		}
 	}
 
-	Map<CitizenIdentity, OccurrenceEffect.Connotation> effects;
+	Map<SapientIdentity, OccurrenceEffect.Connotation> effects;
 
-	public OccurrenceEffect(Map<CitizenIdentity, OccurrenceEffect.Connotation> affected) {
+	public OccurrenceEffect(Map<SapientIdentity, OccurrenceEffect.Connotation> affected) {
 		effects = new HashMap<>(affected);
 	}
 
 	public OccurrenceEffect(Dynamic<?> dyn) {
-		this(dyn.asMap((k) -> new CitizenIdentity(k), (m) -> Connotation.valueOf(m.asString(""))));
+		this(dyn.asMap((k) -> new SapientIdentity(k), (m) -> Connotation.valueOf(m.asString(""))));
 	}
 
-	public OccurrenceEffect.Connotation getEffect(CitizenIdentity id) {
+	public OccurrenceEffect.Connotation getEffect(SapientIdentity id) {
 		return effects.getOrDefault(id, OccurrenceEffect.Connotation.INDIFFERENT);
 	}
 
-	public boolean wasAffected(CitizenIdentity id) {
+	public boolean wasAffected(SapientIdentity id) {
 		return getEffect(id) != OccurrenceEffect.Connotation.INDIFFERENT;
 	}
 
-	public Set<CitizenIdentity> getAffected() {
+	public Set<SapientIdentity> getAffected() {
 		return this.effects.keySet().stream().filter((m) -> wasAffected(m)).collect(Collectors.toSet());
 	}
 
-	public Map<CitizenIdentity, OccurrenceEffect.Connotation> getEffects() {
+	public Map<SapientIdentity, OccurrenceEffect.Connotation> getEffects() {
 		return effects;
 	}
 

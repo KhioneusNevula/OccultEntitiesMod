@@ -8,7 +8,7 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
-import it.unimi.dsi.fastutil.objects.Object2FloatMaps;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.util.IStringSerializable;
 
 /**
@@ -298,7 +298,8 @@ public enum PersonalityTrait implements IStringSerializable {
 		PersonalityTrait.TraitLevel typic = getTypicalReactionType(trait);
 		float rxnTypic = 0.5f + (trait / 0.5f);
 		int rangeEitherSide = PersonalityTrait.TraitLevel.values().length - 1;
-		Object2FloatMap<PersonalityTrait.TraitLevel> weights = Object2FloatMaps.emptyMap();
+		Object2FloatMap<PersonalityTrait.TraitLevel> weights = new Object2FloatOpenHashMap<>();
+
 		weights.put(typic, rxnTypic);
 
 		for (int i = -rangeEitherSide; i <= rangeEitherSide; i++) {

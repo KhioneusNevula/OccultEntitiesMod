@@ -15,8 +15,8 @@ public class RegularGeneType<E extends LivingEntity> extends GeneType<Boolean, E
 
 	private Map<Race, Boolean> ofRace;
 
-	public RegularGeneType(ResourceLocation loc, Map<Race, Boolean> ofRace) {
-		super(loc, null);
+	public RegularGeneType(Class<E> ownerType, ResourceLocation loc, Map<Race, Boolean> ofRace) {
+		super(loc, ownerType, boolean.class, null);
 		this.setGetRandomGene((race, e) -> new Gene<Boolean>(this, ofRace.get(race)).setRaceMarker(race));
 		this.ofRace = ofRace;
 	}

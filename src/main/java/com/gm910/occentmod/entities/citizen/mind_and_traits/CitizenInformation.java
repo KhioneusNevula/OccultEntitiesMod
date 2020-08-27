@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
+import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.capabilities.formshifting.Formshift;
 import com.gm910.occentmod.empires.Empire;
 import com.gm910.occentmod.empires.EmpireData;
@@ -17,14 +17,13 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.Memories;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity.DynamicCitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Genealogy;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relationships;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.SapientIdentity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.SapientIdentity.DynamicCitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.religion.Religion;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.skills.Skills;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.Autonomy;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.task.background.CitizenPickupItemsTask;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.Dynamic;
@@ -39,7 +38,7 @@ import net.minecraft.entity.ai.brain.task.WalkToTargetTask;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.world.server.ServerWorld;
 
-public class CitizenInformation<E extends CitizenEntity> extends CitizenInfo<E> {
+public class CitizenInformation<E extends CitizenEntity> extends SapientInfo<E> {
 
 	private E citizen;
 
@@ -66,7 +65,7 @@ public class CitizenInformation<E extends CitizenEntity> extends CitizenInfo<E> 
 		if (dyn.get("skills").get().isPresent())
 			this.skills = new Skills(dyn.get("skills").get().get());
 		if (dyn.get("religion").get().isPresent())
-			this.religion = new Religion(en, dyn.get("religion").get().get());
+			this.religion = new Religion<E>(en, dyn.get("religion").get().get());
 		if (dyn.get("knowledge").get().isPresent()) {
 			this.knowledge = new Memories<>(en, dyn.get("knowledge").get().get());
 		}
@@ -79,34 +78,21 @@ public class CitizenInformation<E extends CitizenEntity> extends CitizenInfo<E> 
 
 	public void initialize(boolean regular) {
 
-		if (personality == null) {
-			this.personality = new Personality();
-			personality.initializeRandomTraits(this.getCitizen().getRNG());
-		}
-		if (knowledge == null)
-			this.knowledge = new Memories<>(this.citizen);
-		if (relationships == null)
-			this.relationships = new Relationships(this.citizen);
-		if (identity == null)
-			this.identity = new DynamicCitizenIdentity(Formshift.get(this.citizen).getTrueForm(),
-					this.citizen.getUniqueID());
-		if (regular && genetics == null)
-			this.genetics = new Genetics<>();
-		if (autonomy == null) {
-			this.autonomy = new Autonomy<E>(this.citizen);
-			this.autonomy.registerBackgroundTasks(getDefaultBackgroundTasks());
-		}
-		if (regular && needs == null)
-			this.needs = new Needs<E>(this.citizen);
-		if (emotions == null)
-			this.emotions = new Emotions();
-		if (regular && skills == null)
-			this.skills = new Skills();
-		if (regular && religion == null) {
-			this.religion = new Religion(this.getCitizen());
-			religion.initialize();
-		}
-		initValues((ServerWorld) this.citizen.world);
+		this.personality = new Personality();
+		personality.initializeRandomTraits(this.getCitizen().getRNG());
+		this.knowledge = new Memories<>(this.citizen);
+		this.relationships = new Relationships(this.citizen);
+		this.identity = new DynamicCitizenIdentity(Formshift.get(this.citizen).getTrueForm(),
+				this.citizen.getUniqueID());
+		this.genetics = new Genetics<E>((Class<E>) this.citizen.getClass());
+		this.autonomy = new Autonomy<E>(this.citizen);
+		this.autonomy.registerBackgroundTasks(getDefaultBackgroundTasks());
+		this.needs = new Needs<E>(this.citizen);
+		this.emotions = new Emotions();
+		this.skills = new Skills();
+		this.religion = new Religion<E>(this.getCitizen());
+		religion.initialize();
+		initIdentity((ServerWorld) this.citizen.world);
 	}
 
 	public void initIdentity(ServerWorld world) {
@@ -114,6 +100,7 @@ public class CitizenInformation<E extends CitizenEntity> extends CitizenInfo<E> 
 
 		this.identity = new DynamicCitizenIdentity(this.citizen.getForm(), this.citizen.getUniqueID());
 		this.identity.setName(EmpireData.get(world).giveRandomCitizenName());
+		System.out.println(this.identity.getName());
 		this.identity.setGenealogy(new Genealogy(identity));
 		Set<Empire> emps = citizen.getEmpdata().getInRadius(world.dimension.getType(), citizen.getPosition(), 20);
 		Optional<Empire> empo = emps.stream().findAny();
@@ -130,14 +117,12 @@ public class CitizenInformation<E extends CitizenEntity> extends CitizenInfo<E> 
 
 	public void initValues(ServerWorld world) {
 		this.needs.registerNeeds(NeedType.getCitizenNeeds());
-		this.initIdentity(world);
 	}
 
 	public <F extends CitizenEntity> Set<Pair<Integer, Task<? super F>>> getDefaultBackgroundTasks() {
 		// TODO
 		return ImmutableSet.of(Pair.of(0, new SwimTask(0.4F, 0.8F)), Pair.of(0, new InteractWithDoorTask()),
-				Pair.of(0, new LookTask(45, 90)), Pair.of(1, new WalkToTargetTask(200)),
-				Pair.of(5, new CitizenPickupItemsTask()));
+				Pair.of(0, new LookTask(45, 90)), Pair.of(1, new WalkToTargetTask(200)));
 	}
 
 	public E getCitizen() {
@@ -188,7 +173,7 @@ public class CitizenInformation<E extends CitizenEntity> extends CitizenInfo<E> 
 		return emotions;
 	}
 
-	public Religion getReligion() {
+	public Religion<E> getReligion() {
 		return religion;
 	}
 
@@ -216,7 +201,7 @@ public class CitizenInformation<E extends CitizenEntity> extends CitizenInfo<E> 
 		return identity;
 	}
 
-	public CitizenIdentity getIdentity() {
+	public SapientIdentity getIdentity() {
 		return identity.copy();
 	}
 
@@ -237,7 +222,7 @@ public class CitizenInformation<E extends CitizenEntity> extends CitizenInfo<E> 
 		$setOwner(citizen);
 	}
 
-	public void setReligion(Religion religion) {
+	public void setReligion(Religion<E> religion) {
 		this.religion = religion;
 	}
 
@@ -249,7 +234,7 @@ public class CitizenInformation<E extends CitizenEntity> extends CitizenInfo<E> 
 		this.emotions = emotions;
 	}
 
-	public void setIdentity(CitizenIdentity identity) {
+	public void setIdentity(SapientIdentity identity) {
 		if (identity instanceof DynamicCitizenIdentity) {
 			this.identity = (DynamicCitizenIdentity) identity;
 		} else {

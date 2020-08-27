@@ -1,10 +1,10 @@
 package com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds;
 
 import com.gm910.occentmod.api.util.ServerPos;
-import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
+import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceType;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.SapientIdentity;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
@@ -13,26 +13,26 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 
-public abstract class CitizenDeed extends Occurrence {
+public abstract class SapientDeed extends Occurrence {
 
-	protected CitizenIdentity citizen;
+	protected SapientIdentity citizen;
 
-	public CitizenDeed(OccurrenceType<?> type, CitizenIdentity citizen) {
+	public SapientDeed(OccurrenceType<?> type, SapientIdentity citizen) {
 		super(type, null, 0);
 		this.citizen = citizen;
 	}
 
-	public CitizenDeed(OccurrenceType<?> type) {
+	public SapientDeed(OccurrenceType<?> type) {
 		super(type);
 	}
 
-	public void setCitizen(CitizenIdentity citizen) {
+	public void setCitizen(SapientIdentity citizen) {
 		this.citizen = citizen;
 	}
 
 	public void readData(Dynamic<?> dyn) {
 
-		this.citizen = new CitizenIdentity(dyn.get("id").get().get());
+		this.citizen = new SapientIdentity(dyn.get("id").get().get());
 		this.readAdditionalData(dyn.get("data").get().get());
 	}
 
@@ -40,7 +40,7 @@ public abstract class CitizenDeed extends Occurrence {
 
 	public abstract <T> T writeAdditionalData(DynamicOps<T> ops);
 
-	public CitizenIdentity getCitizen() {
+	public SapientIdentity getCitizen() {
 		return citizen;
 	}
 
@@ -53,7 +53,7 @@ public abstract class CitizenDeed extends Occurrence {
 	}
 
 	@Override
-	public void affectCitizen(CitizenInfo<? extends LivingEntity> e) {
+	public void affectCitizen(SapientInfo<? extends LivingEntity> e) {
 	}
 
 	/**

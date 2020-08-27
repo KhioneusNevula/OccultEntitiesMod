@@ -4,9 +4,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.SapientDeed;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.SapientIdentity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.task.SapientTask;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.TaskType;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.types.DynamicOps;
@@ -19,13 +19,13 @@ import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.server.ServerWorld;
 
-public class DummyHobbyTask extends CitizenTask<CitizenEntity> {
+public class DummyHobbyTask extends SapientTask<CitizenEntity> {
 	private long time;
 	private final int maxDistanceFromSite;
 	private MemoryModuleType<GlobalPos> memory;
 
 	public DummyHobbyTask(MemoryModuleType<GlobalPos> memory, int p_i50342_2_) {
-		super(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryModuleStatus.REGISTERED, memory,
+		super(CitizenEntity.class, ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryModuleStatus.REGISTERED, memory,
 				MemoryModuleStatus.VALUE_PRESENT));
 		this.maxDistanceFromSite = p_i50342_2_;
 		this.memory = memory;
@@ -61,7 +61,7 @@ public class DummyHobbyTask extends CitizenTask<CitizenEntity> {
 	}
 
 	@Override
-	public CitizenDeed getDeed(CitizenIdentity doer) {
+	public SapientDeed getDeed(SapientIdentity doer) {
 		return null;
 	}
 

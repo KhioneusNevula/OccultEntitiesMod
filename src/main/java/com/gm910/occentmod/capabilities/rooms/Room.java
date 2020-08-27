@@ -20,7 +20,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMaps;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.material.Material;
 import net.minecraft.util.Direction;
 import net.minecraft.util.IDynamicSerializable;
@@ -47,7 +47,7 @@ public class Room implements IDynamicSerializable {
 
 	// private LongSet edges = new LongOpenHashBigSet();
 
-	private Long2ObjectMap<BlockInfo> roomParts = Long2ObjectMaps.emptyMap();
+	private Long2ObjectMap<BlockInfo> roomParts = new Long2ObjectOpenHashMap<>();
 
 	private ServerWorld world;
 
@@ -198,7 +198,7 @@ public class Room implements IDynamicSerializable {
 	public static Set<Room> makeRoom(ServerWorld world, BlockPos start) {
 		Direction[] horizontals = (Sets.newHashSet(Direction.Plane.HORIZONTAL)).toArray(new Direction[0]);
 		Direction[] verticals = (Sets.newHashSet(Direction.Plane.VERTICAL)).toArray(new Direction[0]);
-		Object2IntMap<BlockPos> nextPositions = Object2IntMaps.emptyMap();
+		Object2IntMap<BlockPos> nextPositions = new Object2IntOpenHashMap<>();
 		for (Direction dir : horizontals) {
 			BlockPos check = start.offset(dir);
 			if (canMoveToNextPos(world, check, GENERAL_WALL_MATERIALS, GENERAL_BLOCK_CHECKER)

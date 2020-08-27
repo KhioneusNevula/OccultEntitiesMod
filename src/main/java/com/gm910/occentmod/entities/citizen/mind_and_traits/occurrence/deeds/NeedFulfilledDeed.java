@@ -6,18 +6,18 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrenc
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect.Connotation;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceType;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.SapientIdentity;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
 import net.minecraft.entity.LivingEntity;
 
-public class NeedFulfilledDeed<M extends LivingEntity, T> extends CitizenDeed {
+public class NeedFulfilledDeed<M extends LivingEntity, T> extends SapientDeed {
 
 	private Need<M, T> need;
 
-	public NeedFulfilledDeed(CitizenIdentity citizen, Need<M, T> need) {
+	public NeedFulfilledDeed(SapientIdentity citizen, Need<M, T> need) {
 		super(OccurrenceType.NEED_FULFILLED, citizen);
 		this.need = need;
 	}

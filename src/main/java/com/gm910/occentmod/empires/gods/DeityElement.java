@@ -56,7 +56,8 @@ public class DeityElement {
 
 	public <E extends LivingEntity> void initGenesFor(Genetics<E> en) {
 		for (GeneType<?, ? super E> tipa : this.producers.keySet().stream()
-				.filter((e) -> ModReflect.<GeneType<?, ? super E>>instanceOf(e, null))
+				.filter((e) -> ModReflect.<GeneType<?, ? super E>>instanceOf(e, GeneType.class)
+						&& e.getValueType().isAssignableFrom(en.getOwnerClass()))
 				.map((m) -> (GeneType<?, ? super E>) m).collect(Collectors.toSet())) {
 			en.setGene(tipa, producers.get(tipa).apply(en));
 		}

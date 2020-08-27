@@ -2,7 +2,7 @@ package com.gm910.occentmod.entities.citizen.mind_and_traits.needs;
 
 import java.util.Set;
 
-import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.task.SapientTask;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.types.DynamicOps;
 
@@ -64,7 +64,7 @@ public class Need<M extends LivingEntity, T> implements IDynamicSerializable {
 				ops.createString("fulf"), fulf));
 	}
 
-	public Set<CitizenTask<M>> getFulfillmentTasks(M en) {
+	public Set<SapientTask<M>> getFulfillmentTasks(M en) {
 		return this.type.getNeedFulfillmentTask(this, en);
 	}
 

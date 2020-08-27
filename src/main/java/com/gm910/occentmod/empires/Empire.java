@@ -26,7 +26,6 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.longs.LongOpenHashBigSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
-import it.unimi.dsi.fastutil.objects.Object2DoubleMaps;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -63,7 +62,7 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 
 	private EnumMap<LeaderType, UUID> leaders = new EnumMap<>(LeaderType.class);
 
-	private Object2DoubleMap<Race> raceWeights = Object2DoubleMaps.emptyMap();
+	private Object2DoubleMap<Race> raceWeights = new Object2DoubleOpenHashMap<>();
 
 	private Race favoredRace = Race.MIXED;
 

@@ -9,7 +9,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.gm910.occentmod.api.util.ServerPos;
-import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
+import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.damage.MagicDamage;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect;
@@ -199,9 +199,9 @@ public class DamageOccurrence extends Occurrence {
 
 	@Override
 	public OccurrenceEffect getEffect() {
-		if (CitizenInfo.get(this.damaged).isPresent()) {
+		if (SapientInfo.getLazy(this.damaged).isPresent()) {
 			return new OccurrenceEffect(
-					ImmutableMap.of(CitizenInfo.get(this.damaged).orElse(null).getIdentity(), Connotation.HARMFUL));
+					ImmutableMap.of(SapientInfo.getLazy(this.damaged).orElse(null).getIdentity(), Connotation.HARMFUL));
 		}
 		return new OccurrenceEffect(ImmutableMap.of());
 	}

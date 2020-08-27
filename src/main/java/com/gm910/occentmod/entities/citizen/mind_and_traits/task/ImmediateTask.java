@@ -7,19 +7,20 @@ import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.world.server.ServerWorld;
 
-public abstract class ImmediateTask<E extends LivingEntity> extends CitizenTask<E> {
+public abstract class ImmediateTask<E extends LivingEntity> extends SapientTask<E> {
 
-	public ImmediateTask(Map<MemoryModuleType<?>, MemoryModuleStatus> requiredMemoryStateIn, int durationMinIn,
-			int durationMaxIn) {
-		super(requiredMemoryStateIn, durationMinIn, durationMaxIn);
+	public ImmediateTask(Class<E> doerclazz, Map<MemoryModuleType<?>, MemoryModuleStatus> requiredMemoryStateIn,
+			int durationMinIn, int durationMaxIn) {
+		super(doerclazz, requiredMemoryStateIn, durationMinIn, durationMaxIn);
 	}
 
-	public ImmediateTask(Map<MemoryModuleType<?>, MemoryModuleStatus> requiredMemoryStateIn, int duration) {
-		super(requiredMemoryStateIn, duration);
+	public ImmediateTask(Class<E> doerClazz, Map<MemoryModuleType<?>, MemoryModuleStatus> requiredMemoryStateIn,
+			int duration) {
+		super(doerClazz, requiredMemoryStateIn, duration);
 	}
 
-	public ImmediateTask(Map<MemoryModuleType<?>, MemoryModuleStatus> requiredMemoryStateIn) {
-		super(requiredMemoryStateIn);
+	public ImmediateTask(Class<E> doerClazz, Map<MemoryModuleType<?>, MemoryModuleStatus> requiredMemoryStateIn) {
+		super(doerClazz, requiredMemoryStateIn);
 	}
 
 	@Override

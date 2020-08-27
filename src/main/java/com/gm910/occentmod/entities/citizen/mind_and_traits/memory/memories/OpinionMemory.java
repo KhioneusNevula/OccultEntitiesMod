@@ -3,7 +3,7 @@ package com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
+import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.MemoryType;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect;
@@ -24,7 +24,7 @@ public class OpinionMemory<E extends LivingEntity> extends Memory<E> {
 		super(owner, MemoryType.DEED);
 		this.opinionTarget = cause;
 		this.connotation = cause.getEffect();
-		this.opinion = cause.getEffect().getEffect(CitizenInfo.get(owner).orElse(null).getIdentity());
+		this.opinion = cause.getEffect().getEffect(SapientInfo.get(owner).getIdentity());
 	}
 
 	public OpinionMemory(E owner, Dynamic<?> dyn) {

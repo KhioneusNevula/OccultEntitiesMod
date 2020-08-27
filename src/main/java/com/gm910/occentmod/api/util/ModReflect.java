@@ -190,28 +190,18 @@ public class ModReflect {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static <X> boolean instanceOf(Object b, @Nullable Class<X> clazz) {
+	public static <X> boolean instanceOf(Object b, @Nullable Class<? super X> clazz) {
 		try {
 			X r = (X) b;
-			return true;
-		} catch (ClassCastException e) {
+		} catch (Throwable e) {
 
-			// Lists.newArrayList());
 			return false;
 		}
+		return clazz.isInstance(b);
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <X> boolean instanceOf(Object b) {
-		return instanceOf(b, null);
-	}
-
-	public static <X> Stream<X> filterByType(Stream<?> stream1, @Nullable Class<X> clazz) {
-		return stream1.filter((e) -> ModReflect.<X>instanceOf(e, null)).map((e) -> (X) e);
-	}
-
-	public static <X> Stream<X> filterByType(Stream<?> stream1) {
-		return filterByType(stream1, null);
+	public static <X> Stream<X> filterByType(Stream<?> stream1, @Nullable Class<? super X> clazz) {
+		return stream1.filter((e) -> ModReflect.<X>instanceOf(e, clazz)).map((e) -> (X) e);
 	}
 
 	public static Class<?> getSubclass(Class<?> clazz, String simpleName, String obfusname) {

@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.gm910.occentmod.api.language.NamePhonemicHelper.PhonemeWord;
-import com.gm910.occentmod.capabilities.GMCapabilityUser;
+import com.gm910.occentmod.capabilities.GMCaps;
 import com.gm910.occentmod.empires.Empire;
 import com.gm910.occentmod.empires.gods.citinfo.DeityInformation;
 import com.gm910.occentmod.empires.gods.citinfo.DivineInventory;
@@ -125,10 +125,25 @@ public class Deity extends LivingEntity implements IDynamicSerializable {
 	}
 
 	@Override
+	public void tick() {
+		this.world.getProfiler().startSection("deityBaseTick");
+		this.baseTick();
+		ticksExisted++;
+		this.firstUpdate = false;
+		this.world.getProfiler().endSection();
+	}
+
+	@Override
+	public void baseTick() {
+		// super.baseTick();
+	}
+
+	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction nu) {
-		if (cap.equals(GMCapabilityUser.CITIZEN_INFO)) {
+		if (cap.equals(GMCaps.SAPIENT_INFO)) {
 			// TODO
-			return LazyOptional.of(() -> info).cast();
+
+			return info == null ? LazyOptional.empty() : LazyOptional.of(() -> info).cast();
 		}
 		return super.getCapability(cap);
 	}

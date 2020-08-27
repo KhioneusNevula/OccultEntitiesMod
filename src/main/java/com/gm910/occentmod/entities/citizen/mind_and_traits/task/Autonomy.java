@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.gm910.occentmod.api.util.ModReflect;
-import com.gm910.occentmod.capabilities.citizeninfo.CitizenInfo;
+import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.EntityDependentInformationHolder;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.CauseEffectMemory;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.memories.CauseEffectMemory.Certainty;
@@ -20,12 +20,12 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrenc
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceData;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceEffect.Connotation;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.CitizenDeed;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.SapientDeed;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.PersonalityTrait.TraitLevel;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relationships;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenTask.Context;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.SapientIdentity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.task.SapientTask.Context;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -46,10 +46,10 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 	/**
 	 * <order, map<context, task, priority>>
 	 */
-	private Map<Context, List<CitizenTask<? super E>>> immediateTasks = Maps.newTreeMap();
+	private Map<Context, List<SapientTask<? super E>>> immediateTasks = Maps.newTreeMap();
 	private Map<Integer, Set<Task<? super E>>> backgroundTasks = Maps.newTreeMap();
-	private Map<Integer, Set<CitizenTask<? super E>>> coreTasks = Maps.newTreeMap();
-	private Set<CitizenTask<? super E>> toExecute = Sets.newHashSet();
+	private Map<Integer, Set<SapientTask<? super E>>> coreTasks = Maps.newTreeMap();
+	private Set<SapientTask<? super E>> toExecute = Sets.newHashSet();
 
 	public Autonomy(E entity) {
 		super(entity);
@@ -58,12 +58,12 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 	public Autonomy(E en, Dynamic<?> dyn) {
 		this(en);
 		immediateTasks = dyn.get("persistentTasks").asMap((d1) -> Context.valueOf(d1.asString("")), (d2) -> d2
-				.asStream().<CitizenTask<? super E>>map((dr) -> TaskType.deserialize(dr)).collect(Collectors.toList()));
+				.asStream().<SapientTask<? super E>>map((dr) -> TaskType.deserialize(dr)).collect(Collectors.toList()));
 		/*backgroundTasks = dyn.get("persistentBGTasks").<Integer, Set<CitizenTask<? super E>>>asMap((dyn2) -> dyn2.asInt(0),
 				(dyn1) -> dyn1.asStream().<CitizenTask<? super E>>map((dynn) -> IPersistentTask.deserialize(dynn))
 						.collect(Collectors.toSet()));*/
-		coreTasks = dyn.get("persistentCoreTasks").<Integer, Set<CitizenTask<? super E>>>asMap((dyn2) -> dyn2.asInt(0),
-				(dyn1) -> dyn1.asStream().<CitizenTask<? super E>>map((dynn) -> TaskType.deserialize(dynn))
+		coreTasks = dyn.get("persistentCoreTasks").<Integer, Set<SapientTask<? super E>>>asMap((dyn2) -> dyn2.asInt(0),
+				(dyn1) -> dyn1.asStream().<SapientTask<? super E>>map((dynn) -> TaskType.deserialize(dynn))
 						.collect(Collectors.toSet()));
 	}
 
@@ -85,9 +85,9 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 	 * @param tasks
 	 * @return
 	 */
-	public Autonomy<E> addTasks(Set<Pair<Integer, CitizenTask<? super E>>> tasks) {
+	public Autonomy<E> addTasks(Set<Pair<Integer, SapientTask<? super E>>> tasks) {
 
-		for (Pair<Integer, CitizenTask<? super E>> pair : tasks) {
+		for (Pair<Integer, SapientTask<? super E>> pair : tasks) {
 			if (pair.getSecond().getContexts().contains(Context.BACKGROUND)) {
 				this.backgroundTasks.computeIfAbsent(pair.getFirst(), (e) -> Sets.newHashSet()).add(pair.getSecond());
 				toExecute.add(pair.getSecond());
@@ -100,11 +100,11 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 
 		}
 
-		List<Pair<Integer, CitizenTask<? super E>>> sorted = new ArrayList<>(
+		List<Pair<Integer, SapientTask<? super E>>> sorted = new ArrayList<>(
 				tasks.stream().filter((p) -> !p.getSecond().getContexts().contains(Context.BACKGROUND)
 						&& !p.getSecond().getContexts().contains(Context.CORE)).collect(Collectors.toSet()));
 		sorted.sort((t1, t2) -> t1.getFirst().compareTo(t2.getFirst()));
-		for (Pair<Integer, CitizenTask<? super E>> pair : sorted) {
+		for (Pair<Integer, SapientTask<? super E>> pair : sorted) {
 			for (Context cont : pair.getSecond().getContexts()) {
 				immediateTasks.computeIfAbsent(cont, (e) -> Lists.newArrayList()).add(pair.getSecond());
 				toExecute.add(pair.getSecond());
@@ -122,13 +122,13 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 	 * @param makeFirstTask
 	 * @return
 	 */
-	public boolean considerTask(int ord, CitizenTask<? super E> task, boolean makeFirstTask) {
+	public boolean considerTask(int ord, SapientTask<? super E> task, boolean makeFirstTask) {
 		if (!task.canExecute(this.getEntityIn())) {
 			return false;
 		}
 		E enna = this.getEntityIn();
-		CitizenInfo<E> en = CitizenInfo.get(enna).orElse(null);
-		CitizenDeed d = task.getDeed(en.getIdentity());
+		SapientInfo<E> en = SapientInfo.get(enna);
+		SapientDeed d = task.getDeed(en.getIdentity());
 		float sympathy = en.getPersonality().getTrait(PersonalityTrait.SYMPATHY);
 		float selfishness = en.getPersonality().getTrait(PersonalityTrait.SELFISHNESS);
 		float kindness = -en.getPersonality().getTrait(PersonalityTrait.SADISM);
@@ -148,7 +148,7 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 						return false;
 					}
 					chance += (1 - chance) * (selfCon.getValue() / Connotation.MAX);
-					for (CitizenIdentity id : con.getAffected()) {
+					for (SapientIdentity id : con.getAffected()) {
 						float like = en.getRelationships().getLikeValue(id) * 2 / Relationships.MAX_LIKE_VALUE;
 						float pleasureAtNegative = like * kindness;
 						float careFor = (((kindness * sympathy) - selfishness));
@@ -179,8 +179,8 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 	 * @param makeFirstTask
 	 * @return
 	 */
-	public Autonomy<E> forceAddTask(int ord, CitizenTask<? super E> task, boolean makeFirstTask) {
-		Pair<Integer, CitizenTask<? super E>> pair = Pair.of(ord, task);
+	public Autonomy<E> forceAddTask(int ord, SapientTask<? super E> task, boolean makeFirstTask) {
+		Pair<Integer, SapientTask<? super E>> pair = Pair.of(ord, task);
 		if (pair.getSecond().getContexts().contains(Context.BACKGROUND)) {
 			this.addBackgroundTask(ord, task);
 		} else if (pair.getSecond().getContexts().contains(Context.CORE)) {
@@ -192,13 +192,13 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 		return this;
 	}
 
-	public void refreshInactiveTask(CitizenTask<? super E> task) {
+	public void refreshInactiveTask(SapientTask<? super E> task) {
 		toExecute.add(task);
 	}
 
-	private Autonomy<E> addActiveTask(CitizenTask<? super E> task, boolean makeFirstTask) {
+	private Autonomy<E> addActiveTask(SapientTask<? super E> task, boolean makeFirstTask) {
 		for (Context con : task.getContexts()) {
-			List<CitizenTask<? super E>> list = this.immediateTasks.computeIfAbsent(con, (e) -> Lists.newArrayList());
+			List<SapientTask<? super E>> list = this.immediateTasks.computeIfAbsent(con, (e) -> Lists.newArrayList());
 			if (list.isEmpty()) {
 				list.add(task);
 				toExecute.add(task);
@@ -226,7 +226,7 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 		return this;
 	}
 
-	public Set<CitizenTask<? super E>> getImmediateTasks() {
+	public Set<SapientTask<? super E>> getImmediateTasks() {
 		return this.immediateTasks.values().stream().flatMap((mapa) -> mapa.stream()).collect(Collectors.toSet());
 	}
 
@@ -234,7 +234,7 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 		return this.backgroundTasks.values().stream().flatMap((e) -> e.stream()).collect(Collectors.toSet());
 	}
 
-	public Set<CitizenTask<? super E>> getCoreTasks() {
+	public Set<SapientTask<? super E>> getCoreTasks() {
 		return this.coreTasks.values().stream().flatMap((e) -> e.stream()).collect(Collectors.toSet());
 	}
 
@@ -254,15 +254,17 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 	}
 
 	public Autonomy<E> addBackgroundTask(int ord, Task<? super E> task) {
-		if (ModReflect.<CitizenTask<? super E>>instanceOf(task, null)
-				&& !((CitizenTask<? super E>) task).getContexts().contains(Context.BACKGROUND)) {
+		if (ModReflect.<SapientTask<? super E>>instanceOf(task, SapientTask.class)
+				&& ((SapientTask) task).getDoerType().isAssignableFrom(this.getEntityIn().getClass())
+						? !((SapientTask<? super E>) task).getContexts().contains(Context.BACKGROUND)
+						: false) {
 			throw new IllegalArgumentException("Task " + task + " for " + this.getEntityIn() + " is not a bg task");
 		}
 		backgroundTasks.computeIfAbsent(ord, (e) -> Sets.newHashSet()).add(task);
 		return this;
 	}
 
-	private Autonomy<E> addCoreTask(int ord, CitizenTask<? super E> task) {
+	private Autonomy<E> addCoreTask(int ord, SapientTask<? super E> task) {
 		if (!task.getContexts().contains(Context.CORE)) {
 			throw new IllegalArgumentException("Task " + task + " for " + this.getEntityIn() + " is not a core task");
 		}
@@ -306,13 +308,13 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 	}
 
 	public void tickNeedTasks(ServerWorld world, E entity, long time) {
-		Needs<E> needs = CitizenInfo.<E>get(this.getEntityIn()).orElse(null).getNeeds();
+		Needs<E> needs = SapientInfo.<E>get(this.getEntityIn()).getNeeds();
 
 		for (NeedType<E, ?> type : needs.getNeedTypes()) {
 			Set<Need<E, ?>> ns = needs.getNeeds(type);
 			for (Need<E, ?> need : ns) {
 				if (!need.isFulfilled()) {
-					Set<CitizenTask<E>> fulTasks = need.getFulfillmentTasks(this.getEntityIn());
+					Set<SapientTask<E>> fulTasks = need.getFulfillmentTasks(this.getEntityIn());
 					fulTasks.forEach((tasq) -> this.considerTask(0, tasq,
 							need.isInDanger() || tasq.isUrgent(this.getEntityIn())));
 				}
@@ -327,16 +329,16 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 		if (!vis.isEmpty()) {
 
 			for (LivingEntity citi : vis) {
-				LazyOptional<CitizenInfo<LivingEntity>> citizenO = CitizenInfo.get(citi);
+				LazyOptional<SapientInfo<LivingEntity>> citizenO = SapientInfo.getLazy(citi);
 				if (!citizenO.isPresent())
 					continue;
-				CitizenInfo<? extends LivingEntity> citizen = citizenO.orElse(null);
-				Set<CitizenTask<? extends LivingEntity>> tasks = citizen.getAutonomy().getRunningTasks().stream()
-						.filter((e) -> e instanceof CitizenTask
-								&& ((CitizenTask) e).isVisible(citizen.$getOwner(), (LivingEntity) this.getEntityIn()))
-						.map((a) -> (CitizenTask<? extends LivingEntity>) a).collect(Collectors.toSet());
-				for (CitizenTask<? extends LivingEntity> task : tasks) {
-					CitizenDeed deed = task.getDeed(citizen.getIdentity());
+				SapientInfo<? extends LivingEntity> citizen = citizenO.orElse(null);
+				Set<SapientTask<? extends LivingEntity>> tasks = citizen.getAutonomy().getRunningTasks().stream()
+						.filter((e) -> e instanceof SapientTask
+								&& ((SapientTask) e).isVisible(citizen.$getOwner(), (LivingEntity) this.getEntityIn()))
+						.map((a) -> (SapientTask<? extends LivingEntity>) a).collect(Collectors.toSet());
+				for (SapientTask<? extends LivingEntity> task : tasks) {
+					SapientDeed deed = task.getDeed(citizen.getIdentity());
 					if (deed == null)
 						continue;
 					this.reactToEvent(deed);
@@ -354,7 +356,7 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 
 	public void tickImportantTasks(ServerWorld world, E en, long time) {
 		for (Context c : this.immediateTasks.keySet()) {
-			List<CitizenTask<? super E>> tasks = immediateTasks.computeIfAbsent(c, (e) -> Lists.newArrayList());
+			List<SapientTask<? super E>> tasks = immediateTasks.computeIfAbsent(c, (e) -> Lists.newArrayList());
 			if (tasks.isEmpty())
 				continue;
 			tasks.get(0).tick(world, en, time);
@@ -372,7 +374,7 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 			});
 		}
 		for (Context c : this.immediateTasks.keySet()) {
-			List<CitizenTask<? super E>> tasks = immediateTasks.computeIfAbsent(c, (e) -> Lists.newArrayList());
+			List<SapientTask<? super E>> tasks = immediateTasks.computeIfAbsent(c, (e) -> Lists.newArrayList());
 			if (tasks.isEmpty())
 				continue;
 			if (toExecute.contains(tasks.get(0))) {
@@ -380,10 +382,10 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 				toExecute.remove(tasks.get(0));
 			} else {
 				if (tasks.get(0).getStatus() == Status.STOPPED) {
-					CitizenTask<? super E> t = tasks.remove(0);
-					CitizenDeed d = t.getDeed(CitizenInfo.get(this.getEntityIn()).orElse(null).getIdentity());
+					SapientTask<? super E> t = tasks.remove(0);
+					SapientDeed d = t.getDeed(SapientInfo.get(this.getEntityIn()).getIdentity());
 					if (d != null) {
-						CitizenInfo.get(this.getEntityIn()).orElse(null).getKnowledge()
+						SapientInfo.get(this.getEntityIn()).getKnowledge()
 								.receiveKnowledge(new MemoryOfDeed(this.getEntityIn(), d));
 					}
 				}
@@ -398,13 +400,14 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 	 * @param action
 	 * @param doer
 	 */
-	public <T extends LivingEntity> void react(CitizenAction<T> action, T doer) {
-		Set<CitizenTask<? super E>> mapa = action.getPotentialReactions().stream()
-				.filter((m) -> ModReflect.<CitizenTask<? super E>>instanceOf(m, null))
-				.map((m) -> (CitizenTask<? super E>) m).collect(Collectors.toSet());
-		CitizenDeed deed = ((CitizenTask<? super E>) action).getDeed(CitizenInfo.get(doer).orElse(null).getIdentity());
+	public <T extends LivingEntity> void react(SapientAction<T> action, T doer) {
+		Set<SapientTask<? super E>> mapa = action.getPotentialReactions().stream()
+				.filter((m) -> ModReflect.<SapientTask<? super E>>instanceOf(m, SapientTask.class)
+						&& m.getDoerType().isAssignableFrom(this.getEntityIn().getClass()))
+				.map((m) -> (SapientTask<? super E>) m).collect(Collectors.toSet());
+		SapientDeed deed = ((SapientTask<? super E>) action).getDeed(SapientInfo.get(doer).getIdentity());
 		this.reaction(deed, mapa);
-		CitizenInfo.get(this.getEntityIn()).orElse(null).getKnowledge()
+		SapientInfo.get(this.getEntityIn()).getKnowledge()
 				.receiveKnowledge(new MemoryOfDeed<>(this.getEntityIn(), deed));
 
 	}
@@ -415,10 +418,10 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 	 * 
 	 * @param event
 	 */
-	public void reaction(Occurrence occur, Set<CitizenTask<? super E>> event) {
-		Map<PersonalityTrait, TraitLevel> trets = CitizenInfo.get(this.getEntityIn()).orElse(null).getPersonality()
+	public void reaction(Occurrence occur, Set<SapientTask<? super E>> event) {
+		Map<PersonalityTrait, TraitLevel> trets = SapientInfo.get(this.getEntityIn()).getPersonality()
 				.generateTraitReactionMap();
-		for (CitizenTask<? super E> tasque : event) {
+		for (SapientTask<? super E> tasque : event) {
 			if (tasque.canExecute(this.getEntityIn())) {
 
 				this.considerTask(tasque.isUrgent(this.getEntityIn()) ? 0 : getImmediateTasks().size(), tasque,
@@ -433,21 +436,21 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 	 * @param event
 	 */
 	public void reactToEvent(Occurrence event) {
-		Set<CitizenTask<? super E>> tasques = event.getPotentialWitnessReactions();
+		Set<SapientTask<? super E>> tasques = event.getPotentialWitnessReactions();
 		this.reaction(event, tasques);
-		CitizenInfo<E> info = CitizenInfo.get(this.getEntityIn()).orElse(null);
+		SapientInfo<E> info = SapientInfo.get(this.getEntityIn());
 		MemoryOfOccurrence<E> meme = new MemoryOfOccurrence<>(this.getEntityIn(), event);
 		Set<MemoryOfOccurrence<? super E>> occs = info.getKnowledge().<MemoryOfOccurrence<? super E>>getByPredicate(
-				(e) -> ModReflect.<MemoryOfOccurrence<? super E>>instanceOf(e, null));
+				(e) -> ModReflect.<MemoryOfOccurrence<? super E>>instanceOf(e, MemoryOfOccurrence.class));
 		occs.forEach((o) -> o.access());
 		for (MemoryOfOccurrence<? super E> occ : occs) {
 
 			if (occ.couldEventBeCauseOf(meme)) {
 				CauseEffectMemory<E> theo = new CauseEffectMemory<E>(this.getEntityIn(), occ.getEvent(), event, null);
-				Set<CauseEffectMemory<? super E>> theors = info.getKnowledge()
-						.getByPredicate((e) -> ModReflect.<CauseEffectMemory<? super E>>instanceOf(e, null)
-								&& ((CauseEffectMemory<? super E>) e).fitsObservation(theo.getCause(),
-										theo.getEffect()));
+				Set<CauseEffectMemory<? super E>> theors = info.getKnowledge().getByPredicate((e) -> ModReflect
+						.<CauseEffectMemory<? super E>>instanceOf(e, CauseEffectMemory.class)
+						&& ((CauseEffectMemory) e).getDoerType().isAssignableFrom(this.getEntityIn().getClass())
+						&& ((CauseEffectMemory<? super E>) e).fitsObservation(theo.getCause(), theo.getEffect()));
 				if (!theors.isEmpty()) {
 					for (CauseEffectMemory<? super E> t : theors) {
 						if (t.getCertainty() != Certainty.TRUE) {

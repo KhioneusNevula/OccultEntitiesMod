@@ -6,7 +6,7 @@ import java.util.UUID;
 import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.GeneralInventory;
-import com.gm910.occentmod.capabilities.GMCapabilityUser;
+import com.gm910.occentmod.capabilities.GMCaps;
 import com.gm910.occentmod.capabilities.formshifting.Formshift;
 import com.gm910.occentmod.empires.EmpireData;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.BodyForm;
@@ -18,10 +18,10 @@ import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.Memories;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceData;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.CitizenIdentity.DynamicCitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Genealogy;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relationships;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.SapientIdentity;
+import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.SapientIdentity.DynamicCitizenIdentity;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.skills.Skills;
 import com.gm910.occentmod.entities.citizen.mind_and_traits.task.Autonomy;
 import com.gm910.occentmod.init.EntityInit;
@@ -43,6 +43,7 @@ import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.sensor.Sensor;
 import net.minecraft.entity.ai.brain.sensor.SensorType;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Food;
 import net.minecraft.item.Item;
@@ -103,27 +104,26 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 
 	public CitizenEntity(EntityType<? extends AgeableEntity> type, World worldIn) {
 		super(type, worldIn);
-		regularInit(type, worldIn);
+		regularInit(worldIn);
 
 	}
 
-	public void regularInit(EntityType<? extends AgeableEntity> type, World worldIn) {
-		this.info = new CitizenInformation<CitizenEntity>(this);
+	public void regularInit(World worldIn) {
 		if (worldIn instanceof ServerWorld) {
 			this.setEmpdata(EmpireData.get((ServerWorld) worldIn));
 			this.occurrences = OccurrenceData.get((ServerWorld) world);
+			this.info = new CitizenInformation<CitizenEntity>(this);
+			info.initialize(true);
+			if (this.firstUpdate) {
+				this.info.onCreation();
+			}
 		}
-	}
 
-	public CitizenEntity(EntityType<? extends AgeableEntity> type, World world, boolean regularInit) {
-		this(type, world);
-		if (regularInit) {
-			regularInit(type, world);
-		}
 	}
 
 	public CitizenEntity(World world) {
 		this(EntityInit.CITIZEN.get(), world);
+		regularInit(world);
 	}
 
 	@Override
@@ -137,10 +137,6 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 	@Override
 	public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason,
 			ILivingEntityData spawnDataIn, CompoundNBT dataTag) {
-
-		if (worldIn instanceof ServerWorld) {
-			this.info.initialize(true);
-		}
 
 		this.previousFoodPosX = getPosX();
 		this.previousFoodPosY = getPosY();
@@ -239,7 +235,7 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		if (other1 instanceof CitizenEntity) {
 			CitizenEntity other = (CitizenEntity) other1;
 
-			Set<CitizenIdentity> sibs = this.getIdentity().getGenealogy().getChildren();
+			Set<SapientIdentity> sibs = this.getIdentity().getGenealogy().getChildren();
 			sibs.addAll(other.getIdentity().getGenealogy().getChildren());
 
 			child.getTrueIdentity().setGenealogy(new Genealogy(child.getTrueIdentity(), this.copyIdentity(),
@@ -369,7 +365,7 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		return info.getPersonality();
 	}
 
-	public Memories getKnowledge() {
+	public Memories<CitizenEntity> getKnowledge() {
 		return info.getKnowledge();
 	}
 
@@ -389,7 +385,7 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		return info;
 	}
 
-	public Needs getNeeds() {
+	public Needs<CitizenEntity> getNeeds() {
 		return info.getNeeds();
 	}
 
@@ -397,18 +393,19 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 	public void writeAdditional(CompoundNBT compound) {
 		super.writeAdditional(compound);
 		compound.put("Inventory", this.inventory.serializeNBT());
-		compound.put("CitizenInformation", this.info.serialize(NBTDynamicOps.INSTANCE));
+		if (this.isServerWorld())
+			compound.put("CitizenInformation", this.info.serialize(NBTDynamicOps.INSTANCE));
 	}
 
 	public DynamicCitizenIdentity getTrueIdentity() {
 		return info.getTrueIdentity();
 	}
 
-	public CitizenIdentity getIdentity() {
+	public SapientIdentity getIdentity() {
 		return info.getIdentity().withCitizen(this.getForm());
 	}
 
-	public CitizenIdentity copyIdentity() {
+	public SapientIdentity copyIdentity() {
 		return getIdentity().withCitizen(this.getForm());
 	}
 
@@ -431,7 +428,10 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 	@Override
 	public void readAdditional(CompoundNBT compound) {
 		super.readAdditional(compound);
-		this.info = new CitizenInformation<CitizenEntity>(this, GMNBT.makeDynamic(compound.get("CitizenInformation")));
+
+		if (this.isServerWorld())
+			this.info = new CitizenInformation<CitizenEntity>(this,
+					GMNBT.makeDynamic(compound.get("CitizenInformation")));
 		this.inventory.deserializeNBT(compound.getCompound("Inventory"));
 	}
 
@@ -447,6 +447,45 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 		}
 	}
 
+	@Override
+	protected void updateEquipmentIfNeeded(ItemEntity itemEntity) {
+		ItemStack itemstack = itemEntity.getItem();
+		Item item = itemstack.getItem();
+		boolean flag = false;
+
+		for (int i = 0; i < inventory.getSizeInventory(); ++i) {
+			ItemStack itemstack1 = inventory.getStackInSlot(i);
+			if (itemstack1.isEmpty()
+					|| itemstack1.getItem() == item && itemstack1.getCount() < itemstack1.getMaxStackSize()) {
+				flag = true;
+				break;
+			}
+		}
+
+		if (!flag) {
+			return;
+		}
+
+		int j = inventory.count(item);
+		if (j == 256) {
+			return;
+		}
+
+		if (j > 256) {
+			inventory.func_223374_a(item, j - 256);
+			return;
+		}
+
+		this.onItemPickup(itemEntity, itemstack.getCount());
+		ItemStack itemstack2 = inventory.addItem(itemstack);
+		if (itemstack2.isEmpty()) {
+			itemEntity.remove();
+		} else {
+			itemstack.setCount(itemstack2.getCount());
+		}
+
+	}
+
 	public static UUID getModifiedUniqueIdentity(LivingEntity entity) {
 		return entity.getUniqueID();
 	}
@@ -457,8 +496,12 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction facing) {
-		if (capability.equals(GMCapabilityUser.CITIZEN_INFO)) {
-			return LazyOptional.of(() -> this.info).cast();
+
+		if (capability.equals(GMCaps.SAPIENT_INFO)) {
+			if (!this.isServerWorld()) {
+				throw new IllegalStateException("Tried to access sapient info capability from client-side citizen!");
+			}
+			return info == null ? LazyOptional.empty() : LazyOptional.of(() -> this.info).cast();
 		}
 		return super.getCapability(capability, facing);
 	}
