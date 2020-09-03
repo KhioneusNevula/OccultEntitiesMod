@@ -5,7 +5,7 @@ import com.gm910.occentmod.empires.Empire;
 import com.gm910.occentmod.empires.gods.Deity;
 import com.gm910.occentmod.empires.gods.DeityElement;
 import com.gm910.occentmod.empires.gods.DeityPower;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.emotions.Mood;
+import com.gm910.occentmod.sapience.mind_and_traits.emotions.Mood;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.eventbus.api.Event;

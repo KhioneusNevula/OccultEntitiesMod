@@ -14,9 +14,10 @@ import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.api.util.ModReflect;
 import com.gm910.occentmod.blocks.VaettrTileEntity;
 import com.gm910.occentmod.entities.LivingBlockEntity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.CitizenMemoryAndSensors;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.task.CitizenSchedule;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.work.CitizenPOIS;
+import com.gm910.occentmod.entities.citizen.CitizenEntity;
+import com.gm910.occentmod.entities.citizen.CitizenMemoryAndSensors;
+import com.gm910.occentmod.sapience.mind_and_traits.task.CitizenSchedule;
+import com.gm910.occentmod.sapience.mind_and_traits.work.CitizenPOIS;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.Dynamic;
 
@@ -72,6 +73,16 @@ public final class DataInit {
 	public static final RegistryObject<VillagerProfession> WORSHIPER_PROF = registerProfession("worshiper",
 			() -> VAETTR_POI.get(), () -> ImmutableSet.of(), () -> ImmutableSet.of(Blocks.FIRE),
 			() -> SoundEvents.ENTITY_VILLAGER_WORK_CLERIC);
+
+	public static final RegistryObject<DataSerializerEntry> CITIZEN_GENETICS_SERIALIZER = registerSerializer("genetics",
+			() -> {
+				return new GeneticsDataSerializer<CitizenEntity>();
+			});
+
+	public static final RegistryObject<DataSerializerEntry> SAPIENT_IDENTITY_SERIALIZER = registerSerializer(
+			"dynamic_sapient_identity", () -> {
+				return new SapientIdentitySerializer();
+			});
 
 	public static RegistryObject<VillagerProfession> registerProfession(String name, Supplier<PointOfInterestType> poi,
 			@Nullable Supplier<SoundEvent> sound) {
@@ -200,5 +211,6 @@ public final class DataInit {
 		ACTIVITIES.register(bus);
 		SENSORS.register(bus);
 		SCHEDULES.register(bus);
+		SERIALIZERS.register(bus);
 	}
 }

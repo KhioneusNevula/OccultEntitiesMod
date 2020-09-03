@@ -12,27 +12,47 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ParallelSet<M, Y> extends HashSet<M> {
+public class ParallelSet<ThisClass, BaseClass> extends HashSet<ThisClass> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 8087285438096366195L;
 
-	private Set<Y> delegate;
-	private Function<Y, M> yoursToMine;
-	private Function<M, Y> mineToYours;
+	private Set<BaseClass> delegate;
+	private Function<BaseClass, ThisClass> yoursToMine;
+	private Function<ThisClass, BaseClass> mineToYours;
 
-	public ParallelSet(Set<Y> delegate, Function<Y, M> yoursToMine, Function<M, Y> mineToYours) {
+	private Class<ThisClass> thisClass;
+	private Class<BaseClass> baseClass;
+
+	public ParallelSet(Class<ThisClass> thisClass, Class<BaseClass> baseClass, Set<BaseClass> delegate,
+			Function<BaseClass, ThisClass> yoursToMine, Function<ThisClass, BaseClass> mineToYours) {
 		this.delegate = delegate;
 		this.yoursToMine = yoursToMine;
 		this.mineToYours = mineToYours;
+		this.thisClass = thisClass;
+		this.baseClass = baseClass;
 	}
 
 	@Override
 	public int size() {
 		// TODO Auto-generated method stub
 		return delegate.size();
+	}
+
+	public boolean isCollectionOfThisClass(Object col) {
+		if (!(col instanceof Collection))
+			return false;
+		Collection<?> cop = (Collection<?>) col;
+		if (cop.isEmpty()) {
+			return true;
+		}
+		Class<?> toUse = cop.stream().findAny().get().getClass();
+		if (toUse == this.thisClass) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -48,41 +68,41 @@ public class ParallelSet<M, Y> extends HashSet<M> {
 	}
 
 	public Object toYoursOrConvert(Object o) {
-		if (ModReflect.<M>instanceOf(o, null)) {
-			return this.mineToYours((M) o);
-		} else if (ModReflect.<Collection<M>>instanceOf(o, null)) {
-			return ((Collection<M>) o).stream().map(mineToYours).collect(Collectors.toList());
+		if (this.thisClass.isInstance(o)) {
+			return this.mineToYours((ThisClass) o);
+		} else if (isCollectionOfThisClass(o)) {
+			return ((Collection<ThisClass>) o).stream().map(mineToYours).collect(Collectors.toList());
 		} else {
 			return o;
 		}
 	}
 
-	public Set<M> convertWholeSet() {
+	public Set<ThisClass> convertWholeSet() {
 		return this.delegate.stream().map(yoursToMine).collect(Collectors.toSet());
 	}
 
-	public Set<Y> getDelegate() {
+	public Set<BaseClass> getDelegate() {
 		return delegate;
 	}
 
-	public Function<M, Y> getMineToYours() {
+	public Function<ThisClass, BaseClass> getMineToYours() {
 		return mineToYours;
 	}
 
-	public Function<Y, M> getYoursToMine() {
+	public Function<BaseClass, ThisClass> getYoursToMine() {
 		return yoursToMine;
 	}
 
-	protected Y mineToYours(M mine) {
+	protected BaseClass mineToYours(ThisClass mine) {
 		return mineToYours(mine);
 	}
 
-	protected M yoursToMine(Y yours) {
+	protected ThisClass yoursToMine(BaseClass yours) {
 		return yoursToMine(yours);
 	}
 
 	@Override
-	public Iterator<M> iterator() {
+	public Iterator<ThisClass> iterator() {
 		return delegate.stream().map(yoursToMine).collect(Collectors.toSet()).iterator();
 	}
 
@@ -97,7 +117,7 @@ public class ParallelSet<M, Y> extends HashSet<M> {
 	}
 
 	@Override
-	public boolean add(M e) {
+	public boolean add(ThisClass e) {
 		return delegate.add(mineToYours(e));
 	}
 
@@ -112,7 +132,7 @@ public class ParallelSet<M, Y> extends HashSet<M> {
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends M> c) {
+	public boolean addAll(Collection<? extends ThisClass> c) {
 		// TODO Auto-generated method stub
 		return delegate.addAll(c.stream().map(mineToYours).collect(Collectors.toList()));
 	}
@@ -133,39 +153,39 @@ public class ParallelSet<M, Y> extends HashSet<M> {
 	}
 
 	@Override
-	public void forEach(Consumer<? super M> action) {
+	public void forEach(Consumer<? super ThisClass> action) {
 		Objects.requireNonNull(action);
-		for (M t : this) {
+		for (ThisClass t : this) {
 			action.accept(t);
-			delegate.remove(t);
+			delegate.remove(mineToYours(t));
 			delegate.add(mineToYours(t));
 		}
 	}
 
-	public void delegateForEach(Consumer<? super Y> action) {
+	public void delegateForEach(Consumer<? super BaseClass> action) {
 		delegate.forEach(action);
 	}
 
 	@Override
-	public Spliterator<M> spliterator() {
+	public Spliterator<ThisClass> spliterator() {
 		// TODO Auto-generated method stub
 		return this.convertWholeSet().spliterator();
 	}
 
 	@Override
-	public Stream<M> parallelStream() {
+	public Stream<ThisClass> parallelStream() {
 		// TODO Auto-generated method stub
 		return this.convertWholeSet().parallelStream();
 	}
 
 	@Override
-	public boolean removeIf(Predicate<? super M> filter) {
+	public boolean removeIf(Predicate<? super ThisClass> filter) {
 		// TODO Auto-generated method stub
 		return delegate.removeIf((e) -> filter.test(yoursToMine(e)));
 	}
 
 	@Override
-	public Stream<M> stream() {
+	public Stream<ThisClass> stream() {
 		// TODO Auto-generated method stub
 		return this.convertWholeSet().stream();
 	}

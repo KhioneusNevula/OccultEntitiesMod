@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.gm910.occentmod.api.util.GMHelper;
 import com.google.common.collect.Sets;
@@ -73,7 +74,22 @@ public class NamePhonemicHelper {
 		});
 	});
 	public static final Set<Vowel> VOWELS = GMHelper.create(new HashSet<>(), (set) -> {
-		set.addAll(Vowel.from(true, "a", "e", "i", "o", "u"));
+		set.addAll(Vowel.from(true, "e", "o"));
+		set.addAll(Vowel.from(false, "a", "i", "u"));
+		HashSet<Vowel> solelets = new HashSet<>();
+		for (Vowel v : solelets) {
+			for (Vowel v1 : solelets) {
+				if (v == v1)
+					continue;
+				set.add(new Vowel(v.getLetters() + v1.getLetters(), false));
+				for (Vowel v2 : solelets) {
+					if (v2 == v1)
+						continue;
+					set.add(new Vowel(v.getLetters() + v1.getLetters() + v2.getLetters(), false));
+
+				}
+			}
+		}
 		set.add(new Vowel("y", false) {
 			public boolean isConsonant() {
 				return true;
@@ -173,48 +189,46 @@ public class NamePhonemicHelper {
 	}
 
 	public static PhonemeWord generateName(Random rand) {
-		return generateName(rand, 2 + rand.nextInt(19));
+		return generateName(rand, 2 + rand.nextInt(9));
 	}
 
 	public static PhonemeWord generateName(Random rand, int phonemicLength) {
-		List<Phoneme> name = new ArrayList<>(phonemicLength);
+		List<Phoneme> name = new ArrayList<>();
 
 		boolean con = rand.nextBoolean();
-		int vowelCount = 0;
 		for (int i = 0; i < phonemicLength; i++) {
-			if (i != 0) {
-				con = !con;
-			}
-			if (vowelCount < 3) {
-				con = rand.nextBoolean();
-				if (con) {
-					vowelCount = 0;
-				}
-			}
-			if (!con) {
-				vowelCount++;
-			}
-			Set<Phoneme> cons = new HashSet<>();
+
+			Stream<Consonant> beginners = getBeginnerConsonants().stream().sorted((m1, m2) -> (rand.nextInt(2) - 1));
+			Stream<Consonant> enders = getEnderConsonants().stream().sorted((m1, m2) -> (rand.nextInt(2) - 1));
+			Stream<Consonant> regularCons = getConsonants().stream().sorted((m1, m2) -> (rand.nextInt(2) - 1));
+			Stream<Vowel> vowels = getVowels().stream().sorted((m1, m2) -> (rand.nextInt(2) - 1));
+			con = !con;
+			Set<Phoneme> cons = new HashSet<Phoneme>();
 			if (i == 0) {
-				cons.addAll(con ? getBeginnerConsonants() : getVowels());
-				name.add(cons.stream().findAny().get());
-				continue;
+				cons.addAll(con ? beginners.collect(Collectors.toSet()) : vowels.collect(Collectors.toSet()));
 			} else if (i >= phonemicLength) {
-				cons.addAll(con ? getEnderConsonants() : getVowels());
+				cons.addAll(con ? enders.collect(Collectors.toSet()) : vowels.collect(Collectors.toSet()));
 			} else {
-				cons.addAll(con ? getConsonants() : getVowels());
+				cons.addAll(con ? regularCons.collect(Collectors.toSet()) : vowels.collect(Collectors.toSet()));
 			}
-			Phoneme next = cons.stream().findAny().get();
+			Set<Phoneme> cons2 = cons.stream().filter((e) -> rand.nextBoolean()).collect(Collectors.toSet());
+			if (!cons2.stream().findAny().isPresent()) {
+				List<Phoneme> assd = new ArrayList<>(cons);
+
+				cons2.add(assd.get(rand.nextInt(assd.size())));
+			}
+			Phoneme next = cons2.stream().findAny().get();
 			name.add(next);
-			if (next.canDouble && rand.nextInt(5) < 1) {
+			if (next.canDouble && rand.nextInt(5) < 1 && i + 1 < phonemicLength && i != 0) {
 				name.add(next);
+				i++;
 			}
 		}
 
 		return new PhonemeWord(name);
 	}
 
-	public static class Phoneme {
+	public static class Phoneme implements Comparable<Phoneme> {
 		private String letters;
 		private boolean canDouble;
 
@@ -250,6 +264,11 @@ public class NamePhonemicHelper {
 				return this.letters.equals(((Phoneme) o).getLetters());
 			}
 			return false;
+		}
+
+		@Override
+		public int compareTo(Phoneme o) {
+			return this.letters.compareTo(o.letters);
 		}
 	}
 

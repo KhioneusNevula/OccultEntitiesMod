@@ -251,6 +251,7 @@ public class Networking {
 					});
 				}
 			}
+			ctxt.setPacketHandled(true);
 		}
 
 		public static TaskMessage fromBuffer(PacketBuffer buf) {

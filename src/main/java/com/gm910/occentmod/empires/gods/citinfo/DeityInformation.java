@@ -6,20 +6,21 @@ import java.util.Map;
 import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.capabilities.formshifting.Formshift;
 import com.gm910.occentmod.empires.gods.Deity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.emotions.Emotions;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Genetics;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race.SpiritRace;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.Memories;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relationships;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.SapientIdentity.DynamicCitizenIdentity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.skills.Skills;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.task.Autonomy;
+import com.gm910.occentmod.sapience.mind_and_traits.emotions.Emotions;
+import com.gm910.occentmod.sapience.mind_and_traits.genetics.Genetics;
+import com.gm910.occentmod.sapience.mind_and_traits.genetics.Race.SpiritRace;
+import com.gm910.occentmod.sapience.mind_and_traits.memory.Memories;
+import com.gm910.occentmod.sapience.mind_and_traits.needs.Needs;
+import com.gm910.occentmod.sapience.mind_and_traits.relationship.Relationships;
+import com.gm910.occentmod.sapience.mind_and_traits.relationship.SapientIdentity.DynamicSapientIdentity;
+import com.gm910.occentmod.sapience.mind_and_traits.skills.Skills;
+import com.gm910.occentmod.sapience.mind_and_traits.task.Autonomy;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
 import net.minecraft.inventory.IInventory;
+import net.minecraft.world.server.ServerWorld;
 
 public class DeityInformation extends SapientInfo<Deity> {
 
@@ -41,7 +42,8 @@ public class DeityInformation extends SapientInfo<Deity> {
 		if (dyn.get("personality").get().isPresent())
 			this.relationships = new Relationships(en, dyn.get("relationships").get().get());
 		if (dyn.get("identity").get().isPresent())
-			this.identity = new DynamicCitizenIdentity(dyn.get("identity").get().get());
+			this.identity = new DynamicSapientIdentity(dyn.get("identity").get().get(),
+					(ServerWorld) this.$getOwner().world);
 		if (dyn.get("autonomy").get().isPresent())
 			this.autonomy = new Autonomy<Deity>(en, dyn.get("autonomy").get().get());
 		if (dyn.get("emotions").get().isPresent())
@@ -73,7 +75,8 @@ public class DeityInformation extends SapientInfo<Deity> {
 	public void onCreation() {
 		Deity en = this.$getOwner();
 		this.relationships = new Relationships(en);
-		this.identity = new DynamicCitizenIdentity(Formshift.get(en).getForm(), en.getUniqueID());
+		this.identity = new DynamicSapientIdentity(Formshift.get(en).getForm(), en.getUniqueID(),
+				(ServerWorld) this.$getOwner().world);
 		this.autonomy = new Autonomy<Deity>(en);
 		this.emotions = new Emotions();
 		this.knowledge = new Memories<>(en);

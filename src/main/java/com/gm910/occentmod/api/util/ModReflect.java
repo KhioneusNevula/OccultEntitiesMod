@@ -190,7 +190,7 @@ public class ModReflect {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static <X> boolean instanceOf(Object b, @Nullable Class<? super X> clazz) {
+	public static <X> boolean instanceOf(Object b, Class<? super X> clazz) {
 		try {
 			X r = (X) b;
 		} catch (Throwable e) {
@@ -200,7 +200,7 @@ public class ModReflect {
 		return clazz.isInstance(b);
 	}
 
-	public static <X> Stream<X> filterByType(Stream<?> stream1, @Nullable Class<? super X> clazz) {
+	public static <X> Stream<X> filterByType(Stream<?> stream1, Class<? super X> clazz) {
 		return stream1.filter((e) -> ModReflect.<X>instanceOf(e, clazz)).map((e) -> (X) e);
 	}
 

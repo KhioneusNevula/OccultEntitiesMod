@@ -64,7 +64,7 @@ public class NonNullMap<K, V> extends HashMap<K, V> {
 	@Override
 	public V get(Object key) {
 		V val = super.get(key);
-		if (val == null && ModReflect.<K>instanceOf(key, null)) {
+		if (val == null && ModReflect.<K>instanceOf(key, Object.class)) {
 			val = supplier.apply((K) key, this);
 			super.put((K) key, val);
 		}

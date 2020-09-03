@@ -7,9 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.gm910.occentmod.api.networking.messages.ModChannels;
 import com.gm910.occentmod.api.networking.messages.Networking.TaskMessage;
-import com.gm910.occentmod.blocks.worldcontroller.SmallerUnitTESR;
 import com.gm910.occentmod.capabilities.GMCaps;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race;
 import com.gm910.occentmod.init.BiomeInit;
 import com.gm910.occentmod.init.BlockInit;
 import com.gm910.occentmod.init.DataInit;
@@ -19,6 +17,7 @@ import com.gm910.occentmod.init.ItemInit;
 import com.gm910.occentmod.init.StructureInit;
 import com.gm910.occentmod.init.TileInit;
 import com.gm910.occentmod.keys.ModKeys;
+import com.gm910.occentmod.sapience.mind_and_traits.genetics.Race;
 import com.gm910.occentmod.world.DimensionData;
 import com.gm910.occentmod.world.VaettrData;
 
@@ -28,7 +27,6 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.InterModComms;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -101,11 +99,18 @@ public class OccultEntities {
 		DimensionInit.WORLD_MAKERS.register(modBus);
 		System.out.println("World-makers registered");
 
+		ModChannels.INSTANCE.registerMessage(ModChannels.id++, TaskMessage.class, TaskMessage::encode,
+				TaskMessage::fromBuffer, TaskMessage::handle);
+
+		System.out.println("Modchannels " + ModChannels.INSTANCE + " mes ");
+		System.out.println("Modchannels");
 	}
 
 	@SuppressWarnings("deprecation")
 	private void setup(final FMLCommonSetupEvent event) {
 		System.out.println("HELLO FROM PREINIT");
+		/*ModChannels.INSTANCE.registerMessage(ModChannels.id++, TaskMessage.class, TaskMessage::encode,
+				TaskMessage::fromBuffer, TaskMessage::handle);*/
 		GMCaps.preInit();
 		DeferredWorkQueue.runLater(StructureInit::registerStructures);
 
@@ -115,11 +120,12 @@ public class OccultEntities {
 	private void doClientStuff(final FMLClientSetupEvent event) {
 
 		LOGGER.info("Got game settings {}", event.getMinecraftSupplier().get().gameSettings);
-		ModKeys.clientinit();
-		ModChannels.INSTANCE.registerMessage(ModChannels.id++, TaskMessage.class, TaskMessage::encode,
-				TaskMessage::fromBuffer, TaskMessage::handle);
+		/*ModChannels.INSTANCE.registerMessage(ModChannels.id++, TaskMessage.class, TaskMessage::encode,
+				TaskMessage::fromBuffer, TaskMessage::handle);*/
 
-		ClientRegistry.bindTileEntityRenderer(TileInit.WORLD_CONTROLLER.get(), SmallerUnitTESR::new);
+		ModKeys.clientinit();
+		TileInit.registerTESRs();
+		ItemInit.registerISTERs();
 	}
 
 	private void enqueueIMC(final InterModEnqueueEvent event) {
@@ -132,6 +138,7 @@ public class OccultEntities {
 
 	private void processIMC(final InterModProcessEvent event) {
 		// some example code to receive and process InterModComms from other mods
+
 		LOGGER.info("Got IMC {}",
 				event.getIMCStream().map(m -> m.getMessageSupplier().get()).collect(Collectors.toList()));
 	}

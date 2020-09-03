@@ -5,12 +5,13 @@ import java.util.UUID;
 import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.capabilities.GMCaps;
 import com.gm910.occentmod.capabilities.IModCapability;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.BodyForm;
+import com.gm910.occentmod.sapience.BodyForm;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.common.util.LazyOptional;
 
 public class Formshift implements INBTSerializable<CompoundNBT>, IModCapability<LivingEntity> {
 
@@ -64,7 +65,11 @@ public class Formshift implements INBTSerializable<CompoundNBT>, IModCapability<
 	}
 
 	public static Formshift get(LivingEntity player) {
-		return player.getCapability(GMCaps.FORM).orElse(null);
+		LazyOptional<Formshift> ab = player.getCapability(GMCaps.FORM);
+		if (!ab.isPresent()) {
+			throw new IllegalStateException("Player " + player + " does not have FormShift");
+		}
+		return ab.orElse(null);
 	}
 
 	@Override

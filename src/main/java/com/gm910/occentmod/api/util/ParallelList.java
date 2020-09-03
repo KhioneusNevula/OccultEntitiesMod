@@ -7,18 +7,21 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Function;
 
-public class ParallelList<E, M> extends ArrayList<E> {
+public class ParallelList<ThisClass, BasisClass> extends ArrayList<ThisClass> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6140992959408135924L;
 
-	private Function<E, M> translatorEM;
+	private Function<ThisClass, BasisClass> translatorEM;
 
-	private Function<M, E> translatorME;
+	private Function<BasisClass, ThisClass> translatorME;
 
-	private ArrayList<M> basis;
+	private ArrayList<BasisClass> basis;
+
+	private Class<ThisClass> thisClass;
+	private Class<BasisClass> basisClass;
 
 	/**
 	 * 
@@ -27,17 +30,28 @@ public class ParallelList<E, M> extends ArrayList<E> {
 	 *               this list to the other list
 	 * @param trans2 this is the function translating the other way
 	 */
-	public ParallelList(ArrayList<M> basis, Function<E, M> trans1, Function<M, E> trans2) {
+	public ParallelList(Class<BasisClass> basisClass, Class<ThisClass> thisClass, ArrayList<BasisClass> basis,
+			Function<ThisClass, BasisClass> trans1, Function<BasisClass, ThisClass> trans2) {
 		translatorEM = trans1;
 		translatorME = trans2;
 		this.basis = basis;
+		this.thisClass = thisClass;
+		this.basisClass = basisClass;
 	}
 
-	public Function<E, M> getTranslator1() {
+	public Class<BasisClass> getBasisClass() {
+		return basisClass;
+	}
+
+	public Class<ThisClass> getThisClass() {
+		return thisClass;
+	}
+
+	public Function<ThisClass, BasisClass> getTranslator1() {
 		return translatorEM;
 	}
 
-	public Function<M, E> getTranslator2() {
+	public Function<BasisClass, ThisClass> getTranslator2() {
 		return translatorME;
 	}
 
@@ -53,14 +67,14 @@ public class ParallelList<E, M> extends ArrayList<E> {
 
 	@Override
 	public boolean contains(Object o) {
-		return basis.contains(ModReflect.<E>instanceOf(o, null) ? translatorEM.apply((E) o) : o);
+		return basis.contains(ModReflect.<ThisClass>instanceOf(o, thisClass) ? translatorEM.apply((ThisClass) o) : o);
 	}
 
 	@Override
-	public Iterator<E> iterator() {
+	public Iterator<ThisClass> iterator() {
 
-		List<E> ls = new ArrayList<>();
-		for (M m : basis) {
+		List<ThisClass> ls = new ArrayList<>();
+		for (BasisClass m : basis) {
 			ls.add(translatorME.apply(m));
 		}
 
@@ -79,26 +93,26 @@ public class ParallelList<E, M> extends ArrayList<E> {
 		return ar;
 	}
 
-	public List<E> translateList() {
-		List<E> ls = new ArrayList<>();
+	public List<ThisClass> translateList() {
+		List<ThisClass> ls = new ArrayList<>();
 		for (int i = 0; i < basis.size(); i++) {
 			ls.add(translatorME.apply(basis.get(i)));
 		}
 		return ls;
 	}
 
-	public Collection<E> translateCollectionME(Collection<? extends M> col) {
-		List<E> ls = new ArrayList<>();
-		Iterator<? extends M> iter = col.iterator();
+	public Collection<ThisClass> translateCollectionME(Collection<? extends BasisClass> col) {
+		List<ThisClass> ls = new ArrayList<>();
+		Iterator<? extends BasisClass> iter = col.iterator();
 		while (iter.hasNext()) {
 			ls.add(translatorME.apply(iter.next()));
 		}
 		return ls;
 	}
 
-	public Collection<M> translateCollectionEM(Collection<? extends E> col) {
-		List<M> ls = new ArrayList<>();
-		Iterator<? extends E> iter = col.iterator();
+	public Collection<BasisClass> translateCollectionEM(Collection<? extends ThisClass> col) {
+		List<BasisClass> ls = new ArrayList<>();
+		Iterator<? extends ThisClass> iter = col.iterator();
 		while (iter.hasNext()) {
 			ls.add(translatorEM.apply(iter.next()));
 		}
@@ -112,44 +126,56 @@ public class ParallelList<E, M> extends ArrayList<E> {
 	}
 
 	@Override
-	public boolean add(E e) {
+	public boolean add(ThisClass e) {
 		return basis.add(translatorEM.apply(e));
 	}
 
 	@Override
 	public boolean remove(Object o) {
-		return basis.remove(ModReflect.<E>instanceOf(o, null) ? translatorEM.apply((E) o) : o);
+		return basis.remove(ModReflect.<ThisClass>instanceOf(o, thisClass) ? translatorEM.apply((ThisClass) o) : o);
 	}
 
 	@Override
 	public boolean containsAll(Collection<?> c) {
-		return basis.containsAll(
-				ModReflect.<Collection<E>>instanceOf(c, null) ? this.translateCollectionEM((Collection<E>) c) : c);
+		Collection<?> cop = c;
+		if (c.isEmpty()) {
+			return true;
+		}
+		Class<?> toUse = cop.stream().findAny().get().getClass();
+		return basis.containsAll(toUse == thisClass ? this.translateCollectionEM((Collection<ThisClass>) c) : c);
+	}
+
+	public boolean isCollectionOfThisClass(Collection<?> col) {
+		Collection<?> cop = col;
+		if (col.isEmpty()) {
+			return true;
+		}
+		Class<?> toUse = cop.stream().findAny().get().getClass();
+		if (toUse == this.thisClass) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends E> c) {
+	public boolean addAll(Collection<? extends ThisClass> c) {
 
 		return basis.addAll(this.translateCollectionEM(c));
 	}
 
 	@Override
-	public boolean addAll(int index, Collection<? extends E> c) {
+	public boolean addAll(int index, Collection<? extends ThisClass> c) {
 		return basis.addAll(this.translateCollectionEM(c));
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> c) {
-		return basis.removeAll(ModReflect.<Collection<E>>instanceOf(c, Collection.class)
-				? this.translateCollectionEM((Collection<E>) c)
-				: c);
+		return basis.removeAll(isCollectionOfThisClass(c) ? this.translateCollectionEM((Collection<ThisClass>) c) : c);
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> c) {
-		return basis.retainAll(ModReflect.<Collection<E>>instanceOf(c, Collection.class)
-				? this.translateCollectionEM((Collection<E>) c)
-				: c);
+		return basis.retainAll(isCollectionOfThisClass(c) ? this.translateCollectionEM((Collection<ThisClass>) c) : c);
 	}
 
 	@Override
@@ -158,49 +184,50 @@ public class ParallelList<E, M> extends ArrayList<E> {
 	}
 
 	@Override
-	public E get(int index) {
+	public ThisClass get(int index) {
 
 		return translatorME.apply(basis.get(index));
 	}
 
 	@Override
-	public E set(int index, E element) {
+	public ThisClass set(int index, ThisClass element) {
 		return translatorME.apply(basis.set(index, translatorEM.apply(element)));
 	}
 
 	@Override
-	public void add(int index, E element) {
+	public void add(int index, ThisClass element) {
 		basis.add(index, translatorEM.apply(element));
 	}
 
 	@Override
-	public E remove(int index) {
+	public ThisClass remove(int index) {
 		return translatorME.apply(basis.remove(index));
 	}
 
 	@Override
 	public int indexOf(Object o) {
-		return basis.indexOf(ModReflect.<E>instanceOf(o, null) ? translatorEM.apply((E) o) : o);
+		return basis.indexOf(ModReflect.<ThisClass>instanceOf(o, thisClass) ? translatorEM.apply((ThisClass) o) : o);
 	}
 
 	@Override
 	public int lastIndexOf(Object o) {
-		return basis.lastIndexOf(ModReflect.<E>instanceOf(o, null) ? translatorEM.apply((E) o) : o);
+		return basis
+				.lastIndexOf(ModReflect.<ThisClass>instanceOf(o, thisClass) ? translatorEM.apply((ThisClass) o) : o);
 	}
 
 	@Override
-	public ListIterator<E> listIterator() {
+	public ListIterator<ThisClass> listIterator() {
 
 		return this.translateList().listIterator();
 	}
 
 	@Override
-	public ListIterator<E> listIterator(int index) {
+	public ListIterator<ThisClass> listIterator(int index) {
 		return this.translateList().listIterator(index);
 	}
 
 	@Override
-	public List<E> subList(int fromIndex, int toIndex) {
+	public List<ThisClass> subList(int fromIndex, int toIndex) {
 		return this.translateList().subList(fromIndex, toIndex);
 	}
 

@@ -5,11 +5,11 @@ import java.util.Optional;
 import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.capabilities.speciallocs.SpecialLocationManager;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.Occurrence;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.OccurrenceData;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.deeds.SapientAttackDeed;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.occurrence.events.DamageOccurrence;
 import com.gm910.occentmod.init.DataInit;
+import com.gm910.occentmod.sapience.mind_and_traits.occurrence.Occurrence;
+import com.gm910.occentmod.sapience.mind_and_traits.occurrence.OccurrenceData;
+import com.gm910.occentmod.sapience.mind_and_traits.occurrence.deeds.SapientAttackDeed;
+import com.gm910.occentmod.sapience.mind_and_traits.occurrence.events.DamageOccurrence;
 import com.google.common.base.Predicates;
 
 import net.minecraft.entity.player.ServerPlayerEntity;

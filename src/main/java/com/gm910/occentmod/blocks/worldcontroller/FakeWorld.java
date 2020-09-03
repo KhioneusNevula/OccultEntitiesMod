@@ -72,7 +72,7 @@ public class FakeWorld extends World implements IWorld {
 	public HashMap<BlockPos, BlockInfo> unitHashMap = new HashMap<>();
 	public Set<Entity> entities = new HashSet<>();
 	public int upb; // units per block
-	public WorldControllerTileEntity owner;
+	public TileEntity owner;
 
 	@Override
 	public void setTileEntity(BlockPos pos, @Nullable TileEntity tileEntityIn) {

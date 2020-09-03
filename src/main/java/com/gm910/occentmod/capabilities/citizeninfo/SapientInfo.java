@@ -6,21 +6,23 @@ import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.capabilities.GMCaps;
 import com.gm910.occentmod.capabilities.IModCapability;
 import com.gm910.occentmod.empires.gods.Deity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.emotions.Emotions;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Genetics;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.memory.Memories;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.personality.Personality;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.Relationships;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.SapientIdentity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.relationship.SapientIdentity.DynamicCitizenIdentity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.religion.Religion;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.skills.Skills;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.task.Autonomy;
+import com.gm910.occentmod.sapience.mind_and_traits.emotions.Emotions;
+import com.gm910.occentmod.sapience.mind_and_traits.genetics.Genetics;
+import com.gm910.occentmod.sapience.mind_and_traits.memory.Memories;
+import com.gm910.occentmod.sapience.mind_and_traits.needs.Needs;
+import com.gm910.occentmod.sapience.mind_and_traits.personality.Personality;
+import com.gm910.occentmod.sapience.mind_and_traits.relationship.Relationships;
+import com.gm910.occentmod.sapience.mind_and_traits.relationship.SapientIdentity;
+import com.gm910.occentmod.sapience.mind_and_traits.relationship.SapientIdentity.DynamicSapientIdentity;
+import com.gm910.occentmod.sapience.mind_and_traits.religion.Religion;
+import com.gm910.occentmod.sapience.mind_and_traits.skills.Skills;
+import com.gm910.occentmod.sapience.mind_and_traits.task.Autonomy;
+import com.gm910.occentmod.sapience.mind_and_traits.task.SapientTask;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTDynamicOps;
@@ -37,10 +39,10 @@ public abstract class SapientInfo<E extends LivingEntity>
 
 	private E owner;
 
-	protected Personality personality;
+	protected Personality<E> personality;
 	protected Memories<E> knowledge;
 	protected Relationships relationships;
-	protected DynamicCitizenIdentity identity;
+	protected DynamicSapientIdentity identity;
 	protected Genetics<E> genetics;
 	protected Autonomy<E> autonomy;
 	protected Needs<E> needs;
@@ -85,7 +87,7 @@ public abstract class SapientInfo<E extends LivingEntity>
 	}
 
 	@Nullable
-	public DynamicCitizenIdentity getTrueIdentity() {
+	public DynamicSapientIdentity getTrueIdentity() {
 		return this.identity;
 	}
 
@@ -100,7 +102,7 @@ public abstract class SapientInfo<E extends LivingEntity>
 	}
 
 	@Nullable
-	public Personality getPersonality() {
+	public Personality<E> getPersonality() {
 		return personality;
 	}
 
@@ -132,10 +134,10 @@ public abstract class SapientInfo<E extends LivingEntity>
 	}
 
 	public void setIdentity(SapientIdentity identity) {
-		if (identity instanceof DynamicCitizenIdentity) {
-			this.identity = (DynamicCitizenIdentity) identity;
+		if (identity instanceof DynamicSapientIdentity) {
+			this.identity = (DynamicSapientIdentity) identity;
 		} else {
-			this.identity = new DynamicCitizenIdentity(identity);
+			this.identity = new DynamicSapientIdentity(identity);
 		}
 	}
 
@@ -147,7 +149,7 @@ public abstract class SapientInfo<E extends LivingEntity>
 		this.needs = needs;
 	}
 
-	public void setPersonality(Personality personality) {
+	public void setPersonality(Personality<E> personality) {
 		this.personality = personality;
 	}
 
@@ -192,13 +194,30 @@ public abstract class SapientInfo<E extends LivingEntity>
 
 	public static <T extends LivingEntity> SapientInfo<T> get(T e) {
 		LazyOptional<SapientInfo<T>> laz = getLazy(e);
-		if (!laz.isPresent()) {
-			throw new IllegalArgumentException(e + (e != null && e.hasCustomName() ? e.getCustomName().toString() : "")
-					+ " is not an entity with SapientInfo! ");
-		}
+		assert laz.isPresent() : e + (e != null && e.hasCustomName() ? e.getCustomName().toString() : "")
+				+ " is not an entity with SapientInfo! ";
 		return laz.orElse(null);
 	}
 
+	public static boolean isSapient(LivingEntity target) {
+		return getLazy(target).isPresent();
+	}
+
 	public abstract void onCreation();
+
+	/**
+	 * Checks whether a given task is appropriate for this entity class if the task
+	 * is for a superclass like LivingEntity
+	 * 
+	 * @param tasque
+	 * @return
+	 */
+	public boolean isAppropriate(SapientTask<?> tasque) {
+		return true;
+	}
+
+	public PlayerEntity getPlayerDelegate() {
+		return null;
+	}
 
 }

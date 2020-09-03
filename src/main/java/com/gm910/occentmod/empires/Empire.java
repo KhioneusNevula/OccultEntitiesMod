@@ -19,8 +19,8 @@ import com.gm910.occentmod.api.util.ParallelSet;
 import com.gm910.occentmod.api.util.ServerPos;
 import com.gm910.occentmod.empires.EmpireDispute.DisputeType;
 import com.gm910.occentmod.empires.gods.Pantheon;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Race;
 import com.gm910.occentmod.init.DataInit;
+import com.gm910.occentmod.sapience.mind_and_traits.genetics.Race;
 import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashBigSet;
@@ -280,7 +280,7 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 	}
 
 	public Set<ChunkPos> getChunkPositions(DimensionType type) {
-		return new ParallelSet<>(chunks.get(type), ChunkPos::new, ChunkPos::asLong);
+		return new ParallelSet<>(ChunkPos.class, long.class, chunks.get(type), ChunkPos::new, ChunkPos::asLong);
 	}
 
 	public MinecraftServer getServer() {
@@ -315,7 +315,7 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 	}
 
 	public Set<LivingEntity> getCitizenEntities() {
-		return new ParallelSet<LivingEntity, UUID>(this.citizens,
+		return new ParallelSet<LivingEntity, UUID>(LivingEntity.class, UUID.class, this.citizens,
 				(uu) -> (LivingEntity) ServerPos.getEntityFromUUID(uu, server), LivingEntity::getUniqueID);
 	}
 

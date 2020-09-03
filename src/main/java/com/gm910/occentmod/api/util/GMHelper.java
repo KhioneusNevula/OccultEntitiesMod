@@ -50,7 +50,7 @@ public abstract class GMHelper {
 		}
 		List<T> races = new ArrayList<>(weights.keySet());
 		// Now choose a random item
-		int randomIndex = -1;
+		int randomIndex = 0;
 		double random = Math.random() * totalWeight;
 		for (int i = 0; i < races.size(); ++i) {
 			random -= weights.getOrDefault(races.get(i), 0.0);

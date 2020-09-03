@@ -42,7 +42,7 @@ public class Deity extends LivingEntity implements IDynamicSerializable {
 	public final DivineInventory inventory = new DivineInventory(50);
 
 	public Deity(Empire e, PhonemeWord name, Set<DeityElement> elements) {
-		this(EntityInit.DEITY_DUMMY.get(), e.getCenterWorld());
+		this(EntityInit.DEITY_DUMMY, e.getCenterWorld());
 		empire = e;
 		this.elements.addAll(elements);
 		this.name = name;

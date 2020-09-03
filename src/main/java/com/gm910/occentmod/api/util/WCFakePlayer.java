@@ -49,7 +49,7 @@ public class WCFakePlayer extends PlayerEntity {
 	}
 
 	@Override
-	public void addStat(Stat par1StatBase, int par2) {
+	public void addStat(Stat<?> par1StatBase, int par2) {
 	}
 
 	@Override

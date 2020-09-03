@@ -2,7 +2,6 @@ package com.gm910.occentmod.entityrender;
 
 import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.genetype.GeneType;
 import com.gm910.occentmod.entityrender.model.CitizenFeaturesLayer;
 import com.gm910.occentmod.entityrender.model.CitizenModel;
 import com.gm910.occentmod.entityrender.model.traits.DragonHornsModel;
@@ -11,6 +10,7 @@ import com.gm910.occentmod.entityrender.model.traits.DragonWingsModel;
 import com.gm910.occentmod.entityrender.model.traits.FairyEarsModel;
 import com.gm910.occentmod.entityrender.model.traits.FairyWingsModel;
 import com.gm910.occentmod.entityrender.model.traits.TrollHornsModel;
+import com.gm910.occentmod.sapience.mind_and_traits.genetics.genetype.GeneType;
 
 import net.minecraft.client.renderer.culling.ClippingHelperImpl;
 import net.minecraft.client.renderer.entity.EntityRendererManager;

@@ -42,9 +42,8 @@ public final class EntityInit {
 				.size(1.0f, 1.0f).build(new ResourceLocation(OccultEntities.MODID, "citizen").toString());
 	});
 
-	public static final RegistryObject<EntityType<Deity>> DEITY_DUMMY = ENTITY_TYPES.register("deity_dummy", () -> {
-		return EntityType.Builder.<Deity>create(Deity::new, EntityClassification.AMBIENT).size(1.0f, 1.0f)
-				.build(new ResourceLocation(OccultEntities.MODID, "deity_dummy").toString());
-	});
+	public static final EntityType<Deity> DEITY_DUMMY = EntityType.Builder
+			.<Deity>create(Deity::new, EntityClassification.AMBIENT).size(1.0f, 1.0f)
+			.build(new ResourceLocation(OccultEntities.MODID, "deity_dummy").toString());
 
 }

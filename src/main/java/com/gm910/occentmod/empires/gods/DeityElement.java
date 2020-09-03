@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 
 import com.gm910.occentmod.api.language.Translate;
 import com.gm910.occentmod.api.util.ModReflect;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Gene;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Genetics;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.genetype.GeneType;
+import com.gm910.occentmod.sapience.mind_and_traits.genetics.Gene;
+import com.gm910.occentmod.sapience.mind_and_traits.genetics.Genetics;
+import com.gm910.occentmod.sapience.mind_and_traits.genetics.genetype.GeneType;
 import com.gm910.occentmod.util.GMFiles;
 
 import net.minecraft.entity.LivingEntity;

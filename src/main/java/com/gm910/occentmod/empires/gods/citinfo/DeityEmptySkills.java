@@ -1,8 +1,8 @@
 package com.gm910.occentmod.empires.gods.citinfo;
 
 import com.gm910.occentmod.empires.gods.Deity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.skills.SkillType;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.skills.Skills;
+import com.gm910.occentmod.sapience.mind_and_traits.skills.SkillType;
+import com.gm910.occentmod.sapience.mind_and_traits.skills.Skills;
 
 public class DeityEmptySkills extends Skills {
 

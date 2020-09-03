@@ -5,10 +5,12 @@ import com.gm910.occentmod.blocks.vaettrblocks.BrennisteinvaettrBlock.Brennistei
 import com.gm910.occentmod.blocks.vaettrblocks.EndisteinvaettrBlock.Endisteinvaettr;
 import com.gm910.occentmod.blocks.vaettrblocks.LandvaettrBlock.Landvaettr;
 import com.gm910.occentmod.blocks.vaettrblocks.StormvaettrBlock.Stormvaettr;
+import com.gm910.occentmod.blocks.worldcontroller.WorldControllerTESR;
 import com.gm910.occentmod.blocks.worldcontroller.WorldControllerTileEntity;
 
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -36,5 +38,10 @@ public final class TileInit {
 	public static final RegistryObject<TileEntityType<WorldControllerTileEntity>> WORLD_CONTROLLER = TILE_TYPES
 			.register("world_controller", () -> TileEntityType.Builder
 					.create(WorldControllerTileEntity::new, BlockInit.WORLD_CONTROLLER.get()).build(null));
+
+	public static void registerTESRs() {
+
+		ClientRegistry.bindTileEntityRenderer(TileInit.WORLD_CONTROLLER.get(), WorldControllerTESR::new);
+	}
 
 }

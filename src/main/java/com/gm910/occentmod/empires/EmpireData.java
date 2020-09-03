@@ -1,11 +1,9 @@
 package com.gm910.occentmod.empires;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -15,13 +13,11 @@ import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.api.language.NamePhonemicHelper;
 import com.gm910.occentmod.api.language.NamePhonemicHelper.PhonemeWord;
 import com.gm910.occentmod.api.util.GMNBT;
-import com.gm910.occentmod.api.util.NonNullMap;
 import com.gm910.occentmod.empires.gods.Deity;
 import com.gm910.occentmod.empires.gods.Pantheon;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.BodyForm;
+import com.gm910.occentmod.sapience.mind_and_traits.relationship.SapientIdentity.DynamicSapientIdentity;
 import com.gm910.occentmod.util.GMFiles;
 import com.google.common.collect.Sets;
-import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -53,9 +49,7 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 
 	private Set<PhonemeWord> usedCitizenNames = new HashSet<>();
 
-	private Map<BodyForm, Set<UUID>> formEntityCorrespondences = new NonNullMap<>(() -> Sets.newHashSet());
-
-	private Map<UUID, BodyForm> trueForms = new HashMap<>();
+	private Set<DynamicSapientIdentity> usedIdentities = new HashSet<>();
 
 	private int namesIndex = 0;
 
@@ -217,24 +211,20 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 			return EmpireName.fromData(((StringNBT) inbt).getString());
 		}));
 
+		GMNBT.createList((ListNBT) nbt.get("UsedIdentities"), (inbt) -> {
+
+			return new DynamicSapientIdentity(GMNBT.makeDynamic(inbt),
+					this.getServer().getWorld(DimensionType.OVERWORLD));
+		});
+
 		this.usedCitizenNames = new HashSet<>(GMNBT.<INBT, PhonemeWord>createList((ListNBT) nbt.get("UsedCNames"),
 				(n) -> new PhonemeWord(GMNBT.makeDynamic(n))));
 
-		this.formEntityCorrespondences = new NonNullMap<>(() -> Sets.newHashSet());
-		((NonNullMap<BodyForm, Set<UUID>>) formEntityCorrespondences)
-				.setAs(GMNBT.createMap((ListNBT) nbt.get("FormEntities"), (ta) -> {
-					CompoundNBT tag = (CompoundNBT) ta;
-					return Pair.of(new BodyForm(tag.getUniqueId("Id")),
-							new HashSet<>(((ListNBT) tag.get("Entities")).stream()
-									.<UUID>map((in) -> UUID.fromString(((StringNBT) in).getString()))
-									.collect(Collectors.toSet())));
-				}));
-
-		this.trueForms = GMNBT.createMap((ListNBT) nbt.get("TrueForms"), (i) -> {
-			return Pair.of(((CompoundNBT) i).getUniqueId("Id"), new BodyForm(((CompoundNBT) i).getUniqueId("Form")));
-		});
-
 		this.namesIndex = nbt.getInt("NamesIndex");
+	}
+
+	public Set<DynamicSapientIdentity> getUsedIdentities() {
+		return usedIdentities;
 	}
 
 	@Override
@@ -242,17 +232,9 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 		nbt.put("Empires", GMNBT.makeList(empires, (empire) -> empire.serializeNBT()));
 		nbt.put("UsedNames", GMNBT.makeList(usedNames, (str) -> StringNBT.valueOf(str.writeData())));
 		nbt.putInt("NamesIndex", namesIndex);
-		nbt.put("FormEntities", GMNBT.makeList(formEntityCorrespondences.entrySet(), (entry) -> {
-			CompoundNBT get = new CompoundNBT();
-			get.putUniqueId("Id", entry.getKey().getFormId());
-			get.put("Entities", GMNBT.makeList(entry.getValue(), (s) -> StringNBT.valueOf(s.toString())));
-			return get;
-		}));
-		nbt.put("TrueForms", GMNBT.makeList(trueForms.entrySet(), (entry) -> {
-			CompoundNBT get = new CompoundNBT();
-			get.putUniqueId("Id", entry.getKey());
-			get.putUniqueId("Form", entry.getValue().getFormId());
-			return get;
+		nbt.put("UsedIdentities", GMNBT.makeList(this.usedIdentities, (id) -> {
+
+			return id.serialize(NBTDynamicOps.INSTANCE);
 		}));
 		nbt.put("UsedCNames", GMNBT.makeList(this.usedCitizenNames, (in) -> in.serialize(NBTDynamicOps.INSTANCE)));
 		return nbt;
@@ -366,7 +348,7 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 		PhonemeWord nomb = null;
 		boolean hasName = false;
 		for (int tolerance = 0; tolerance < 50 && !hasName; tolerance++) {
-			nomb = NamePhonemicHelper.generateName(this.getServer().getWorld(DimensionType.OVERWORLD).rand);
+			nomb = NamePhonemicHelper.generateName(new Random());
 			if (!names.contains(nomb)) {
 				hasName = true;
 			}
@@ -384,31 +366,8 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 		return nomb;
 	}
 
-	public BodyForm birthBodyForm(UUID entity) {
-		BodyForm form = new BodyForm(entity);
-		this.trueForms.put(entity, form);
-		return form;
-	}
-
-	public void reincarnateTrueForm(UUID entity, BodyForm newForm) {
-		this.trueForms.put(entity, newForm);
-	}
-
-	public boolean doesMoreThanOneEntityHaveForm(BodyForm form) {
-		return formEntityCorrespondences.get(form).size() > 1
-				|| formEntityCorrespondences.get(form).size() > 0 && trueForms.containsValue(form);
-	}
-
-	public void changeEntityForm(UUID entity, BodyForm other) {
-		this.formEntityCorrespondences.get(other).add(entity);
-	}
-
-	public void revertEntityForm(UUID entity) {
-		for (BodyForm form : this.formEntityCorrespondences.keySet()) {
-			if (formEntityCorrespondences.get(form).contains(entity)) {
-				formEntityCorrespondences.get(form).remove(entity);
-			}
-		}
+	public DynamicSapientIdentity get(LivingEntity e) {
+		return this.usedIdentities.stream().filter((m) -> m.getTrueId().equals(e.getUniqueID())).findAny().orElse(null);
 	}
 
 }

@@ -26,4 +26,10 @@ public class PlayerSapientInformation extends SapientInfo<PlayerEntity> {
 
 	}
 
+	@Override
+	public PlayerEntity getPlayerDelegate() {
+		// TODO Auto-generated method stub
+		return this.$getOwner();
+	}
+
 }

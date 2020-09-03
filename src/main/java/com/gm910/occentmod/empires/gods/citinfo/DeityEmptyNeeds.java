@@ -3,10 +3,10 @@ package com.gm910.occentmod.empires.gods.citinfo;
 import java.util.Set;
 
 import com.gm910.occentmod.empires.gods.Deity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Need;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedChecker;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.NeedType;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.needs.Needs;
+import com.gm910.occentmod.sapience.mind_and_traits.needs.Need;
+import com.gm910.occentmod.sapience.mind_and_traits.needs.NeedChecker;
+import com.gm910.occentmod.sapience.mind_and_traits.needs.NeedType;
+import com.gm910.occentmod.sapience.mind_and_traits.needs.Needs;
 import com.google.common.collect.Sets;
 
 public class DeityEmptyNeeds extends Needs<Deity> {

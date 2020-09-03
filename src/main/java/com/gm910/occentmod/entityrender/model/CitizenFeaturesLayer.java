@@ -4,8 +4,8 @@ import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 
 import com.gm910.occentmod.entities.citizen.CitizenEntity;
-import com.gm910.occentmod.entities.citizen.mind_and_traits.genetics.Genetics;
 import com.gm910.occentmod.entityrender.CitizenRender;
+import com.gm910.occentmod.sapience.mind_and_traits.genetics.Genetics;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 
