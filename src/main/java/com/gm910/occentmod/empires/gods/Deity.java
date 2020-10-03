@@ -151,5 +151,10 @@ public class Deity extends LivingEntity implements IDynamicSerializable {
 	@Override
 	public HandSide getPrimaryHand() {
 		return HandSide.RIGHT;
+
+	}
+
+	public String displayInformation() {
+		return this.name + ", deity of " + this.elements;
 	}
 }

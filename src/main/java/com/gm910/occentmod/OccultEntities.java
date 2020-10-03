@@ -54,7 +54,6 @@ public class OccultEntities {
 	public OccultEntities() {
 
 		instance = this;
-
 		// Register the setup method for modloading
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
 		System.out.println("Setup method added to event bus");
@@ -159,9 +158,9 @@ public class OccultEntities {
 
 	@SubscribeEvent
 	public void onServerStopping(FMLServerStoppingEvent event) {
-
 		DimensionData dat = DimensionData.get(event.getServer());
 		dat.unregisterStoredDimensions();
+
 	}
 
 	@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)

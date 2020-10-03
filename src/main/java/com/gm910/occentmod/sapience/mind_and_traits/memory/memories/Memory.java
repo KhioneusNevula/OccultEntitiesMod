@@ -70,9 +70,10 @@ public abstract class Memory<E extends LivingEntity> implements IDynamicSerializ
 	/**
 	 * Indicate that the memory has been used by the citizen
 	 */
-	public void access() {
+	public Memory<E> access() {
 		accessedTimes++;
 		this.affectMood();
+		return this;
 	}
 
 	@Override

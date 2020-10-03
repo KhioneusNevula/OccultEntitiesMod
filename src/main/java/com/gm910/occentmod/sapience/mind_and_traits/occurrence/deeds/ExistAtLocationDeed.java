@@ -58,4 +58,11 @@ public class ExistAtLocationDeed extends SapientDeed {
 				&& ((ExistAtLocationDeed) other).getLocation().distanceSq(this.location) <= 4;
 	}
 
+	@Override
+	public boolean couldBeCauseOf(Occurrence other, long thisPerformanceTime, long otherPerformanceTime) {
+		// TODO Auto-generated method stub
+		return super.couldBeCauseOf(other, thisPerformanceTime, otherPerformanceTime)
+				|| other.getPosition().distanceTo(this.position) <= 3;
+	}
+
 }

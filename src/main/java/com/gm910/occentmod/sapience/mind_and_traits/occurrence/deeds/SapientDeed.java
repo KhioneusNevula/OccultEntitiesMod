@@ -1,6 +1,5 @@
 package com.gm910.occentmod.sapience.mind_and_traits.occurrence.deeds;
 
-import com.gm910.occentmod.api.util.ServerPos;
 import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.sapience.mind_and_traits.occurrence.Occurrence;
 import com.gm910.occentmod.sapience.mind_and_traits.occurrence.OccurrenceType;
@@ -48,12 +47,12 @@ public abstract class SapientDeed extends Occurrence {
 
 	@Override
 	public Entity getDoerEntity(ServerWorld worldFrom) {
-		return ServerPos.getEntityFromUUID(this.citizen.getTrueId(), worldFrom.getServer());
+		return citizen.getEntity(worldFrom);
 	}
 
 	@Override
 	public void tick(WorldTickEvent event, long gameTime, long dayTime) {
-		Entity e = ServerPos.getEntityFromUUID(this.citizen.getTrueId(), event.world.getServer());
+		Entity e = this.citizen.getEntity((ServerWorld) event.world);
 		this.position = e.getPositionVector();
 		this.dimension = e.dimension.getId();
 		super.tick(event, gameTime, dayTime);

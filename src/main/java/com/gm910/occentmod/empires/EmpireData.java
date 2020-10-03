@@ -129,6 +129,10 @@ public class EmpireData extends WorldSavedData implements Iterable<Empire> {
 		return deities;
 	}
 
+	public Deity getDeityById(UUID id) {
+		return this.getAllDeities().stream().filter((e) -> e.getUniqueID().equals(id)).findAny().orElse(null);
+	}
+
 	public Set<Empire> getInRadius(DimensionType type, BlockPos anyPos, double maxRadius) {
 		Set<Empire> emps = this.getEmpiresInWorld(type);
 

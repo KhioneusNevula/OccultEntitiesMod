@@ -33,7 +33,8 @@ public class ExploreAndObserveTask extends ImmediateTask<MobEntity> {
 
 	@Override
 	public boolean shouldExecute(ServerWorld worldIn, MobEntity owner) {
-		return !SapientInfo.get(owner).getKnowledge().getValueModule(GMDeserialize.SAPIENT_WALK_TARGET).isPresent();
+		return !SapientInfo.get(owner).getKnowledge().getValueModule(GMDeserialize.SAPIENT_WALK_TARGET, false)
+				.isPresent();
 	}
 
 	protected void startExecuting(ServerWorld worldIn, MobEntity entityIn, long gameTimeIn) {

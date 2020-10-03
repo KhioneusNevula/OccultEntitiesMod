@@ -29,6 +29,16 @@ public class NamePhonemicHelper {
 
 	};
 
+	public static final Phoneme UNKNOWN = new Phoneme("[?]", false) {
+		public boolean isConsonant() {
+			return false;
+		}
+
+		public boolean isVowel() {
+			return false;
+		}
+	};
+
 	public static final Phoneme DASH = new Phoneme("-", false) {
 		public boolean isConsonant() {
 			return false;
@@ -107,6 +117,7 @@ public class NamePhonemicHelper {
 		set.add(Y);
 		set.add(DASH);
 		set.add(SPACE);
+		set.add(UNKNOWN);
 	});
 
 	public static Set<Phoneme> getPhonemes() {
@@ -141,9 +152,9 @@ public class NamePhonemicHelper {
 
 	public static Phoneme getFrom(String name) {
 		Set<Phoneme> ph = new HashSet<>(ALL);
-		Optional<Phoneme> phon = ph.stream().filter((e) -> e.letters.equals(name)).findAny();
+		Optional<Phoneme> phon = ph.stream().filter((e) -> e.letters.equalsIgnoreCase(name)).findAny();
 		if (!phon.isPresent()) {
-			return null;
+			return UNKNOWN;
 		}
 		return phon.get();
 	}
@@ -178,6 +189,9 @@ public class NamePhonemicHelper {
 	}
 
 	public static boolean sameType(String o, String t) {
+		if (getFrom(o) == null || getFrom(t) == null) {
+			throw new IllegalArgumentException("Phonemes " + o + " and " + t + " cannot be obtained!");
+		}
 		return sameType(getFrom(o), getFrom(t));
 	}
 
@@ -345,6 +359,7 @@ public class NamePhonemicHelper {
 							"Unrecognized phoneme : " + c + (areSame ? unified.charAt(i + 1) : ""));
 				}
 				n.add(gotten);
+				i++;
 			}
 			this.name = n;
 		}

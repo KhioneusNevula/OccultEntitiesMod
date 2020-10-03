@@ -115,7 +115,12 @@ public enum PersonalityTrait implements IStringSerializable {
 	 * How likely the citizen is to copy its family's beliefs and opinions<br>
 	 * negative = more likely to reject them
 	 */
-	CONFORMITY("conformity");
+	CONFORMITY("conformity"),
+	/**
+	 * How likely a citizen is to start an empire if there is none where they are,
+	 * or try to get in a governmental position
+	 */
+	AMBITION("ambition");
 	;
 
 	public static enum TraitLevel {

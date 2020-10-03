@@ -1,5 +1,7 @@
 package com.gm910.occentmod.sapience;
 
+import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
+
 import net.minecraft.entity.LivingEntity;
 
 public abstract class EntityDependentInformationHolder<E extends LivingEntity> extends InformationHolder {
@@ -20,7 +22,10 @@ public abstract class EntityDependentInformationHolder<E extends LivingEntity> e
 
 	@Override
 	public long getTicksExisted() {
-		// TODO Auto-generated method stub
 		return entityIn.ticksExisted;
+	}
+
+	public SapientInfo<E> getInfo() {
+		return SapientInfo.get(this.entityIn);
 	}
 }

@@ -2,6 +2,7 @@ package com.gm910.occentmod.sapience.mind_and_traits.memory.memories;
 
 import com.gm910.occentmod.init.GMDeserialize;
 import com.gm910.occentmod.sapience.mind_and_traits.memory.MemoryType;
+import com.gm910.occentmod.sapience.mind_and_traits.task.Necessity;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.types.DynamicOps;
 
@@ -13,9 +14,20 @@ public class MemoryOfSerializable<E, Owner extends LivingEntity> extends Memory<
 
 	private GMDeserialize<E> deserializer;
 
+	private Necessity necessity = Necessity.PREFERABLE;
+
 	public MemoryOfSerializable(Owner owner, GMDeserialize<E> valueClass) {
 		super(owner, MemoryType.SERIALIZABLE);
 		this.deserializer = valueClass;
+	}
+
+	public Necessity getNecessity() {
+		return necessity;
+	}
+
+	public MemoryOfSerializable<E, Owner> setNecessity(Necessity necessity) {
+		this.necessity = necessity;
+		return this;
 	}
 
 	public GMDeserialize<E> getDeserializer() {

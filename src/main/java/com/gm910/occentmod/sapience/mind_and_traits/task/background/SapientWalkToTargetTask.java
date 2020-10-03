@@ -56,21 +56,26 @@ public class SapientWalkToTargetTask extends SapientTask<CreatureEntity> {
 	public SapientWalkToTargetTask(int p_i50356_1_) {
 		super(CreatureEntity.class, ImmutableMap.of(MemoryModuleType.PATH, MemoryModuleStatus.VALUE_ABSENT),
 				p_i50356_1_);
+		this.addContext(Context.BACKGROUND);
 	}
 
 	public boolean shouldExecute(ServerWorld worldIn, CreatureEntity owner) {
 		currentPos = new ServerPos(owner);
 		SapientInfo<? extends CreatureEntity> info = SapientInfo.get(owner);
-		if (!SapientInfo.get(owner).getKnowledge().getValueModule(GMDeserialize.SAPIENT_WALK_TARGET).isPresent())
+		if (!SapientInfo.get(owner).getKnowledge().getValueModule(GMDeserialize.SAPIENT_WALK_TARGET, false).isPresent())
 			return false;
-		SapientWalkTarget walktarget = info.getKnowledge().getValueModule(GMDeserialize.SAPIENT_WALK_TARGET).get();
-		if (!this.hasReachedTarget(owner, walktarget) && this.canMoveToTarget(owner, walktarget, worldIn.getGameTime())
-				&& (hasTheGuts(worldIn, owner, walktarget))) {
-			this.targetPos = walktarget.getTarget().getBlockPos();
-			return true;
+		SapientWalkTarget walktarget = info.getKnowledge().getValueModule(GMDeserialize.SAPIENT_WALK_TARGET, false)
+				.get();
+		if (!this.hasReachedTarget(owner, walktarget)
+				&& this.canMoveToTarget(owner, walktarget, worldIn.getGameTime())) {
+			if ((hasTheGuts(worldIn, owner, walktarget))) {
+				this.targetPos = walktarget.getTarget().getBlockPos();
+				return true;
+			}
+			return false;
 		} else {
 
-			info.getKnowledge().setValueModule(GMDeserialize.SAPIENT_WALK_TARGET, null);
+			info.getKnowledge().setValueModule(GMDeserialize.SAPIENT_WALK_TARGET, (SapientWalkTarget) null);
 			return false;
 		}
 	}
@@ -179,8 +184,8 @@ public class SapientWalkToTargetTask extends SapientTask<CreatureEntity> {
 
 	protected boolean shouldContinueExecuting(ServerWorld worldIn, CreatureEntity entityIn, long gameTimeIn) {
 		if (this.movementPath != null && this.targetPos != null) {
-			Optional<SapientWalkTarget> optional = Optional.ofNullable(
-					SapientInfo.get(entityIn).getKnowledge().getValueModule(GMDeserialize.SAPIENT_WALK_TARGET).get());
+			Optional<SapientWalkTarget> optional = Optional.ofNullable(SapientInfo.get(entityIn).getKnowledge()
+					.getValueModule(GMDeserialize.SAPIENT_WALK_TARGET, false).get());
 			PathNavigator pathnavigator = entityIn.getNavigator();
 			return !pathnavigator.noPath() && optional.isPresent() && this.hasTheGuts(worldIn, entityIn, optional.get())
 					&& !this.hasReachedTarget(entityIn, optional.get());
@@ -191,7 +196,8 @@ public class SapientWalkToTargetTask extends SapientTask<CreatureEntity> {
 
 	protected void resetTask(ServerWorld worldIn, CreatureEntity entityIn, long gameTimeIn) {
 		entityIn.getNavigator().clearPath();
-		SapientInfo.get(entityIn).getKnowledge().setValueModule(GMDeserialize.SAPIENT_WALK_TARGET, null);
+		SapientInfo.get(entityIn).getKnowledge().setValueModule(GMDeserialize.SAPIENT_WALK_TARGET,
+				(SapientWalkTarget) null);
 		entityIn.getBrain().removeMemory(MemoryModuleType.PATH);
 		this.movementPath = null;
 	}
@@ -216,7 +222,7 @@ public class SapientWalkToTargetTask extends SapientTask<CreatureEntity> {
 
 			if (path != null && this.targetPos != null) {
 				SapientWalkTarget walktarget = SapientInfo.get(owner).getKnowledge()
-						.getValueModule(GMDeserialize.SAPIENT_WALK_TARGET).get();
+						.getValueModule(GMDeserialize.SAPIENT_WALK_TARGET, true).get();
 				if (walktarget.getTarget().getBlockPos().distanceSq(this.targetPos) > 4.0D
 						&& this.canMoveToTarget(owner, walktarget, worldIn.getGameTime())) {
 					this.targetPos = walktarget.getTarget().getBlockPos();

@@ -25,6 +25,7 @@ import com.gm910.occentmod.sapience.mind_and_traits.memory.memories.MemoryOfBloc
 import com.gm910.occentmod.sapience.mind_and_traits.memory.memories.MemoryOfSerializable;
 import com.gm910.occentmod.sapience.mind_and_traits.personality.PersonalityTrait;
 import com.gm910.occentmod.sapience.mind_and_traits.relationship.Relationships;
+import com.gm910.occentmod.sapience.mind_and_traits.task.Necessity;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.Dynamic;
@@ -33,7 +34,6 @@ import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.IDynamicSerializable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceContext;
@@ -91,37 +91,49 @@ public class Memories<E extends LivingEntity> extends EntityDependentInformation
 		generateIdeas();
 	}
 
-	public <M extends IDynamicSerializable> MemoryOfSerializable<M, E> getMemoryModule(GMDeserialize<M> type) {
-		return (MemoryOfSerializable<M, E>) this.fixedMemoryModules.get(type);
+	public <M> MemoryOfSerializable<M, E> getMemoryModule(GMDeserialize<M> type, boolean access) {
+		MemoryOfSerializable<M, E> mem = ((MemoryOfSerializable<M, E>) this.fixedMemoryModules.get(type));
+		if (access)
+			mem.access();
+		return mem;
 	}
 
-	public <M extends IDynamicSerializable> MemoryOfSerializable<M, E> setMemoryModule(MemoryOfSerializable<M, E> val) {
+	public <M> MemoryOfSerializable<M, E> setMemoryModule(MemoryOfSerializable<M, E> val) {
 		return (MemoryOfSerializable<M, E>) this.fixedMemoryModules.put(val.getDeserializer(), val);
 	}
 
-	public <M extends IDynamicSerializable> Optional<M> setValueModule(GMDeserialize<M> des, M value) {
-		Optional<M> op = getValueModule(des);
+	public <M> Optional<M> setValueModule(GMDeserialize<M> des, M value) {
+		return this.setValueModule(des, value, Necessity.PREFERABLE);
+	}
+
+	public <M> Optional<M> setValueModule(GMDeserialize<M> des, M value, Necessity necessity) {
+		Optional<M> op = getValueModule(des, false);
 		if (value == null)
 			this.fixedMemoryModules.remove(des);
-		this.setMemoryModule(new MemoryOfSerializable<>(this.getEntityIn(), des, value));
+		this.setMemoryModule(new MemoryOfSerializable<>(this.getEntityIn(), des, value).setNecessity(necessity));
 		return op;
 	}
 
-	public <M extends IDynamicSerializable> Optional<M> setValueModule(@Nonnull M value) {
+	public <M> Optional<M> setValueModule(@Nonnull M value) {
+		return setValueModule(value, Necessity.PREFERABLE);
+	}
+
+	public <M> Optional<M> setValueModule(@Nonnull M value, Necessity necessity) {
 		assert value != null
 				&& GMDeserialize.getFromClass(value.getClass()) != null : "There is no Deserializer registered for "
 						+ value + (value != null ? " with class " + value.getClass() : "");
-		Optional<M> op = (Optional<M>) getValueModule(GMDeserialize.getFromClass(value.getClass()));
+		Optional<M> op = (Optional<M>) getValueModule(GMDeserialize.getFromClass(value.getClass()), false);
 		this.setMemoryModule(new MemoryOfSerializable<>(this.getEntityIn(),
-				(GMDeserialize<M>) GMDeserialize.getFromClass(value.getClass()), value));
+				(GMDeserialize<M>) GMDeserialize.getFromClass(value.getClass()), value).setNecessity(necessity));
 		return op;
 	}
 
-	public <M extends IDynamicSerializable> Optional<M> getValueModule(GMDeserialize<M> type) {
+	public <M> Optional<M> getValueModule(GMDeserialize<M> type, boolean access) {
 
-		return this.fixedMemoryModules.get(type) != null
-				? (Optional<M>) Optional.ofNullable(this.fixedMemoryModules.get(type).getValue())
-				: Optional.empty();
+		return this.fixedMemoryModules.get(type) != null ? (access
+				? (Optional<M>) Optional.ofNullable(
+						((MemoryOfSerializable<M, E>) (this.fixedMemoryModules.get(type).access())).getValue())
+				: (Optional<M>) Optional.ofNullable(this.fixedMemoryModules.get(type).getValue())) : Optional.empty();
 	}
 
 	public void generateIdeas() {
@@ -192,7 +204,9 @@ public class Memories<E extends LivingEntity> extends EntityDependentInformation
 	}
 
 	public void processMemories() {
-		for (Memory<? super E> mem : new HashSet<>(this.knowledge)) {
+		HashSet<Memory<? super E>> mems = new HashSet<>(this.knowledge);
+		mems.addAll(this.fixedMemoryModules.values());
+		for (Memory<? super E> mem : mems) {
 			long existed = mem.getTicksExisted();
 			int accesses = mem.getAccessedTimes();
 			if (mem.memTolerance().floatValue() <= 0 ? false
@@ -263,6 +277,9 @@ public class Memories<E extends LivingEntity> extends EntityDependentInformation
 
 	public void forget(Memory<? super E> mem) {
 		this.knowledge.remove(mem);
+		if (mem instanceof MemoryOfSerializable) {
+			this.fixedMemoryModules.remove(((MemoryOfSerializable<?, ?>) mem).getDeserializer(), mem);
+		}
 		this.forgotten.add(mem);
 	}
 

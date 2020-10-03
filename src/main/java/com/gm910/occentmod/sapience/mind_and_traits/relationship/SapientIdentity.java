@@ -19,6 +19,7 @@ import com.mojang.datafixers.types.DynamicOps;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NBTDynamicOps;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.IDynamicSerializable;
 import net.minecraft.world.server.ServerWorld;
 
@@ -77,6 +78,7 @@ public class SapientIdentity implements IDynamicSerializable {
 		this(cit, trueId);
 		this.name = name;
 		this.genealogy = gen;
+		genealogy.of = this;
 		this.race = race;
 		this.empire = empire;
 	}
@@ -111,8 +113,17 @@ public class SapientIdentity implements IDynamicSerializable {
 		return this;
 	}
 
-	public Entity getEntity(ServerWorld world2) {
-		return (LivingEntity) ServerPos.getEntityFromUUID(this.trueId, world2.getServer());
+	public Entity getEntity(ServerWorld server) {
+
+		return getEntity(server.getServer());
+	}
+
+	public Entity getEntity(MinecraftServer world2) {
+		LivingEntity gotten = (LivingEntity) ServerPos.getEntityFromUUID(this.trueId, world2);
+		if (gotten == null) {
+			gotten = EmpireData.get(world2).getDeityById(this.trueId);
+		}
+		return gotten;
 	}
 
 	public SapientIdentity withName(PhonemeWord name) {

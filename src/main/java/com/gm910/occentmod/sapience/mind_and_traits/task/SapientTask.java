@@ -52,6 +52,7 @@ public abstract class SapientTask<Doer extends LivingEntity> extends Task<Doer> 
 			int durationMinIn, int durationMaxIn) {
 		super(requiredMemoryStateIn, durationMinIn, durationMaxIn);
 		this.delegateMemoryMap.putAll(requiredMemoryStateIn);
+		this.doerType = doerClass;
 	}
 
 	public SapientTask(Class<Doer> doerClass, Map<MemoryModuleType<?>, MemoryModuleStatus> requiredMemoryStateIn) {

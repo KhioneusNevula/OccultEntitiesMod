@@ -2,39 +2,40 @@ package com.gm910.occentmod.empires.gods.citinfo;
 
 import java.util.Set;
 
-import com.gm910.occentmod.empires.gods.Deity;
 import com.gm910.occentmod.sapience.mind_and_traits.needs.Need;
 import com.gm910.occentmod.sapience.mind_and_traits.needs.NeedChecker;
 import com.gm910.occentmod.sapience.mind_and_traits.needs.NeedType;
 import com.gm910.occentmod.sapience.mind_and_traits.needs.Needs;
 import com.google.common.collect.Sets;
 
-public class DeityEmptyNeeds extends Needs<Deity> {
-	public DeityEmptyNeeds(Deity entity) {
+import net.minecraft.entity.LivingEntity;
+
+public class EmptyNeeds<M extends LivingEntity> extends Needs<M> {
+	public EmptyNeeds(M entity) {
 		super(entity);
 	}
 
 	@Override
-	public void addNeed(Need<Deity, ?> need) {
+	public void addNeed(Need<M, ?> need) {
 	}
 
 	@Override
-	public <T> NeedChecker<Deity, T> getChecker(NeedType<Deity, T> type) {
+	public <T> NeedChecker<M, T> getChecker(NeedType<M, T> type) {
 		return null;
 	}
 
 	@Override
-	public Set<Need<Deity, ?>> getNeeds(NeedType<Deity, ?> type) {
+	public Set<Need<M, ?>> getNeeds(NeedType<M, ?> type) {
 		return Sets.newHashSet();
 	}
 
 	@Override
-	public Set<NeedType<Deity, ?>> getNeedTypes() {
+	public Set<NeedType<M, ?>> getNeedTypes() {
 		return Sets.newHashSet();
 	}
 
 	@Override
-	public int getRandomCheckInterval(NeedType<Deity, ?> t) {
+	public int getRandomCheckInterval(NeedType<M, ?> t) {
 		return -1;
 	}
 
@@ -44,21 +45,21 @@ public class DeityEmptyNeeds extends Needs<Deity> {
 	}
 
 	@Override
-	public boolean hasNeed(NeedType<Deity, ?> type) {
+	public boolean hasNeed(NeedType<M, ?> type) {
 		return false;
 	}
 
 	@Override
-	public void newRandomCheckInterval(NeedType<Deity, ?> t) {
+	public void newRandomCheckInterval(NeedType<M, ?> t) {
 	}
 
 	@Override
-	public Needs<Deity> registerNeeds(Set<NeedType<Deity, ?>> needTypes) {
+	public Needs<M> registerNeeds(Set<NeedType<M, ?>> needTypes) {
 		return this;
 	}
 
 	@Override
-	public void removeNeed(Need<Deity, ?> need) {
+	public void removeNeed(Need<M, ?> need) {
 	}
 
 	@Override

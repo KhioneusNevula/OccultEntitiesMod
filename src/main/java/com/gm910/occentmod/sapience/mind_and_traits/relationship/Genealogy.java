@@ -40,6 +40,9 @@ public class Genealogy implements IDynamicSerializable {
 		this.of = of;
 	}
 
+	public Genealogy() {
+	}
+
 	public Genealogy(SapientIdentity of, Dynamic<?> dyn) {
 		this(of, dyn.get("parent1").get().isPresent() ? new SapientIdentity(dyn.get("parent1").get().get()) : null,
 				dyn.get("parent2").get().isPresent() ? new SapientIdentity(dyn.get("parent2").get().get()) : null,

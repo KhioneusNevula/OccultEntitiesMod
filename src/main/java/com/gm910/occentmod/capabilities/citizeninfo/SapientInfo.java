@@ -2,10 +2,14 @@ package com.gm910.occentmod.capabilities.citizeninfo;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import com.gm910.occentmod.OccultEntities;
 import com.gm910.occentmod.capabilities.GMCaps;
 import com.gm910.occentmod.capabilities.IModCapability;
 import com.gm910.occentmod.empires.gods.Deity;
+import com.gm910.occentmod.sapience.InformationHolder;
 import com.gm910.occentmod.sapience.mind_and_traits.emotions.Emotions;
 import com.gm910.occentmod.sapience.mind_and_traits.genetics.Genetics;
 import com.gm910.occentmod.sapience.mind_and_traits.memory.Memories;
@@ -18,9 +22,12 @@ import com.gm910.occentmod.sapience.mind_and_traits.religion.Religion;
 import com.gm910.occentmod.sapience.mind_and_traits.skills.Skills;
 import com.gm910.occentmod.sapience.mind_and_traits.task.Autonomy;
 import com.gm910.occentmod.sapience.mind_and_traits.task.SapientTask;
+import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
@@ -28,6 +35,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.util.IDynamicSerializable;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
@@ -49,6 +57,9 @@ public abstract class SapientInfo<E extends LivingEntity>
 	protected Emotions emotions;
 	protected Skills skills;
 	protected Religion<E> religion;
+	protected GameProfile profile;
+
+	protected Object2IntMap<InformationHolder> tickIntervals = new Object2IntOpenHashMap<>();
 
 	@Override
 	public void $setOwner(E wiz) {
@@ -218,6 +229,95 @@ public abstract class SapientInfo<E extends LivingEntity>
 
 	public PlayerEntity getPlayerDelegate() {
 		return null;
+	}
+
+	public GameProfile getProfile() {
+		return profile;
+	}
+
+	public void runRegularTick(ServerWorld world) {
+		if (this.$getOwner().isAlive() && world.getEntityByUuid(this.$getOwner().getUniqueID()) == this.$getOwner()) {
+			System.out.println("Running sapient info regular tick for " + this.$getOwner());
+			if (this.tickIntervals.getInt(getKnowledge()) == 0) {
+				this.tickIntervals.put(getKnowledge(), 1 + this.$getOwner().getRNG().nextInt(10));
+
+			}
+			if (this.$getOwner().ticksExisted % this.tickIntervals.getInt(getKnowledge()) == 0) {
+				world.getProfiler().startSection("knowledge");
+				this.getKnowledge().update();
+				world.getProfiler().endSection();
+			}
+
+			if (this.tickIntervals.getInt(getPersonality()) == 0) {
+				this.tickIntervals.put(getPersonality(), 1 + this.$getOwner().getRNG().nextInt(10));
+
+			}
+			if (this.$getOwner().ticksExisted % this.tickIntervals.getInt(getPersonality()) == 0) {
+				world.getProfiler().startSection("personality");
+				this.getPersonality().update();
+				world.getProfiler().endSection();
+			}
+
+			if (this.tickIntervals.getInt(getRelationships()) == 0) {
+				this.tickIntervals.put(getRelationships(), 1 + this.$getOwner().getRNG().nextInt(10));
+
+			}
+			if (this.$getOwner().ticksExisted % this.tickIntervals.getInt(getRelationships()) == 0) {
+				world.getProfiler().startSection("relationships");
+				this.getRelationships().update();
+				world.getProfiler().endSection();
+			}
+
+			if (this.tickIntervals.getInt(getAutonomy()) == 0) {
+				this.tickIntervals.put(getAutonomy(), 1 + this.$getOwner().getRNG().nextInt(10));
+
+			}
+			if (this.$getOwner().ticksExisted % this.tickIntervals.getInt(getAutonomy()) == 0) {
+				world.getProfiler().startSection("autonomy");
+				this.getAutonomy().update();
+				world.getProfiler().endSection();
+			}
+
+			if (this.tickIntervals.getInt(getNeeds()) == 0) {
+				this.tickIntervals.put(getNeeds(), 1 + this.$getOwner().getRNG().nextInt(10));
+
+			}
+			if (this.$getOwner().ticksExisted % this.tickIntervals.getInt(getNeeds()) == 0) {
+				world.getProfiler().startSection("needs");
+				this.getNeeds().update();
+				world.getProfiler().endSection();
+			}
+
+			if (this.tickIntervals.getInt(getEmotions()) == 0) {
+				this.tickIntervals.put(getEmotions(), 1 + this.$getOwner().getRNG().nextInt(20));
+
+			}
+			if (this.$getOwner().ticksExisted % this.tickIntervals.getInt(getEmotions()) == 0) {
+				world.getProfiler().startSection("emotions");
+				this.getEmotions().update();
+				world.getProfiler().endSection();
+			}
+			if (this.tickIntervals.getInt(getReligion()) == 0) {
+				this.tickIntervals.put(getReligion(), 1 + this.$getOwner().getRNG().nextInt(20));
+
+			}
+			if (this.$getOwner().ticksExisted % this.tickIntervals.getInt(getReligion()) == 0) {
+				world.getProfiler().startSection("religion");
+				this.getReligion().update();
+				world.getProfiler().endSection();
+			}
+		}
+	}
+
+	public void update(ServerWorld world) {
+		this.runRegularTick(world);
+
+		System.out.println("Sapient tick END of " + this.owner + "" + this);
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
 	}
 
 }

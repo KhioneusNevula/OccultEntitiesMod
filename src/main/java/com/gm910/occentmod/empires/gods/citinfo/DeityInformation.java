@@ -16,6 +16,7 @@ import com.gm910.occentmod.sapience.mind_and_traits.relationship.SapientIdentity
 import com.gm910.occentmod.sapience.mind_and_traits.skills.Skills;
 import com.gm910.occentmod.sapience.mind_and_traits.task.Autonomy;
 import com.google.common.collect.ImmutableMap;
+import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 
@@ -68,11 +69,12 @@ public class DeityInformation extends SapientInfo<Deity> {
 
 	@Override
 	public Needs<Deity> getNeeds() {
-		return new DeityEmptyNeeds(this.$getOwner());
+		return new EmptyNeeds<Deity>(this.$getOwner());
 	}
 
 	@Override
 	public void onCreation() {
+		System.out.println("Begin deity info init");
 		Deity en = this.$getOwner();
 		this.relationships = new Relationships(en);
 		this.identity = new DynamicSapientIdentity(Formshift.get(en).getForm(), en.getUniqueID(),
@@ -82,6 +84,8 @@ public class DeityInformation extends SapientInfo<Deity> {
 		this.knowledge = new Memories<>(en);
 		this.genetics = new Genetics<>(Deity.class);
 		genetics.initGenes(SpiritRace.DEITY, this.$getOwner());
+		this.profile = new GameProfile(this.$getOwner().getUniqueID(), this.getIdentity().getName().toString());
+		System.out.println("End deity info init with " + this.toString());
 	}
 
 }

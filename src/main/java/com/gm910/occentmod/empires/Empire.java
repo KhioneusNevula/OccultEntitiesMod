@@ -1,7 +1,6 @@
 package com.gm910.occentmod.empires;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.gm910.occentmod.api.language.NamePhonemicHelper.PhonemeWord;
+import com.gm910.occentmod.api.networking.messages.Networking;
 import com.gm910.occentmod.api.util.GMHelper;
 import com.gm910.occentmod.api.util.GMNBT;
 import com.gm910.occentmod.api.util.NonNullMap;
@@ -48,27 +48,27 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 
 	private MinecraftServer server = null;
 
-	private Map<DimensionType, LongSet> chunks = new NonNullMap<>(() -> new LongOpenHashBigSet());
+	Map<DimensionType, LongSet> chunks = new NonNullMap<>(() -> new LongOpenHashBigSet());
 
-	private Pair<ChunkPos, DimensionType> center = EMPTY_FLAG;
+	Pair<ChunkPos, DimensionType> center = EMPTY_FLAG;
 
 	private String centerStructureType;
 
-	private Set<UUID> citizens = new HashSet<>();
+	Set<UUID> citizens = new HashSet<>();
 
-	private UUID empireId;
+	UUID empireId;
 
 	private EmpireData data;
 
-	private EnumMap<LeaderType, UUID> leaders = new EnumMap<>(LeaderType.class);
+	private Government government = new Government();
 
 	private Object2DoubleMap<Race> raceWeights = new Object2DoubleOpenHashMap<>();
 
 	private Race favoredRace = Race.MIXED;
 
-	private EmpireName name = EmpireName.EMPTY;
+	EmpireName name = EmpireName.EMPTY;
 
-	private Pantheon pantheon;
+	Pantheon pantheon;
 
 	public static final Pair<ChunkPos, DimensionType> EMPTY_FLAG = new Pair<>(new ChunkPos(0, 0),
 			DimensionType.OVERWORLD);
@@ -176,13 +176,7 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 			list.add(tag);
 		}
 		nbt.put("Conquered", list);
-		nbt.put("Leaders", GMNBT.makeList(leaders.keySet(), (type) -> {
-			CompoundNBT subtag = new CompoundNBT();
-			subtag.putString("Type", type.name());
-			if (leaders.get(type) != null)
-				subtag.putUniqueId("ID", leaders.get(type));
-			return subtag;
-		}));
+		nbt.put("Government", this.government.serialize(NBTDynamicOps.INSTANCE));
 		nbt.put("Pantheon", this.pantheon.serialize(NBTDynamicOps.INSTANCE));
 		nbt.putString("Name", name.writeData());
 		if (center != EMPTY_FLAG) {
@@ -219,15 +213,7 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 			LongOpenHashBigSet set = new LongOpenHashBigSet(tag.getLongArray("Chunks"));
 			return new Pair<>(type, set);
 		});
-		this.leaders = new EnumMap<>(GMNBT.createMap((ListNBT) nbt.get("Leaders"), (inbt) -> {
-			CompoundNBT tag = (CompoundNBT) inbt;
-			LeaderType lead = LeaderType.valueOf(tag.getString("Type"));
-			UUID uu = null;
-			if (tag.contains("ID")) {
-				uu = tag.getUniqueId("ID");
-			}
-			return new Pair<>(lead, uu);
-		}));
+		this.government.deserialize(GMNBT.makeDynamic(nbt.get("Government")));
 		this.pantheon = new Pantheon(this, GMNBT.makeDynamic(nbt.get("Pantheon")));
 		if (!nbt.getBoolean("CenterFlag")) {
 			this.center = new Pair<>(new ChunkPos(nbt.getLong("Center")),
@@ -308,10 +294,12 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 		return this;
 	}
 
-	public LivingEntity getLeader(LeaderType type) {
-		return this.leaders.get(type) != null
-				? (LivingEntity) ServerPos.getEntityFromUUID(this.leaders.get(type), server)
-				: null;
+	public Government getGovernment() {
+		return this.government;
+	}
+
+	public EmpireInfo createInfo() {
+		return new EmpireInfo(this);
 	}
 
 	public Set<LivingEntity> getCitizenEntities() {
@@ -337,6 +325,9 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 			return;
 		if (chunks.get(event.world.dimension.getType()).isEmpty() && !containsCitizen(event.world.dimension.getType()))
 			return;
+		if (event.world.getGameTime() % 20 == 0) {
+			Networking.sendToAll(new TaskSendEmpireToClient(this));
+		}
 	}
 
 	public void blockUpdate(NeighborNotifyEvent event) {
@@ -415,9 +406,5 @@ public class Empire implements INBTSerializable<CompoundNBT> {
 		this.citizens.clear();
 		this.leaders.clear();
 	}*/
-
-	public static enum LeaderType {
-		RULER, ARCHMAGE, ARCHBISHOP, PENDRAGON
-	}
 
 }

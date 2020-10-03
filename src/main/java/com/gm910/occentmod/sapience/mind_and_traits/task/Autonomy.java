@@ -251,6 +251,14 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 		return tasks;
 	}
 
+	public Set<SapientDeed> getActiveDeeds(LivingEntity visibleTo) {
+		return getRunningTasks().stream()
+				.filter((e) -> e instanceof SapientTask && ((SapientTask) e).isVisible(this.getEntityIn(), visibleTo))
+				.map((a) -> ((SapientTask<? extends LivingEntity>) a)
+						.getDeed(SapientInfo.get(this.getEntityIn()).getIdentity()))
+				.collect(Collectors.toSet());
+	}
+
 	public void stopAllTasks(ServerWorld world, E en) {
 		this.getRunningTasks().forEach((m) -> m.stop(world, en, world.getGameTime()));
 	}
@@ -338,14 +346,8 @@ public class Autonomy<E extends LivingEntity> extends EntityDependentInformation
 				if (!citizenO.isPresent())
 					continue;
 				SapientInfo<? extends LivingEntity> citizen = citizenO.orElse(null);
-				Set<SapientTask<? extends LivingEntity>> tasks = citizen.getAutonomy().getRunningTasks().stream()
-						.filter((e) -> e instanceof SapientTask
-								&& ((SapientTask) e).isVisible(citizen.$getOwner(), (LivingEntity) this.getEntityIn()))
-						.map((a) -> (SapientTask<? extends LivingEntity>) a).collect(Collectors.toSet());
-				for (SapientTask<? extends LivingEntity> task : tasks) {
-					SapientDeed deed = task.getDeed(citizen.getIdentity());
-					if (deed == null)
-						continue;
+				Set<SapientDeed> deeds = citizen.getAutonomy().getActiveDeeds(this.getEntityIn());
+				for (SapientDeed deed : deeds) {
 					this.reactToEvent(deed);
 				}
 			}

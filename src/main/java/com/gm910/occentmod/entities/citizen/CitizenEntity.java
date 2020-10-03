@@ -288,6 +288,19 @@ public class CitizenEntity extends AgeableEntity implements INPC {
 
 	@Override
 	protected Brain<?> createBrain(Dynamic<?> dynamicIn) {
+
+		if (MEMORY_TYPES == null)
+			MEMORY_TYPES = ImmutableSet.of(CitizenMemoryAndSensors.VISIBLE_CITIZENS.get(),
+					MemoryModuleType.BREED_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
+					MemoryModuleType.INTERACTION_TARGET, MemoryModuleType.HURT_BY, MemoryModuleType.HURT_BY_ENTITY,
+					MemoryModuleType.INTERACTABLE_DOORS, MemoryModuleType.LAST_SLEPT, MemoryModuleType.LOOK_TARGET,
+					MemoryModuleType.NEAREST_PLAYERS, MemoryModuleType.NEAREST_HOSTILE,
+					MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.PATH, MemoryModuleType.NEAREST_BED,
+					MemoryModuleType.VISIBLE_MOBS);
+		if (SENSOR_TYPES == null)
+			SENSOR_TYPES = ImmutableSet.of(CitizenMemoryAndSensors.NEAREST_CITIZENS.get(),
+					SensorType.INTERACTABLE_DOORS, SensorType.NEAREST_BED, SensorType.NEAREST_BED,
+					SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.HURT_BY);
 		Brain<CitizenEntity> brain = new Brain<>(MEMORY_TYPES, SENSOR_TYPES, dynamicIn);
 		return brain;
 	}

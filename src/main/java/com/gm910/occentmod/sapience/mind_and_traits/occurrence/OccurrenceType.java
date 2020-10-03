@@ -8,6 +8,7 @@ import java.util.function.Function;
 import com.gm910.occentmod.sapience.mind_and_traits.occurrence.deeds.ExistAtLocationDeed;
 import com.gm910.occentmod.sapience.mind_and_traits.occurrence.deeds.MurderDeed;
 import com.gm910.occentmod.sapience.mind_and_traits.occurrence.deeds.NeedFulfilledDeed;
+import com.gm910.occentmod.sapience.mind_and_traits.occurrence.deeds.RightClickAtLocationDeed;
 import com.gm910.occentmod.sapience.mind_and_traits.occurrence.events.DamageOccurrence;
 import com.gm910.occentmod.util.GMFiles;
 import com.mojang.datafixers.Dynamic;
@@ -34,6 +35,8 @@ public class OccurrenceType<T extends Occurrence> {
 
 	public static final OccurrenceType<ExistAtLocationDeed> EXIST_AT_LOCATION = new OccurrenceType<>(
 			GMFiles.rl("exist_at_location"), (e) -> new ExistAtLocationDeed());
+	public static final OccurrenceType<RightClickAtLocationDeed> RIGHT_CLICK_AT_LOCATION = new OccurrenceType<>(
+			GMFiles.rl("right_click_at_location"), (e) -> new RightClickAtLocationDeed());
 
 	private Function<ServerWorld, T> supplier;
 

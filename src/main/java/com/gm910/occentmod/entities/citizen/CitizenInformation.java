@@ -9,7 +9,6 @@ import com.gm910.occentmod.capabilities.citizeninfo.SapientInfo;
 import com.gm910.occentmod.capabilities.formshifting.Formshift;
 import com.gm910.occentmod.empires.Empire;
 import com.gm910.occentmod.empires.EmpireData;
-import com.gm910.occentmod.sapience.InformationHolder;
 import com.gm910.occentmod.sapience.mind_and_traits.emotions.Emotions;
 import com.gm910.occentmod.sapience.mind_and_traits.genetics.Genetics;
 import com.gm910.occentmod.sapience.mind_and_traits.genetics.Race;
@@ -23,26 +22,25 @@ import com.gm910.occentmod.sapience.mind_and_traits.relationship.SapientIdentity
 import com.gm910.occentmod.sapience.mind_and_traits.religion.Religion;
 import com.gm910.occentmod.sapience.mind_and_traits.skills.Skills;
 import com.gm910.occentmod.sapience.mind_and_traits.task.Autonomy;
+import com.gm910.occentmod.sapience.mind_and_traits.task.background.SapientRightClickFromMemory;
 import com.gm910.occentmod.sapience.mind_and_traits.task.background.SapientWalkToTargetTask;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 import com.mojang.datafixers.util.Pair;
 
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.entity.ai.brain.task.InteractWithDoorTask;
 import net.minecraft.entity.ai.brain.task.LookTask;
 import net.minecraft.entity.ai.brain.task.SwimTask;
 import net.minecraft.entity.ai.brain.task.Task;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
 
 public class CitizenInformation<E extends CitizenEntity> extends SapientInfo<E> {
-
-	Object2IntMap<InformationHolder> tickIntervals = new Object2IntOpenHashMap<>();
 
 	public CitizenInformation(E en) {
 		$setOwner(en);
@@ -82,37 +80,70 @@ public class CitizenInformation<E extends CitizenEntity> extends SapientInfo<E> 
 	}
 
 	public void initialize() {
+		System.out.println("Initializing citizen entity info");
+		boolean initPersona = personality == null;
+		boolean initReligion = religion == null;
 
 		if (identity == null) {
 			this.identity = new DynamicSapientIdentity(Formshift.get(this.$getOwner()).getTrueForm(),
 					this.$getOwner().getUniqueID(), (ServerWorld) this.$getOwner().world);
+			System.out.println("Initializing citizen entity identity");
 		}
-		if (personality == null) {
+		if (initPersona) {
 			this.personality = new Personality<>(this.$getOwner());
-			personality.initializeRandomTraits();
+			System.out.println("Initializing citizen entity personality");
 		}
 
-		if (knowledge == null)
+		if (knowledge == null) {
 			this.knowledge = new Memories<>(this.$getOwner());
-		if (relationships == null)
+			System.out.println("Initializing citizen entity memories");
+		}
+		if (relationships == null) {
 			this.relationships = new Relationships(this.$getOwner());
-		if (genetics == null)
+			System.out.println("Initializing citizen entity relationships");
+		}
+		if (genetics == null) {
 			this.genetics = new Genetics<E>((Class<E>) this.$getOwner().getClass());
+			System.out.println("Initializing citizen entity genes");
+		}
 		if (autonomy == null) {
 			this.autonomy = new Autonomy<E>(this.$getOwner());
-			this.autonomy.registerBackgroundTasks(getDefaultBackgroundTasks());
+			System.out.println("Initializing citizen entity autonomy");
 		}
-		if (needs == null)
+		if (needs == null) {
 			this.needs = new Needs<E>(this.$getOwner());
-		if (emotions == null)
-			this.emotions = new Emotions();
-		if (skills == null)
-			this.skills = new Skills();
-		if (religion == null) {
-			this.religion = new Religion<E>(this.getCitizen());
-			religion.initialize();
+
+			System.out.println("Initializing citizen entity needs");
 		}
+		if (emotions == null) {
+			this.emotions = new Emotions();
+			System.out.println("Initializing citizen entity emotions");
+		}
+		if (skills == null) {
+			this.skills = new Skills();
+			System.out.println("Initializing citizen entity skills");
+		}
+		if (initReligion) {
+			this.religion = new Religion<E>(this.getCitizen());
+			System.out.println("Initializing citizen religion");
+		}
+
 		initIdentity((ServerWorld) this.$getOwner().world);
+		if (this.profile == null) {
+
+			this.profile = new GameProfile(this.$getOwner().getUniqueID(), this.getIdentity().getName().toString());
+			System.out.println("Initializing citizen entity profile");
+		}
+		this.autonomy.registerBackgroundTasks(getDefaultBackgroundTasks());
+		System.out.println("Initializing citizen entity default background tasks");
+		if (initPersona) {
+			personality.initializeRandomTraits();
+			System.out.println("Initializing citizen entity personality traits");
+		}
+		if (initReligion) {
+			religion.initialize();
+			System.out.println("Initializing citizen entity religion info");
+		}
 	}
 
 	public void initIdentity(ServerWorld world) {
@@ -121,13 +152,13 @@ public class CitizenInformation<E extends CitizenEntity> extends SapientInfo<E> 
 		this.identity.setName(EmpireData.get(world).giveRandomCitizenName());
 		this.getCitizen().setCustomName(new StringTextComponent(identity.getName().toString()));
 		this.getCitizen().setCustomNameVisible(true);
-		System.out.println(this.identity.getName());
+		System.out.println("citizeninfo name " + this.identity.getName());
 		this.identity.setGenealogy(new Genealogy(identity));
-		System.out.println("owner " + $getOwner());
+		System.out.println("citizeninfo owner " + $getOwner());
 		if ($getOwner() != null) {
-			System.out.println("empdata " + $getOwner().getEmpdata());
+			System.out.println("citizeninfo empdata " + $getOwner().getEmpdata());
 		}
-		System.out.println("world " + world);
+		System.out.println("citizeninfo world " + world);
 
 		Set<Empire> emps = $getOwner().getEmpdata().getInRadius(world.dimension.getType(), $getOwner().getPosition(),
 				20);
@@ -150,7 +181,8 @@ public class CitizenInformation<E extends CitizenEntity> extends SapientInfo<E> 
 	public <F extends CitizenEntity> Set<Pair<Integer, Task<? super F>>> getDefaultBackgroundTasks() {
 		// TODO
 		return ImmutableSet.of(Pair.of(0, new SwimTask(0.4F, 0.8F)), Pair.of(0, new InteractWithDoorTask()),
-				Pair.of(0, new LookTask(45, 90)), Pair.of(1, new SapientWalkToTargetTask(200)));
+				Pair.of(0, new LookTask(45, 90)), Pair.of(1, new SapientWalkToTargetTask(200)),
+				Pair.of(1, new SapientRightClickFromMemory()));
 	}
 
 	public E getCitizen() {
@@ -172,77 +204,6 @@ public class CitizenInformation<E extends CitizenEntity> extends SapientInfo<E> 
 		return ops.createMap(ImmutableMap.copyOf(mapa));
 	}
 
-	public void update(ServerWorld world) {
-		if (this.tickIntervals.getInt(getKnowledge()) == 0) {
-			this.tickIntervals.put(getKnowledge(), 1 + this.getCitizen().getRNG().nextInt(10));
-
-		}
-		if (this.getCitizen().ticksExisted % this.tickIntervals.getInt(getKnowledge()) == 0) {
-			world.getProfiler().startSection("knowledge");
-			this.getKnowledge().update();
-			world.getProfiler().endSection();
-		}
-
-		if (this.tickIntervals.getInt(getPersonality()) == 0) {
-			this.tickIntervals.put(getPersonality(), 1 + this.getCitizen().getRNG().nextInt(10));
-
-		}
-		if (this.getCitizen().ticksExisted % this.tickIntervals.getInt(getPersonality()) == 0) {
-			world.getProfiler().startSection("personality");
-			this.getPersonality().update();
-			world.getProfiler().endSection();
-		}
-
-		if (this.tickIntervals.getInt(getRelationships()) == 0) {
-			this.tickIntervals.put(getRelationships(), 1 + this.getCitizen().getRNG().nextInt(10));
-
-		}
-		if (this.getCitizen().ticksExisted % this.tickIntervals.getInt(getRelationships()) == 0) {
-			world.getProfiler().startSection("relationships");
-			this.getRelationships().update();
-			world.getProfiler().endSection();
-		}
-
-		if (this.tickIntervals.getInt(getAutonomy()) == 0) {
-			this.tickIntervals.put(getAutonomy(), 1 + this.getCitizen().getRNG().nextInt(10));
-
-		}
-		if (this.getCitizen().ticksExisted % this.tickIntervals.getInt(getAutonomy()) == 0) {
-			world.getProfiler().startSection("autonomy");
-			this.getAutonomy().update();
-			world.getProfiler().endSection();
-		}
-
-		if (this.tickIntervals.getInt(getNeeds()) == 0) {
-			this.tickIntervals.put(getNeeds(), 1 + this.getCitizen().getRNG().nextInt(10));
-
-		}
-		if (this.getCitizen().ticksExisted % this.tickIntervals.getInt(getNeeds()) == 0) {
-			world.getProfiler().startSection("needs");
-			this.getNeeds().update();
-			world.getProfiler().endSection();
-		}
-
-		if (this.tickIntervals.getInt(getEmotions()) == 0) {
-			this.tickIntervals.put(getEmotions(), 1 + this.getCitizen().getRNG().nextInt(20));
-
-		}
-		if (this.getCitizen().ticksExisted % this.tickIntervals.getInt(getEmotions()) == 0) {
-			world.getProfiler().startSection("emotions");
-			this.getEmotions().update();
-			world.getProfiler().endSection();
-		}
-		if (this.tickIntervals.getInt(getReligion()) == 0) {
-			this.tickIntervals.put(getReligion(), 1 + this.getCitizen().getRNG().nextInt(20));
-
-		}
-		if (this.getCitizen().ticksExisted % this.tickIntervals.getInt(getReligion()) == 0) {
-			world.getProfiler().startSection("religion");
-			this.getReligion().update();
-			world.getProfiler().endSection();
-		}
-	}
-
 	@Override
 	public IInventory getInventory() {
 		return this.$getOwner().getInventory();
@@ -251,6 +212,11 @@ public class CitizenInformation<E extends CitizenEntity> extends SapientInfo<E> 
 	@Override
 	public void onCreation() {
 		initialize();
+	}
+
+	@Override
+	public PlayerEntity getPlayerDelegate() {
+		return super.getPlayerDelegate();
 	}
 
 }
