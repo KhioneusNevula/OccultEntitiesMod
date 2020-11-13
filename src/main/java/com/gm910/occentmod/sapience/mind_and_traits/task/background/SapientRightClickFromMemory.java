@@ -17,6 +17,7 @@ import com.gm910.occentmod.sapience.mind_and_traits.memory.memories.MemoryOfSeri
 import com.gm910.occentmod.sapience.mind_and_traits.occurrence.OccurrenceEffect.Connotation;
 import com.gm910.occentmod.sapience.mind_and_traits.occurrence.OccurrenceType;
 import com.gm910.occentmod.sapience.mind_and_traits.occurrence.deeds.ExistAtLocationDeed;
+import com.gm910.occentmod.sapience.mind_and_traits.occurrence.deeds.RightClickAtLocationDeed;
 import com.gm910.occentmod.sapience.mind_and_traits.occurrence.deeds.SapientDeed;
 import com.gm910.occentmod.sapience.mind_and_traits.personality.PersonalityTrait;
 import com.gm910.occentmod.sapience.mind_and_traits.personality.PersonalityTrait.TraitLevel;
@@ -51,6 +52,8 @@ import net.minecraftforge.common.util.FakePlayerFactory;
 
 public class SapientRightClickFromMemory extends SapientTask<CreatureEntity> {
 
+	private ServerPos toClick;
+
 	public SapientRightClickFromMemory() {
 		super(CreatureEntity.class, ImmutableMap.of());
 		this.addContext(Context.BACKGROUND);
@@ -67,6 +70,10 @@ public class SapientRightClickFromMemory extends SapientTask<CreatureEntity> {
 						.pow(owner.getAttribute(PlayerEntity.REACH_DISTANCE).getValue(), 2)) {
 			SapientInfo.get(owner).getKnowledge().setValueModule(
 					new SapientWalkTarget(con.getValue().getPos(), owner.getAIMoveSpeed(), 1, con.getNecessity()));
+			return false;
+		}
+		if (b) {
+			this.toClick = new ServerPos(con.getValue().getPos(), owner.world.dimension.getType());
 		}
 		return b;
 	}
@@ -104,12 +111,14 @@ public class SapientRightClickFromMemory extends SapientTask<CreatureEntity> {
 				.getValueModule(GMDeserialize.SAPIENT_WALK_TARGET, false).get());
 		boolean b = optional.isPresent() && this.hasTheGuts(worldIn, entityIn, optional.get());
 		if (optional.isPresent() && !this.hasTheGuts(worldIn, entityIn, optional.get())) {
-
+			return b;
 		}
+
 		return b;
 	}
 
 	protected void resetTask(ServerWorld worldIn, CreatureEntity entityIn, long gameTimeIn) {
+		this.toClick = null;
 	}
 
 	protected void startExecuting(ServerWorld worldIn, CreatureEntity entityIn, long gameTimeIn) {
@@ -191,7 +200,7 @@ public class SapientRightClickFromMemory extends SapientTask<CreatureEntity> {
 
 	@Override
 	public SapientDeed getDeed(SapientIdentity doer) {
-		return null;
+		return new RightClickAtLocationDeed(doer, toClick);
 	}
 
 	@Override

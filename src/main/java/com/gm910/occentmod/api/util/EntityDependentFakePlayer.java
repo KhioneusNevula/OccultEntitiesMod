@@ -525,5 +525,134 @@ public class EntityDependentFakePlayer extends PlayerEntity {
 		return ModReflect.run(Entity.class, int.class, "decreaseAirSupply", "func_70682_h", owner,
 				new Class[] { int.class }, new Object[] { air });
 	}
-
+	/*
+		@Override
+		protected void decrementTimeUntilPortal() {
+			owner.decrementTimeUntilPortal();
+		}
+	
+		@Override
+		protected void destroyVanishingCursedItems() {
+	
+		}
+	
+		@Override
+		protected int determineNextAir(int currentAir) {
+			return owner.determineNextAir(currentAir);
+		}
+	
+		@Override
+		protected float determineNextStepDistance() {
+			return owner.determineNextStepDistance();
+		}
+	
+		@Override
+		public void disableShield(boolean p_190777_1_) {
+	
+		}
+	
+		@Override
+		protected void doBlockCollisions() {
+			owner.doBlockCollisions();
+		}
+	
+		@Override
+		protected void doWaterSplashEffect() {
+			owner.doWaterSplashEffect();
+		}
+	
+		@Override
+		public boolean drop(boolean p_225609_1_) {
+			return false;
+		}
+	
+		@Override
+		public boolean doesEntityNotTriggerPressurePlate() {
+			return owner.doesEntityNotTriggerPressurePlate();
+		}
+	
+		@Override
+		protected void dropExperience() {
+			owner.dropExperience();
+		}
+	
+		@Override
+		protected void dropInventory() {
+			owner.dropInventory();
+		}
+	
+		@Override
+		public ItemEntity dropItem(ItemStack droppedItem, boolean dropAround, boolean traceItem) {
+			return null;
+		}
+	
+		@Override
+		public ItemEntity dropItem(ItemStack itemStackIn, boolean unused) {
+			return null;
+		}
+	
+		@Override
+		protected void dropLoot(DamageSource damageSourceIn, boolean p_213354_2_) {
+			owner.dropLoot(damageSourceIn, p_213354_2_);
+		}
+	
+		@Override
+		protected void dropSpecialItems(DamageSource source, int looting, boolean recentlyHitIn) {
+			owner.dropSpecialItems(source, looting, recentlyHitIn);
+		}
+	
+		@Override
+		public ItemEntity entityDropItem(IItemProvider itemIn) {
+			return owner.entityDropItem(itemIn);
+		}
+	
+		@Override
+		public ItemEntity entityDropItem(IItemProvider itemIn, int offset) {
+			return owner.entityDropItem(itemIn, offset);
+		}
+	
+		@Override
+		public ItemEntity entityDropItem(ItemStack stack) {
+			return owner.entityDropItem(stack);
+		}
+	
+		@Override
+		public ItemEntity entityDropItem(ItemStack stack, float offsetY) {
+			return owner.entityDropItem(stack, offsetY);
+		}
+	
+		@Override
+		public boolean equals(Object p_equals_1_) {
+			return owner.equals(p_equals_1_);
+		}
+	
+		@Override
+		public void extinguish() {
+			owner.extinguish();
+		}
+	
+		@Override
+		public void fillCrashReport(CrashReportCategory category) {
+			super.fillCrashReport(category);
+		}
+	
+		@Override
+		public ItemStack findAmmo(ItemStack shootable) {
+			return owner.findAmmo(shootable);
+		}
+	
+		@Override
+		public void forceSetPosition(double x, double y, double z) {
+			owner.forceSetPosition(x, y, z);
+		}
+	
+		@Override
+		protected void frostWalk(BlockPos pos) {
+			owner.frostWalk(pos);
+		}
+	
+		@Override
+		public float getAbsorptionAmount() {
+			return owner.getAbsorptionAmount();
+		}*/
 }

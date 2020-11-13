@@ -34,9 +34,9 @@ public class RandomInteract extends SapientTask<LivingEntity> {
 					if (!Occurrence.canBeSeenBy(vpos, entityIn)) {
 						continue;
 					}
-					if (worldIn.getBlockState(pos).getBlock()) {
-
-					}
+					SapientInfo<?> info = SapientInfo.get(entityIn);
+					
+					info.getKnowledge().setMemoryModule)
 				}
 			}
 		}
